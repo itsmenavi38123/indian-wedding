@@ -40,8 +40,6 @@ export class PipelineController {
         id: updatedLead.id,
         couple: `${updatedLead.partner1Name}${updatedLead.partner2Name ? ' & ' + updatedLead.partner2Name : ''}`,
         weddingDate: updatedLead.weddingDate?.toISOString() || new Date().toISOString(),
-        budget:
-          updatedLead.budget || Math.floor((updatedLead.budgetMin + updatedLead.budgetMax) / 2),
         stage: updatedLead.status,
         dateInStage: updatedLead.updatedAt.toISOString(),
         assignee: updatedLead.createdBy ? { name: updatedLead.createdBy.name } : undefined,
@@ -177,7 +175,6 @@ export class PipelineController {
         id: lead.id,
         couple: `${lead.partner1Name}${lead.partner2Name ? ' & ' + lead.partner2Name : ''}`,
         weddingDate: lead.weddingDate?.toISOString() || new Date().toISOString(),
-        budget: lead.budget || Math.floor((lead.budgetMin + lead.budgetMax) / 2),
         stage: lead.status, // Using status field directly
         dateInStage: lead.updatedAt.toISOString(),
         assignee: lead.createdBy ? { name: lead.createdBy.name } : undefined,
@@ -235,8 +232,6 @@ export class PipelineController {
         id: updatedLead.id,
         couple: `${updatedLead.partner1Name}${updatedLead.partner2Name ? ' & ' + updatedLead.partner2Name : ''}`,
         weddingDate: updatedLead.weddingDate?.toISOString() || new Date().toISOString(),
-        budget:
-          updatedLead.budget || Math.floor((updatedLead.budgetMin + updatedLead.budgetMax) / 2),
         stage: updatedLead.status, // Using status field
         dateInStage: updatedLead.updatedAt.toISOString(),
         assignee: updatedLead.createdBy ? { name: updatedLead.createdBy.name } : undefined,
@@ -299,8 +294,6 @@ export class PipelineController {
         id: updatedLead.id,
         couple: `${updatedLead.partner1Name}${updatedLead.partner2Name ? ' & ' + updatedLead.partner2Name : ''}`,
         weddingDate: updatedLead.weddingDate?.toISOString() || new Date().toISOString(),
-        budget:
-          updatedLead.budget || Math.floor((updatedLead.budgetMin + updatedLead.budgetMax) / 2),
         stage: updatedLead.status,
         dateInStage: updatedLead.updatedAt.toISOString(),
         assignee: updatedLead.createdBy ? { name: updatedLead.createdBy.name } : undefined,
