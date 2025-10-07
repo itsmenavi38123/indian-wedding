@@ -1,0 +1,523 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  PLANNER
+  USER
+  VENDOR
+}
+
+enum LeadStatus {
+  INQUIRY
+  PROPOSAL
+  BOOKED
+  COMPLETED
+}
+
+enum LeadSource {
+  WEBSITE
+  INSTAGRAM
+  REFERRAL
+  WEDDING_FAIR
+  OTHER
+}
+
+enum SaveStatus {
+  DRAFT
+  SUBMITTED
+  ARCHIVED
+}
+
+// RSVP Enums
+enum RSVPStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+  WAITLIST
+}
+
+enum CardStatus {
+  INQUIRY
+  PROPOSAL
+  BOOKED
+  COMPLETED
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+}
+
+enum PackageCategory {
+  BASIC
+  STANDARD
+  PREMIUM
+  LUXURY
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  THUMBNAIL
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  countryCode  String?
+  phone        String?  @unique
+  role         UserRole @default(ADMIN)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  resetTokens  PasswordResetToken[]
+  refreshToken String?
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  otp       String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // relation discriminator
+  type TokenOwnerType
+
+  // foreign keys (only one will be used depending on type)
+  adminId  String?
+  userId   String?
+  vendorId String?
+
+  // relations
+  admin  Admin?  @relation(fields: [adminId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
+  vendor Vendor? @relation(fields: [vendorId], references: [id])
+}
+
+enum TokenOwnerType {
+  ADMIN
+  USER
+  VENDOR
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  phone         String?   @unique
+  password      String
+  role          UserRole? @default(USER)
+  isActive      Boolean   @default(true)
+  leadsAssigned Lead[]    @relation("AssignedLeads")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  resetTokens  PasswordResetToken[]
+  refreshToken String?
+}
+
+model Lead {
+  id                              String      @id @default(uuid())
+  title                           String?
+  description                     String?
+  partner1Name                    String
+  partner2Name                    String?
+  primaryContact                  String
+  phoneNumber                     String
+  whatsappNumber                  String?
+  whatsappNumberSameAsPhoneNumber Boolean     @default(false)
+  email                           String
+  weddingDate                     DateTime?
+  flexibleDates                   Boolean     @default(false)
+  guestCountMin                   Int?
+  guestCountMax                   Int?
+  budgetMin                       BigInt
+  budgetMax                       BigInt
+  preferredLocations              String[]
+  leadSource                      LeadSource? @default(OTHER)
+  referralDetails                 String?
+  serviceTypes                    String?
+  initialNotes                    String?
+  status                          LeadStatus  @default(INQUIRY)
+  saveStatus                      SaveStatus  @default(DRAFT)
+  createdAt                       DateTime    @default(now())
+  updatedAt                       DateTime    @updatedAt
+
+  stage  String  @default("Inquiry") // Inquiry | Proposal | Booked | Completed
+  budget BigInt?
+
+  // Assigned user
+  createdById String?
+  createdBy   User?   @relation("AssignedLeads", fields: [createdById], references: [id])
+
+  // Back-relations
+  proposals    Proposal[]
+  contracts    Contract[]
+  payments     Payment[]
+  cards        Card[] // Cards created for Vendor from this lead
+  rsvpWebsites RSVPWebsite[]
+}
+
+model Proposal {
+  id            String         @id @default(uuid())
+  leadId        String
+  lead          Lead           @relation(fields: [leadId], references: [id])
+  reference     String         @unique
+  title         String
+  template      String // classic | modern | traditional | scratch
+  companyName   String
+  logoUrl       String?
+  dateISO       String
+  clientName    String
+  clientEmail   String?
+  clientPhone   String?
+  clientAddress String?
+  introHTML     String         @db.Text
+  termsText     String         @db.Text
+  paymentTerms  String
+  taxesPercent  Float          @default(18)
+  discount      Float          @default(0)
+  subtotal      Float          @default(0)
+  grandTotal    Float          @default(0)
+  status        ProposalStatus @default(DRAFT)
+  sentAt        DateTime?
+  viewedAt      DateTime?
+  acceptedAt    DateTime?
+  rejectedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  services    ProposalService[]
+  customLines ProposalCustomLine[]
+  versions    ProposalVersion[]
+}
+
+model ProposalService {
+  id          String   @id @default(uuid())
+  proposalId  String
+  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  quantity    Int      @default(1)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model ProposalCustomLine {
+  id         String   @id @default(uuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  label      String
+  unitPrice  Float
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+}
+
+model ProposalVersion {
+  id         String   @id @default(uuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  snapshot   Json // Full proposal state snapshot
+  createdAt  DateTime @default(now())
+}
+
+model ProposalTemplate {
+  id          String   @id @default(uuid())
+  templateId  String   @unique // classic, modern, traditional, scratch, or custom IDs
+  name        String
+  description String?
+  introHTML   String   @db.Text
+  termsText   String   @db.Text
+  isActive    Boolean  @default(true)
+  isSystem    Boolean  @default(false) // true for default templates, false for custom
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  defaultServices ProposalTemplateService[]
+}
+
+model ProposalTemplateService {
+  id          String           @id @default(uuid())
+  templateId  String
+  template    ProposalTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  order       Int              @default(0)
+  createdAt   DateTime         @default(now())
+}
+
+model Contract {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  title     String
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  amount    Int
+  currency  String   @default("INR")
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model Card {
+  id             String     @id @default(uuid())
+  vendorId       String
+  vendor         Vendor     @relation(fields: [vendorId], references: [id])
+  originalLeadId String?
+  originalLead   Lead?      @relation(fields: [originalLeadId], references: [id])
+  cardTeams      CardTeam[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model CardTeam {
+  cardId     String
+  teamId     String
+  assignedAt DateTime @default(now())
+
+  card Card @relation(fields: [cardId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@id([cardId, teamId])
+}
+
+model WeddingPackage {
+  id          String          @id @default(uuid())
+  name        String
+  description String
+  totalPrice  Float
+  category    PackageCategory
+  isActive    Boolean         @default(true)
+  isSystem    Boolean         @default(true) // true for default packages, false for custom
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  services WeddingPackageService[]
+}
+
+model WeddingPackageService {
+  id          String         @id @default(uuid())
+  packageId   String
+  package     WeddingPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+}
+
+// Vendor models starting here >>>>>>>>>>>>>>>>>>>>>>>>>
+model Vendor {
+  id             String               @id @default(uuid())
+  name           String
+  email          String               @unique
+  password       String
+  contactNo      String
+  countryCode    String
+  serviceTypes   String
+  minimumAmount  Float                @default(0)
+  maximumAmount  Float                @default(0)
+  role           UserRole?            @default(VENDOR)
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @default(now())
+  cards          Card[]
+  teams          Team[] // Vendor can have multiple teams
+  teamMembers    TeamMember[]
+  vendorServices VendorService[]
+  resetTokens    PasswordResetToken[]
+  refreshToken   String?
+}
+
+model Team {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  vendorId    String
+  vendor      Vendor  @relation(fields: [vendorId], references: [id])
+
+  cardTeams   CardTeam[]
+  teamMembers TeamMemberOnTeam[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model TeamMember {
+  id        String             @id @default(uuid())
+  name      String
+  role      String? // e.g., Photographer, Caterer
+  avatar    String? // URL or base64
+  email     String?
+  phone     String?
+  vendorId  String
+  vendor    Vendor             @relation(fields: [vendorId], references: [id])
+  teams     TeamMemberOnTeam[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model TeamMemberOnTeam {
+  id           String     @id @default(uuid())
+  teamId       String
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamMemberId String
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  assignedAt   DateTime   @default(now())
+
+  @@unique([teamId, teamMemberId])
+}
+
+model homepage_sections {
+  id          Int      @id @default(autoincrement())
+  section_key String   @unique
+  content     Json
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model VendorService {
+  id          String    @id @default(uuid())
+  vendorId    String
+  vendor      Vendor    @relation(fields: [vendorId], references: [id])
+  title       String
+  description String?
+  category    String
+  price       Float
+  locationId  String?
+  location    Location? @relation(fields: [locationId], references: [id])
+  country     String
+  state       String?
+  city        String?
+  name        String?
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  media             VendorServiceMedia[]
+  destinationPhotos DestinationPhoto[]
+  thumbnailId       String?              @unique
+
+  thumbnail VendorServiceMedia? @relation("ThumbnailRelation", fields: [thumbnailId], references: [id])
+}
+
+model VendorServiceMedia {
+  id              String         @id @default(uuid())
+  vendorServiceId String
+  vendorService   VendorService  @relation(fields: [vendorServiceId], references: [id], onDelete: Cascade)
+  type            MediaType
+  url             String
+  createdAt       DateTime       @default(now())
+  thumbnailOf     VendorService? @relation("ThumbnailRelation")
+
+  @@unique([vendorServiceId, url])
+}
+
+model Destination {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  country     String
+  baseCostMin Int
+  baseCostMax Int
+  heroImage   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  photos DestinationPhoto[]
+}
+
+model DestinationPhoto {
+  id              String         @id @default(uuid())
+  destinationId   String
+  destination     Destination    @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  url             String
+  category        String? // venue, decor, ceremony, reception
+  vendorServiceId String?
+  vendorService   VendorService? @relation(fields: [vendorServiceId], references: [id])
+  createdAt       DateTime       @default(now())
+  Location        Location?      @relation(fields: [locationId], references: [id])
+  locationId      String?
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  country   String
+  state     String?
+  city      String?
+  name      String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorServices    VendorService[]
+  rsvpWebsites      RSVPWebsite[]
+  destinationPhotos DestinationPhoto[]
+
+  @@unique([name, state, country])
+}
+
+// ===== RSVP Website =====
+model RSVPWebsite {
+  id          String   @id @default(uuid())
+  leadId      String?
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+  slug        String   @unique
+  title       String
+  description String?
+  theme       String? // minimal theming info
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+
+  events RSVPEvent[]
+  guests RSVPGuest[]
+}
+
+model RSVPEvent {
+  id            String      @id @default(uuid())
+  rsvpWebsiteId String
+  website       RSVPWebsite @relation(fields: [rsvpWebsiteId], references: [id], onDelete: Cascade)
+  name          String
+  dateTime      DateTime
+  location      String?
+  notes         String?
+}
+
+model RSVPGuest {
+  id            String      @id @default(uuid())
+  rsvpWebsiteId String
+  website       RSVPWebsite @relation(fields: [rsvpWebsiteId], references: [id], onDelete: Cascade)
+  name          String
+  email         String?
+  phone         String?
+  status        RSVPStatus  @default(INVITED)
+  inviteCode    String?     @unique
+  partySize     Int         @default(1)
+  notes         String?
+  createdAt     DateTime    @default(now())
+}

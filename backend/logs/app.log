@@ -1,0 +1,900 @@
+2025-09-19T10:51:42.376Z [INFO]: Server listening on port: 3001
+2025-09-19T10:54:13.591Z [INFO]: Server listening on port: 3001
+2025-09-19T11:15:30.274Z [INFO]: Server listening on port: 3001
+2025-09-19T11:18:47.201Z [INFO]: Lead created: 58a390c1-2810-442b-8e46-6b9b729f44bf - Starting vendor matching process
+2025-09-19T11:26:35.271Z [INFO]: Server listening on port: 3001
+2025-09-19T11:26:38.239Z [INFO]: Server listening on port: 3001
+2025-09-19T11:26:45.790Z [INFO]: Server listening on port: 3001
+2025-09-19T11:59:13.248Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T11:59:14.281Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T11:59:16.288Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T11:59:20.304Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:02:33.179Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:02:34.397Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:02:36.415Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:02:40.443Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:07:16.824Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:21:16.592Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:21:24.426Z [INFO]: Server listening on port: 3001
+2025-09-19T12:21:26.932Z [INFO]: Server listening on port: 3001
+2025-09-19T12:21:39.042Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:21:41.066Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:21:45.092Z [ERROR]: Error fetching kanban boards: Do not know how to serialize a BigInt
+2025-09-19T12:21:53.409Z [INFO]: Server listening on port: 3001
+2025-09-19T12:22:22.124Z [INFO]: Server listening on port: 3001
+2025-09-19T12:22:25.335Z [INFO]: Server listening on port: 3001
+2025-09-19T12:22:36.780Z [ERROR]: Error updating card status: Do not know how to serialize a BigInt
+2025-09-19T12:24:41.707Z [INFO]: Server listening on port: 3001
+2025-09-19T12:24:47.752Z [INFO]: Server listening on port: 3001
+2025-09-19T12:26:34.954Z [INFO]: Server listening on port: 3001
+2025-09-19T12:26:43.131Z [INFO]: Server listening on port: 3001
+2025-09-19T12:26:45.786Z [INFO]: Server listening on port: 3001
+2025-09-19T12:27:40.442Z [ERROR]: Error updating card status: Do not know how to serialize a BigInt
+2025-09-19T12:32:57.289Z [INFO]: Server listening on port: 3001
+2025-09-19T12:33:36.625Z [INFO]: Server listening on port: 3001
+2025-09-19T12:35:06.090Z [INFO]: Server listening on port: 3001
+2025-09-19T12:42:55.521Z [INFO]: Server listening on port: 3001
+2025-09-19T12:43:10.575Z [INFO]: Server listening on port: 3001
+2025-09-19T12:44:19.892Z [INFO]: Server listening on port: 3001
+2025-09-19T13:46:36.260Z [INFO]: Server listening on port: 3001
+2025-09-19T13:46:49.551Z [INFO]: Server listening on port: 3001
+2025-09-19T14:17:41.515Z [INFO]: Server listening on port: 3001
+2025-09-19T14:19:22.439Z [INFO]: Server listening on port: 3001
+2025-09-19T14:19:33.645Z [INFO]: Server listening on port: 3001
+2025-09-19T14:20:03.928Z [INFO]: Server listening on port: 3001
+2025-09-19T14:20:21.073Z [INFO]: Server listening on port: 3001
+2025-09-19T14:26:50.690Z [INFO]: Lead created: be991cd6-eab5-45f9-ad1a-24001f1b0fb3 - Starting vendor matching process
+2025-09-22T05:42:35.537Z [INFO]: Server listening on port: 3001
+2025-09-22T05:45:37.113Z [INFO]: Lead created: ee67f48c-77de-4ab6-bea7-ab6dc8a63ec3 - Starting vendor matching process
+2025-09-22T08:20:23.030Z [INFO]: Server listening on port: 3001
+2025-09-22T08:20:27.937Z [INFO]: Server listening on port: 3001
+2025-09-22T08:20:59.978Z [INFO]: Server listening on port: 3001
+2025-09-22T09:03:30.817Z [INFO]: Server listening on port: 3001
+2025-09-22T09:03:39.825Z [INFO]: Server listening on port: 3001
+2025-09-22T09:03:53.552Z [INFO]: Server listening on port: 3001
+2025-09-22T09:03:54.845Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:04.701Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:10.896Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:18.509Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:28.581Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:30.870Z [INFO]: Server listening on port: 3001
+2025-09-22T09:04:41.295Z [INFO]: Server listening on port: 3001
+2025-09-22T09:09:52.458Z [INFO]: Server listening on port: 3001
+2025-09-22T09:09:55.316Z [INFO]: Server listening on port: 3001
+2025-09-22T09:12:59.356Z [INFO]: Server listening on port: 3001
+2025-09-22T09:13:02.601Z [INFO]: Server listening on port: 3001
+2025-09-22T09:13:18.815Z [INFO]: Server listening on port: 3001
+2025-09-22T09:13:27.135Z [INFO]: Server listening on port: 3001
+2025-09-22T09:13:51.496Z [INFO]: Server listening on port: 3001
+2025-09-22T09:14:05.563Z [INFO]: Server listening on port: 3001
+2025-09-22T09:14:36.052Z [INFO]: Server listening on port: 3001
+2025-09-22T09:14:38.549Z [INFO]: Server listening on port: 3001
+2025-09-22T09:14:41.224Z [INFO]: Server listening on port: 3001
+2025-09-22T09:14:46.450Z [INFO]: Server listening on port: 3001
+2025-09-22T09:15:26.085Z [INFO]: Server listening on port: 3001
+2025-09-22T09:15:38.307Z [INFO]: Server listening on port: 3001
+2025-09-22T09:15:42.135Z [INFO]: Server listening on port: 3001
+2025-09-22T09:16:02.253Z [INFO]: Server listening on port: 3001
+2025-09-22T09:20:08.932Z [INFO]: Server listening on port: 3001
+2025-09-22T09:34:30.021Z [INFO]: Server listening on port: 3001
+2025-09-22T09:34:32.132Z [INFO]: Server listening on port: 3001
+2025-09-22T09:34:38.520Z [INFO]: Server listening on port: 3001
+2025-09-22T09:36:32.011Z [INFO]: Server listening on port: 3001
+2025-09-22T09:36:41.782Z [INFO]: Server listening on port: 3001
+2025-09-22T09:36:46.859Z [INFO]: Server listening on port: 3001
+2025-09-22T09:37:22.308Z [INFO]: Server listening on port: 3001
+2025-09-22T09:37:25.102Z [INFO]: Server listening on port: 3001
+2025-09-22T09:38:05.366Z [INFO]: Server listening on port: 3001
+2025-09-22T09:38:22.194Z [INFO]: Server listening on port: 3001
+2025-09-22T09:38:59.300Z [INFO]: Server listening on port: 3001
+2025-09-22T09:39:01.797Z [INFO]: Server listening on port: 3001
+2025-09-22T09:39:09.698Z [INFO]: Server listening on port: 3001
+2025-09-22T09:39:39.768Z [INFO]: Server listening on port: 3001
+2025-09-22T09:39:47.563Z [INFO]: Server listening on port: 3001
+2025-09-22T09:40:00.147Z [INFO]: Server listening on port: 3001
+2025-09-22T09:40:02.934Z [INFO]: Server listening on port: 3001
+2025-09-22T09:40:11.488Z [INFO]: Server listening on port: 3001
+2025-09-22T09:40:42.553Z [INFO]: Server listening on port: 3001
+2025-09-22T09:40:49.078Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:01.907Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:15.971Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:21.538Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:26.346Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:28.143Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:43.352Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:51.222Z [INFO]: Server listening on port: 3001
+2025-09-22T09:41:56.329Z [INFO]: Server listening on port: 3001
+2025-09-22T09:42:09.425Z [INFO]: Server listening on port: 3001
+2025-09-22T09:42:20.456Z [INFO]: Server listening on port: 3001
+2025-09-22T09:42:49.933Z [INFO]: Server listening on port: 3001
+2025-09-22T09:46:55.888Z [INFO]: Server listening on port: 3001
+2025-09-22T09:48:40.329Z [INFO]: Server listening on port: 3001
+2025-09-22T09:48:49.207Z [INFO]: Server listening on port: 3001
+2025-09-22T09:49:01.145Z [INFO]: Server listening on port: 3001
+2025-09-22T09:49:01.859Z [INFO]: Server listening on port: 3001
+2025-09-22T09:51:00.070Z [INFO]: Server listening on port: 3001
+2025-09-22T09:51:05.847Z [INFO]: Server listening on port: 3001
+2025-09-22T09:51:37.327Z [INFO]: Server listening on port: 3001
+2025-09-22T09:53:01.459Z [INFO]: Server listening on port: 3001
+2025-09-22T09:53:03.800Z [INFO]: Server listening on port: 3001
+2025-09-22T10:05:36.464Z [INFO]: Server listening on port: 3001
+2025-09-22T10:05:48.194Z [INFO]: Server listening on port: 3001
+2025-09-22T10:05:54.685Z [INFO]: Server listening on port: 3001
+2025-09-22T10:06:26.582Z [INFO]: Server listening on port: 3001
+2025-09-22T10:07:19.297Z [INFO]: Server listening on port: 3001
+2025-09-22T10:07:26.007Z [INFO]: Server listening on port: 3001
+2025-09-22T10:08:24.836Z [INFO]: Server listening on port: 3001
+2025-09-22T10:09:01.110Z [INFO]: Server listening on port: 3001
+2025-09-22T10:09:16.992Z [INFO]: Server listening on port: 3001
+2025-09-22T10:09:38.439Z [INFO]: Server listening on port: 3001
+2025-09-22T10:09:40.865Z [INFO]: Server listening on port: 3001
+2025-09-22T10:09:47.988Z [INFO]: Server listening on port: 3001
+2025-09-22T10:11:25.415Z [INFO]: Server listening on port: 3001
+2025-09-22T10:11:29.958Z [INFO]: Server listening on port: 3001
+2025-09-22T10:12:00.826Z [INFO]: Server listening on port: 3001
+2025-09-22T10:12:36.687Z [INFO]: Server listening on port: 3001
+2025-09-22T10:12:39.704Z [INFO]: Server listening on port: 3001
+2025-09-22T10:13:14.554Z [INFO]: Server listening on port: 3001
+2025-09-22T10:13:17.439Z [INFO]: Server listening on port: 3001
+2025-09-22T10:13:29.358Z [INFO]: Server listening on port: 3001
+2025-09-22T10:13:49.486Z [INFO]: Server listening on port: 3001
+2025-09-22T10:14:16.780Z [INFO]: Server listening on port: 3001
+2025-09-22T10:14:26.934Z [INFO]: Server listening on port: 3001
+2025-09-22T10:14:36.726Z [INFO]: Server listening on port: 3001
+2025-09-22T10:15:01.859Z [INFO]: Server listening on port: 3001
+2025-09-22T10:15:05.094Z [INFO]: Server listening on port: 3001
+2025-09-22T10:15:06.819Z [INFO]: Server listening on port: 3001
+2025-09-22T10:28:26.641Z [INFO]: Server listening on port: 3001
+2025-09-22T10:28:36.552Z [INFO]: Server listening on port: 3001
+2025-09-22T10:29:07.976Z [INFO]: Server listening on port: 3001
+2025-09-22T10:29:46.683Z [INFO]: Server listening on port: 3001
+2025-09-22T10:29:54.808Z [INFO]: Server listening on port: 3001
+2025-09-22T10:30:30.871Z [INFO]: Server listening on port: 3001
+2025-09-22T10:30:40.505Z [INFO]: Server listening on port: 3001
+2025-09-22T10:31:04.759Z [INFO]: Server listening on port: 3001
+2025-09-22T10:31:56.005Z [INFO]: Server listening on port: 3001
+2025-09-22T10:33:32.642Z [INFO]: Server listening on port: 3001
+2025-09-22T10:33:33.789Z [INFO]: Server listening on port: 3001
+2025-09-22T10:34:07.691Z [INFO]: Server listening on port: 3001
+2025-09-22T10:34:15.263Z [INFO]: Server listening on port: 3001
+2025-09-22T10:34:16.318Z [INFO]: Server listening on port: 3001
+2025-09-22T11:15:56.304Z [INFO]: Server listening on port: 3001
+2025-09-22T11:16:08.682Z [INFO]: Server listening on port: 3001
+2025-09-22T11:16:16.187Z [INFO]: Server listening on port: 3001
+2025-09-22T11:16:18.332Z [INFO]: Server listening on port: 3001
+2025-09-22T11:16:31.230Z [INFO]: Server listening on port: 3001
+2025-09-22T11:16:35.675Z [INFO]: Server listening on port: 3001
+2025-09-22T11:17:15.972Z [INFO]: Server listening on port: 3001
+2025-09-22T11:17:22.267Z [INFO]: Server listening on port: 3001
+2025-09-22T11:17:29.566Z [INFO]: Server listening on port: 3001
+2025-09-22T11:17:46.316Z [INFO]: Server listening on port: 3001
+2025-09-22T11:17:58.592Z [INFO]: Server listening on port: 3001
+2025-09-22T11:18:02.548Z [INFO]: Server listening on port: 3001
+2025-09-22T11:18:09.659Z [INFO]: Server listening on port: 3001
+2025-09-22T11:18:14.747Z [INFO]: Server listening on port: 3001
+2025-09-22T11:18:33.280Z [INFO]: Server listening on port: 3001
+2025-09-22T11:57:43.320Z [INFO]: Lead created: a636f682-74be-4ab4-b4df-94494e3fdad7 - Starting vendor matching process
+2025-09-22T11:59:42.629Z [INFO]: Lead created: d20a15c8-950d-4831-9ad2-76512cb824d8 - Starting vendor matching process
+2025-09-22T12:05:18.544Z [INFO]: Lead created: 4f334cd4-f91e-4f1d-b931-25a17bde81f1 - Starting vendor matching process
+2025-09-22T12:06:58.631Z [INFO]: Server listening on port: 3001
+2025-09-22T12:07:01.519Z [INFO]: Server listening on port: 3001
+2025-09-22T12:07:02.749Z [INFO]: Server listening on port: 3001
+2025-09-22T12:07:55.256Z [INFO]: Server listening on port: 3001
+2025-09-22T12:07:57.155Z [INFO]: Server listening on port: 3001
+2025-09-23T09:48:43.216Z [INFO]: Server listening on port: 3001
+2025-09-23T10:09:06.554Z [INFO]: Server listening on port: 3001
+2025-09-23T10:09:11.432Z [INFO]: Server listening on port: 3001
+2025-09-23T10:36:37.913Z [INFO]: Server listening on port: 3001
+2025-09-23T10:37:00.866Z [INFO]: Server listening on port: 3001
+2025-09-23T10:37:04.586Z [INFO]: Server listening on port: 3001
+2025-09-23T11:55:49.644Z [INFO]: Server listening on port: 3001
+2025-09-23T12:14:54.431Z [INFO]: Server listening on port: 3001
+2025-09-23T12:43:23.567Z [INFO]: Server listening on port: 3001
+2025-09-23T12:50:06.308Z [ERROR]: Error fetching kanban boards: 
+Invalid `prisma.lead.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/leads.controller.ts:124:39
+
+  121   return new Date(year, month - 1, day); // local time
+  122 };
+  123   
+→ 124 const leads = await prisma.lead.findMany({
+        where: {
+          saveStatus: {
+            not: "ARCHIVED"
+          },
+          weddingDate: {
+            gte: new Date("Invalid Date"),
+                 ~~~~~~~~~~~~~~~~~~~~~~~~
+            lte: new Date("Invalid Date")
+          }
+        },
+        include: {
+          createdBy: true
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      })
+
+Invalid value for argument `gte`: Provided Date object is invalid. Expected Date.
+2025-09-23T12:50:07.320Z [ERROR]: Error fetching kanban boards: 
+Invalid `prisma.lead.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/leads.controller.ts:124:39
+
+  121   return new Date(year, month - 1, day); // local time
+  122 };
+  123   
+→ 124 const leads = await prisma.lead.findMany({
+        where: {
+          saveStatus: {
+            not: "ARCHIVED"
+          },
+          weddingDate: {
+            gte: new Date("Invalid Date"),
+                 ~~~~~~~~~~~~~~~~~~~~~~~~
+            lte: new Date("Invalid Date")
+          }
+        },
+        include: {
+          createdBy: true
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      })
+
+Invalid value for argument `gte`: Provided Date object is invalid. Expected Date.
+2025-09-23T12:50:09.334Z [ERROR]: Error fetching kanban boards: 
+Invalid `prisma.lead.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/leads.controller.ts:124:39
+
+  121   return new Date(year, month - 1, day); // local time
+  122 };
+  123   
+→ 124 const leads = await prisma.lead.findMany({
+        where: {
+          saveStatus: {
+            not: "ARCHIVED"
+          },
+          weddingDate: {
+            gte: new Date("Invalid Date"),
+                 ~~~~~~~~~~~~~~~~~~~~~~~~
+            lte: new Date("Invalid Date")
+          }
+        },
+        include: {
+          createdBy: true
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      })
+
+Invalid value for argument `gte`: Provided Date object is invalid. Expected Date.
+2025-09-23T12:50:13.735Z [INFO]: Server listening on port: 3001
+2025-09-23T12:51:17.969Z [INFO]: Server listening on port: 3001
+2025-09-23T13:03:16.593Z [INFO]: Server listening on port: 3001
+2025-09-23T13:05:53.558Z [INFO]: Server listening on port: 3001
+2025-09-23T13:08:14.568Z [INFO]: Server listening on port: 3001
+2025-09-23T13:08:17.397Z [INFO]: Server listening on port: 3001
+2025-09-23T13:08:19.448Z [INFO]: Server listening on port: 3001
+2025-09-23T13:09:00.439Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:05.795Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:09.242Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:16.441Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:31.236Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:33.882Z [INFO]: Server listening on port: 3001
+2025-09-23T13:18:39.314Z [INFO]: Server listening on port: 3001
+2025-09-23T13:21:17.807Z [INFO]: Server listening on port: 3001
+2025-09-23T13:21:46.844Z [INFO]: Server listening on port: 3001
+2025-09-23T13:26:56.832Z [INFO]: Server listening on port: 3001
+2025-09-23T13:27:02.594Z [INFO]: Server listening on port: 3001
+2025-09-23T13:27:05.056Z [INFO]: Server listening on port: 3001
+2025-09-23T13:28:55.216Z [INFO]: Server listening on port: 3001
+2025-09-23T13:29:32.009Z [INFO]: Server listening on port: 3001
+2025-09-23T13:30:11.448Z [INFO]: Server listening on port: 3001
+2025-09-23T13:30:44.073Z [INFO]: Server listening on port: 3001
+2025-09-23T13:31:01.949Z [INFO]: Server listening on port: 3001
+2025-09-23T13:31:17.815Z [INFO]: Server listening on port: 3001
+2025-09-23T14:02:13.327Z [INFO]: Server listening on port: 3001
+2025-09-23T14:02:35.320Z [INFO]: Server listening on port: 3001
+2025-09-24T05:08:55.651Z [INFO]: Server listening on port: 3001
+2025-09-24T05:48:26.482Z [INFO]: Server listening on port: 3001
+2025-09-24T05:48:30.297Z [INFO]: Server listening on port: 3001
+2025-09-24T05:48:33.131Z [INFO]: Server listening on port: 3001
+2025-09-24T05:49:21.749Z [INFO]: Server listening on port: 3001
+2025-09-24T07:16:06.106Z [INFO]: Lead created: f1a949cc-c951-4fbe-9dc0-3f655c80718f - Starting vendor matching process
+2025-09-24T07:24:25.288Z [INFO]: Lead created: 3bc9a320-fbb3-4ae5-829e-1d8984b08e17 - Starting vendor matching process
+2025-09-24T07:27:18.355Z [INFO]: Lead created: c1b8091d-81e7-41d0-9ec4-f2cd36d87afe - Starting vendor matching process
+2025-09-24T07:31:21.516Z [INFO]: Server listening on port: 3001
+2025-09-24T07:32:19.301Z [INFO]: Server listening on port: 3001
+2025-09-24T07:33:24.971Z [INFO]: Server listening on port: 3001
+2025-09-24T07:33:29.218Z [INFO]: Server listening on port: 3001
+2025-09-24T07:33:51.657Z [INFO]: Server listening on port: 3001
+2025-09-24T07:34:17.007Z [INFO]: Server listening on port: 3001
+2025-09-24T07:35:11.545Z [INFO]: Server listening on port: 3001
+2025-09-24T07:35:12.878Z [INFO]: Server listening on port: 3001
+2025-09-24T07:35:34.127Z [INFO]: Server listening on port: 3001
+2025-09-24T07:35:45.179Z [INFO]: Server listening on port: 3001
+2025-09-24T07:35:47.299Z [INFO]: Server listening on port: 3001
+2025-09-24T07:37:48.014Z [INFO]: Server listening on port: 3001
+2025-09-24T07:37:56.864Z [INFO]: Server listening on port: 3001
+2025-09-24T07:38:06.353Z [INFO]: Server listening on port: 3001
+2025-09-24T07:38:23.069Z [INFO]: Server listening on port: 3001
+2025-09-24T07:38:25.436Z [INFO]: Server listening on port: 3001
+2025-09-24T07:38:32.202Z [INFO]: Server listening on port: 3001
+2025-09-24T07:39:17.576Z [INFO]: Server listening on port: 3001
+2025-09-24T07:39:23.771Z [INFO]: Server listening on port: 3001
+2025-09-24T07:39:25.375Z [INFO]: Server listening on port: 3001
+2025-09-24T07:40:32.310Z [INFO]: Server listening on port: 3001
+2025-09-24T07:42:48.330Z [INFO]: Server listening on port: 3001
+2025-09-24T07:43:13.390Z [INFO]: Lead created: 51912213-a70c-43cd-be91-f1af51f56350 - Starting vendor matching process
+2025-09-24T07:44:01.963Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:19.408Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:28.142Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:29.173Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:33.104Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:41.044Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:46.836Z [INFO]: Server listening on port: 3001
+2025-09-24T07:44:49.452Z [INFO]: Server listening on port: 3001
+2025-09-24T07:45:15.575Z [INFO]: Lead created: 06c65918-5b46-4a3b-beae-a5bf798b63c4 - Starting vendor matching process
+2025-09-24T07:45:37.823Z [INFO]: Server listening on port: 3001
+2025-09-24T07:49:33.159Z [INFO]: Lead created: 010716ea-3606-4006-9a26-552042e2c851 - Starting vendor matching process
+2025-09-24T07:50:14.342Z [INFO]: Lead created: ca261d06-ef77-4678-a0e8-fcab9bf312f3 - Starting vendor matching process
+2025-09-24T07:51:36.426Z [INFO]: Lead created: a42fcca8-8ace-4af2-b1f5-9376cc1ad600 - Starting vendor matching process
+2025-09-24T08:06:31.487Z [INFO]: Server listening on port: 3001
+2025-09-24T08:06:33.827Z [INFO]: Server listening on port: 3001
+2025-09-24T08:06:56.611Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:00.369Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:01.990Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:18.831Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:27.950Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:34.340Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:36.742Z [INFO]: Server listening on port: 3001
+2025-09-24T08:07:45.143Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:09.417Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:14.250Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:35.924Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:38.100Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:40.306Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:43.686Z [INFO]: Server listening on port: 3001
+2025-09-24T08:09:51.413Z [INFO]: Server listening on port: 3001
+2025-09-24T08:14:23.222Z [INFO]: Server listening on port: 3001
+2025-09-24T08:14:56.374Z [INFO]: Server listening on port: 3001
+2025-09-24T12:24:32.649Z [INFO]: Server listening on port: 3001
+2025-09-24T12:24:34.869Z [INFO]: Server listening on port: 3001
+2025-09-24T12:26:10.446Z [INFO]: Server listening on port: 3001
+2025-09-24T12:26:22.899Z [INFO]: Server listening on port: 3001
+2025-09-24T12:40:58.041Z [INFO]: Server listening on port: 3001
+2025-09-24T12:44:08.997Z [INFO]: Server listening on port: 3001
+2025-09-24T12:45:00.129Z [INFO]: Server listening on port: 3001
+2025-09-24T12:45:02.511Z [INFO]: Server listening on port: 3001
+2025-09-24T12:45:27.918Z [INFO]: Server listening on port: 3001
+2025-09-24T12:45:50.881Z [INFO]: Server listening on port: 3001
+2025-09-24T12:45:54.386Z [INFO]: Server listening on port: 3001
+2025-09-24T12:46:24.662Z [INFO]: Server listening on port: 3001
+2025-09-24T12:46:27.796Z [INFO]: Server listening on port: 3001
+2025-09-24T12:46:56.908Z [INFO]: Server listening on port: 3001
+2025-09-24T12:47:07.837Z [INFO]: Server listening on port: 3001
+2025-09-24T12:47:09.920Z [INFO]: Server listening on port: 3001
+2025-09-24T12:47:22.105Z [INFO]: Server listening on port: 3001
+2025-09-24T12:47:29.835Z [INFO]: Server listening on port: 3001
+2025-09-24T13:22:50.213Z [INFO]: Server listening on port: 3001
+2025-09-24T13:22:56.324Z [INFO]: Server listening on port: 3001
+2025-09-24T13:26:41.177Z [INFO]: Server listening on port: 3001
+2025-09-24T13:26:51.713Z [INFO]: Server listening on port: 3001
+2025-09-24T13:26:53.578Z [INFO]: Server listening on port: 3001
+2025-09-24T13:27:01.059Z [INFO]: Server listening on port: 3001
+2025-09-24T13:27:07.843Z [INFO]: Server listening on port: 3001
+2025-09-24T13:28:04.145Z [INFO]: Server listening on port: 3001
+2025-09-24T13:28:28.767Z [INFO]: Server listening on port: 3001
+2025-09-25T11:42:10.454Z [INFO]: Server listening on port: 3001
+2025-09-26T05:03:43.736Z [INFO]: Server listening on port: 3001
+2025-09-26T05:05:53.293Z [INFO]: Server listening on port: 3001
+2025-09-26T05:16:51.264Z [INFO]: Server listening on port: 3001
+2025-09-29T05:10:49.737Z [INFO]: Server listening on port: 3001
+2025-09-29T05:13:12.714Z [INFO]: Server listening on port: 3001
+2025-09-29T05:19:35.430Z [INFO]: Server listening on port: 3001
+2025-09-29T07:52:48.176Z [ERROR]: Error updating homepage section: Cannot read properties of undefined (reading 'findUnique')
+2025-10-01T10:12:43.936Z [INFO]: Server listening on port: 3001
+2025-10-01T10:18:41.176Z [INFO]: Server listening on port: 3001
+2025-10-01T10:19:10.586Z [INFO]: Server listening on port: 3001
+2025-10-03T07:30:29.970Z [INFO]: Server listening on port: 3001
+2025-10-03T10:00:43.017Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:02.309Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:14.141Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:17.946Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:26.823Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:31.189Z [INFO]: Server listening on port: 3001
+2025-10-03T10:01:36.031Z [INFO]: Server listening on port: 3001
+2025-10-03T10:05:33.355Z [INFO]: Server listening on port: 3001
+2025-10-03T10:05:42.499Z [INFO]: Server listening on port: 3001
+2025-10-03T10:05:44.182Z [INFO]: Server listening on port: 3001
+2025-10-03T10:05:50.959Z [INFO]: Server listening on port: 3001
+2025-10-03T10:06:38.594Z [INFO]: Server listening on port: 3001
+2025-10-03T10:06:46.312Z [INFO]: Server listening on port: 3001
+2025-10-03T10:06:51.326Z [INFO]: Server listening on port: 3001
+2025-10-03T10:08:20.575Z [INFO]: Server listening on port: 3001
+2025-10-03T10:08:22.939Z [INFO]: Server listening on port: 3001
+2025-10-03T10:08:33.911Z [INFO]: Server listening on port: 3001
+2025-10-03T10:08:36.534Z [INFO]: Server listening on port: 3001
+2025-10-03T10:08:43.523Z [INFO]: Server listening on port: 3001
+2025-10-03T10:11:37.643Z [INFO]: Server listening on port: 3001
+2025-10-03T10:11:42.432Z [INFO]: Server listening on port: 3001
+2025-10-03T10:11:46.017Z [INFO]: Server listening on port: 3001
+2025-10-03T10:11:49.077Z [INFO]: Server listening on port: 3001
+2025-10-03T10:11:50.493Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:03.556Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:12.594Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:25.202Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:28.791Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:53.532Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:55.535Z [INFO]: Server listening on port: 3001
+2025-10-03T10:15:57.481Z [INFO]: Server listening on port: 3001
+2025-10-03T10:16:46.053Z [INFO]: Server listening on port: 3001
+2025-10-03T10:16:50.476Z [INFO]: Server listening on port: 3001
+2025-10-03T10:27:50.421Z [INFO]: Server listening on port: 3001
+2025-10-03T10:27:52.241Z [INFO]: Server listening on port: 3001
+2025-10-03T10:27:59.390Z [INFO]: Server listening on port: 3001
+2025-10-04T06:07:39.658Z [INFO]: Server listening on port: 3001
+2025-10-04T09:23:12.088Z [ERROR]: Error listing locations: 
+Invalid `prisma.location.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:215:47
+
+  212   ...(city ? { city: { equals: String(city), mode: 'insensitive' } } : {}),
+  213 };
+  214 
+→ 215 const locations = await prisma.location.findMany(
+The table `public.Location` does not exist in the current database.
+2025-10-04T09:23:12.090Z [ERROR]: Error searching services: 
+Invalid `prisma.vendorService.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:177:30
+
+  174 };
+  175 
+  176 const [items, total] = await Promise.all([
+→ 177   prisma.vendorService.findMany(
+The table `public.VendorService` does not exist in the current database.
+2025-10-04T09:23:13.102Z [ERROR]: Error listing locations: 
+Invalid `prisma.location.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:215:47
+
+  212   ...(city ? { city: { equals: String(city), mode: 'insensitive' } } : {}),
+  213 };
+  214 
+→ 215 const locations = await prisma.location.findMany(
+The table `public.Location` does not exist in the current database.
+2025-10-04T09:23:13.103Z [ERROR]: Error searching services: 
+Invalid `prisma.vendorService.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:177:30
+
+  174 };
+  175 
+  176 const [items, total] = await Promise.all([
+→ 177   prisma.vendorService.findMany(
+The table `public.VendorService` does not exist in the current database.
+2025-10-04T09:41:18.483Z [ERROR]: Error listing locations: 
+Invalid `prisma.location.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:215:47
+
+  212   ...(city ? { city: { equals: String(city), mode: 'insensitive' } } : {}),
+  213 };
+  214 
+→ 215 const locations = await prisma.location.findMany(
+The table `public.Location` does not exist in the current database.
+2025-10-04T09:41:18.490Z [ERROR]: Error searching services: 
+Invalid `prisma.vendorService.count()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:184:30
+
+  181   skip,
+  182   take,
+  183 }),
+→ 184 prisma.vendorService.count(
+The table `public.VendorService` does not exist in the current database.
+2025-10-04T09:41:22.498Z [ERROR]: Error listing locations: 
+Invalid `prisma.location.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:215:47
+
+  212   ...(city ? { city: { equals: String(city), mode: 'insensitive' } } : {}),
+  213 };
+  214 
+→ 215 const locations = await prisma.location.findMany(
+The table `public.Location` does not exist in the current database.
+2025-10-04T09:41:22.526Z [ERROR]: Error searching services: 
+Invalid `prisma.vendorService.findMany()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/service.controller.ts:177:30
+
+  174 };
+  175 
+  176 const [items, total] = await Promise.all([
+→ 177   prisma.vendorService.findMany(
+The table `public.VendorService` does not exist in the current database.
+2025-10-04T09:41:53.358Z [INFO]: Server listening on port: 3001
+2025-10-04T09:41:57.354Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:18.508Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:19.748Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:23.502Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:25.952Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:32.548Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:45.711Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:49.002Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:56.895Z [INFO]: Server listening on port: 3001
+2025-10-04T09:42:59.592Z [INFO]: Server listening on port: 3001
+2025-10-04T09:43:15.194Z [INFO]: Server listening on port: 3001
+2025-10-04T09:43:16.125Z [INFO]: Server listening on port: 3001
+2025-10-04T09:43:31.914Z [INFO]: Server listening on port: 3001
+2025-10-04T09:43:32.853Z [INFO]: Server listening on port: 3001
+2025-10-04T09:44:19.633Z [INFO]: Server listening on port: 3001
+2025-10-04T10:11:33.395Z [INFO]: Server listening on port: 3001
+2025-10-04T10:31:15.869Z [INFO]: Server listening on port: 3001
+2025-10-04T10:32:04.236Z [INFO]: Server listening on port: 3001
+2025-10-04T10:38:02.400Z [INFO]: Server listening on port: 3001
+2025-10-04T10:50:18.924Z [INFO]: Server listening on port: 3001
+2025-10-04T10:54:44.034Z [INFO]: Server listening on port: 3001
+2025-10-04T10:54:46.914Z [INFO]: Server listening on port: 3001
+2025-10-04T10:54:49.714Z [INFO]: Server listening on port: 3001
+2025-10-04T10:56:00.242Z [INFO]: Server listening on port: 3001
+2025-10-04T11:01:24.360Z [INFO]: Server listening on port: 3001
+2025-10-04T11:09:13.597Z [INFO]: Server listening on port: 3001
+2025-10-04T11:13:50.014Z [INFO]: Server listening on port: 3001
+2025-10-04T11:14:36.961Z [INFO]: Server listening on port: 3001
+2025-10-04T11:14:56.362Z [INFO]: Server listening on port: 3001
+2025-10-04T11:19:36.723Z [INFO]: Server listening on port: 3001
+2025-10-04T11:20:47.655Z [INFO]: Server listening on port: 3001
+2025-10-04T11:21:15.210Z [INFO]: Server listening on port: 3001
+2025-10-04T11:21:53.882Z [INFO]: Server listening on port: 3001
+2025-10-04T11:22:17.211Z [INFO]: Server listening on port: 3001
+2025-10-04T11:22:28.255Z [INFO]: Server listening on port: 3001
+2025-10-04T11:26:16.158Z [INFO]: Server listening on port: 3001
+2025-10-04T11:31:17.944Z [INFO]: Server listening on port: 3001
+2025-10-04T11:33:45.215Z [INFO]: Server listening on port: 3001
+2025-10-04T11:37:58.335Z [INFO]: Server listening on port: 3001
+2025-10-04T11:38:52.082Z [INFO]: Server listening on port: 3001
+2025-10-04T11:39:28.129Z [INFO]: Server listening on port: 3001
+2025-10-04T11:39:37.754Z [INFO]: Server listening on port: 3001
+2025-10-04T11:39:46.119Z [INFO]: Server listening on port: 3001
+2025-10-04T11:40:49.012Z [INFO]: Server listening on port: 3001
+2025-10-04T11:41:05.531Z [INFO]: Server listening on port: 3001
+2025-10-04T11:41:26.555Z [INFO]: Server listening on port: 3001
+2025-10-04T11:41:50.730Z [INFO]: Server listening on port: 3001
+2025-10-04T11:42:17.764Z [INFO]: Server listening on port: 3001
+2025-10-04T11:43:30.893Z [INFO]: Server listening on port: 3001
+2025-10-04T11:44:27.206Z [INFO]: Server listening on port: 3001
+2025-10-04T11:44:28.725Z [INFO]: Server listening on port: 3001
+2025-10-04T11:44:34.074Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:44:58.871Z [INFO]: Server listening on port: 3001
+2025-10-04T11:45:04.177Z [INFO]: Server listening on port: 3001
+2025-10-04T11:45:07.518Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:47:13.690Z [INFO]: Server listening on port: 3001
+2025-10-04T11:47:18.833Z [INFO]: Server listening on port: 3001
+2025-10-04T11:47:21.507Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:47:56.926Z [INFO]: Server listening on port: 3001
+2025-10-04T11:47:58.414Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:50:23.240Z [INFO]: Server listening on port: 3001
+2025-10-04T11:53:11.247Z [INFO]: Server listening on port: 3001
+2025-10-04T11:53:55.649Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:54:00.590Z [INFO]: Server listening on port: 3001
+2025-10-04T11:54:45.679Z [INFO]: Server listening on port: 3001
+2025-10-04T11:55:03.829Z [INFO]: Server listening on port: 3001
+2025-10-04T11:55:05.972Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:55:09.359Z [ERROR]: Error creating service: Cannot read properties of undefined (reading 'price')
+2025-10-04T11:55:15.654Z [INFO]: Server listening on port: 3001
+2025-10-04T11:55:29.644Z [INFO]: Server listening on port: 3001
+2025-10-04T11:56:08.520Z [INFO]: Server listening on port: 3001
+2025-10-04T11:56:28.712Z [INFO]: Server listening on port: 3001
+2025-10-04T11:57:04.969Z [INFO]: Server listening on port: 3001
+2025-10-04T12:00:40.720Z [INFO]: Server listening on port: 3001
+2025-10-04T12:03:58.620Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:04:30.915Z [INFO]: Server listening on port: 3001
+2025-10-04T12:04:33.501Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:05:37.301Z [INFO]: Server listening on port: 3001
+2025-10-04T12:05:45.590Z [INFO]: Server listening on port: 3001
+2025-10-04T12:05:52.619Z [INFO]: Server listening on port: 3001
+2025-10-04T12:05:57.306Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:06:05.348Z [INFO]: Server listening on port: 3001
+2025-10-04T12:06:20.181Z [INFO]: Server listening on port: 3001
+2025-10-04T12:06:31.191Z [INFO]: Server listening on port: 3001
+2025-10-04T12:06:31.891Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:07:03.312Z [INFO]: Server listening on port: 3001
+2025-10-04T12:07:24.754Z [INFO]: Server listening on port: 3001
+2025-10-04T12:07:25.752Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:07:35.210Z [INFO]: Server listening on port: 3001
+2025-10-04T12:07:49.192Z [INFO]: Server listening on port: 3001
+2025-10-04T12:07:50.195Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:10:00.112Z [INFO]: Server listening on port: 3001
+2025-10-04T12:10:01.389Z [ERROR]: Error creating service: 
+Invalid `prisma.vendorService.create()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:40:50
+
+  37   parsed.data;
+  38 
+  39 // Create service
+→ 40 const service = await prisma.vendorService.create({
+       data: {
+         vendorId: undefined,
+         title: "My Wedding Photography",
+         description: "Full day wedding photography package",
+         category: "Photography",
+         price: 75000,
+         country: "India",
+         state: "Maharashtra",
+         city: "Mumbai",
+         name: "Wedding Shoot Package",
+         latitude: 19.076,
+         longitude: 72.877,
+     +   vendor: {
+     +     create: VendorCreateWithoutVendorServicesInput | VendorUncheckedCreateWithoutVendorServicesInput,
+     +     connectOrCreate: VendorCreateOrConnectWithoutVendorServicesInput,
+     +     connect: VendorWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `vendor` is missing.
+2025-10-04T12:10:17.690Z [INFO]: Server listening on port: 3001
+2025-10-04T12:13:50.636Z [INFO]: Server listening on port: 3001
+2025-10-04T12:16:31.429Z [ERROR]: Error creating service: ENOENT: no such file or directory, rename '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759580191404-media[].webp' -> '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/service_f57a309e-ab30-4c00-97ef-6afba5dba49f/teddy3.webp'
+2025-10-04T12:17:39.922Z [INFO]: Server listening on port: 3001
+2025-10-04T12:19:32.411Z [INFO]: Server listening on port: 3001
+2025-10-04T12:19:55.586Z [INFO]: Server listening on port: 3001
+2025-10-04T12:20:37.608Z [ERROR]: Error creating service: ENOENT: no such file or directory, rename '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759580437578-media[].webp' -> '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/service_06ec73dc-0199-459d-a6df-8622c993d446/teddy3.webp'
+2025-10-04T12:22:41.024Z [INFO]: Server listening on port: 3001
+2025-10-04T12:24:56.301Z [INFO]: Server listening on port: 3001
+2025-10-04T12:41:24.399Z [INFO]: Server listening on port: 3001
+2025-10-04T12:42:38.990Z [INFO]: Server listening on port: 3001
+2025-10-04T12:49:33.271Z [INFO]: Server listening on port: 3001
+2025-10-04T12:52:09.487Z [INFO]: Server listening on port: 3001
+2025-10-04T12:52:36.945Z [ERROR]: Error creating service: ENOENT: no such file or directory, rename '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759582356926-media[].png' -> '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/service_07cd1ce4-1400-463d-ad63-a6b55a9fa1f2/Screenshot_from_2025-09-25_13-08-19.png'
+2025-10-04T12:55:12.356Z [INFO]: Server listening on port: 3001
+2025-10-04T12:56:02.640Z [INFO]: Server listening on port: 3001
+2025-10-04T12:58:10.740Z [INFO]: Server listening on port: 3001
+2025-10-04T12:59:17.569Z [INFO]: Server listening on port: 3001
+2025-10-04T12:59:25.951Z [INFO]: Server listening on port: 3001
+2025-10-04T13:01:02.410Z [INFO]: Server listening on port: 3001
+2025-10-04T13:01:09.509Z [INFO]: Server listening on port: 3001
+2025-10-04T13:01:49.819Z [INFO]: Server listening on port: 3001
+2025-10-04T13:01:51.657Z [INFO]: Server listening on port: 3001
+2025-10-04T13:02:11.021Z [INFO]: Server listening on port: 3001
+2025-10-04T13:04:42.355Z [INFO]: Server listening on port: 3001
+2025-10-04T13:04:43.457Z [INFO]: Server listening on port: 3001
+2025-10-04T13:05:19.891Z [INFO]: Server listening on port: 3001
+2025-10-04T13:05:37.252Z [INFO]: Server listening on port: 3001
+2025-10-04T13:05:44.511Z [INFO]: Server listening on port: 3001
+2025-10-04T13:05:56.518Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:09.841Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:12.558Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:16.599Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:19.558Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:22.709Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:25.297Z [INFO]: Server listening on port: 3001
+2025-10-04T13:06:33.914Z [ERROR]: Error creating service: ENOENT: no such file or directory, rename '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759583193824-media.png' -> '/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/service_1eb00a79-23b6-48b1-8933-03386f0dfdd3/Screenshot_from_2025-10-03_13-04-57.png'
+2025-10-04T13:08:42.318Z [INFO]: Server listening on port: 3001
+2025-10-04T13:08:47.967Z [INFO]: Server listening on port: 3001
+2025-10-04T13:08:49.708Z [INFO]: Server listening on port: 3001
+2025-10-04T13:08:57.146Z [INFO]: Server listening on port: 3001
+2025-10-04T13:09:08.618Z [ERROR]: Error creating service: Temp file not found: /home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759583348598-media.png
+2025-10-04T13:10:15.366Z [INFO]: Server listening on port: 3001
+2025-10-04T13:11:35.114Z [INFO]: Server listening on port: 3001
+2025-10-04T13:11:38.090Z [INFO]: Server listening on port: 3001
+2025-10-04T13:14:56.192Z [INFO]: Server listening on port: 3001
+2025-10-04T13:14:58.080Z [ERROR]: Error creating service: Temp file not found: /home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/uploads/temp/1759583697985-media.png
+2025-10-04T13:16:21.338Z [INFO]: Server listening on port: 3001
+2025-10-04T13:22:05.471Z [INFO]: Server listening on port: 3001
+2025-10-04T13:24:28.040Z [INFO]: Server listening on port: 3001
+2025-10-04T13:24:29.964Z [INFO]: Server listening on port: 3001
+2025-10-04T13:26:20.372Z [INFO]: Server listening on port: 3001
+2025-10-04T13:26:23.714Z [INFO]: Server listening on port: 3001
+2025-10-04T13:27:21.875Z [INFO]: Server listening on port: 3001
+2025-10-04T13:27:24.194Z [INFO]: Server listening on port: 3001
+2025-10-04T13:27:30.863Z [INFO]: Server listening on port: 3001
+2025-10-04T13:29:11.826Z [INFO]: Server listening on port: 3001
+2025-10-04T13:29:14.040Z [INFO]: Server listening on port: 3001
+2025-10-04T13:30:25.066Z [INFO]: Server listening on port: 3001
+2025-10-04T13:30:32.388Z [INFO]: Server listening on port: 3001
+2025-10-04T13:30:34.606Z [INFO]: Server listening on port: 3001
+2025-10-04T13:30:59.416Z [INFO]: Server listening on port: 3001
+2025-10-04T13:31:05.961Z [INFO]: Server listening on port: 3001
+2025-10-04T13:31:07.873Z [ERROR]: Error updating service: 
+Invalid `prisma.vendorService.findUnique()` invocation in
+/home/vqcodes/Documents/Sanjna/PrevezCode/pervez/indianWeddingsBe/src/controllers/vendorService.controller.ts:141:58
+
+  138     .json(new ApiResponse(statusCodes.BAD_REQUEST, null, `Validation failed: ${errors}`));
+  139 }
+  140 
+→ 141 const existingService = await prisma.vendorService.findUnique({
+        where: {
+          id: undefined,
+      ?   thumbnailId?: String,
+      ?   AND?: VendorServiceWhereInput | VendorServiceWhereInput[],
+      ?   OR?: VendorServiceWhereInput[],
+      ?   NOT?: VendorServiceWhereInput | VendorServiceWhereInput[],
+      ?   vendorId?: StringFilter | String,
+      ?   title?: StringFilter | String,
+      ?   description?: StringNullableFilter | String | Null,
+      ?   category?: StringFilter | String,
+      ?   price?: FloatFilter | Float,
+      ?   country?: StringFilter | String,
+      ?   state?: StringNullableFilter | String | Null,
+      ?   city?: StringNullableFilter | String | Null,
+      ?   name?: StringNullableFilter | String | Null,
+      ?   latitude?: FloatNullableFilter | Float | Null,
+      ?   longitude?: FloatNullableFilter | Float | Null,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   vendor?: VendorScalarRelationFilter | VendorWhereInput,
+      ?   media?: VendorServiceMediaListRelationFilter,
+      ?   thumbnail?: VendorServiceMediaNullableScalarRelationFilter | VendorServiceMediaWhereInput | Null
+        }
+      })
+
+Argument `where` of type VendorServiceWhereUniqueInput needs at least one of `id` or `thumbnailId` arguments. Available options are marked with ?.
+2025-10-04T13:32:14.997Z [INFO]: Server listening on port: 3001
+2025-10-04T13:32:17.196Z [INFO]: Server listening on port: 3001
