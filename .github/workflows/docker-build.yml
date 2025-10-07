@@ -15,7 +15,7 @@ jobs:
       IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
 
     steps:
-      # 1. Checkout repo
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -32,6 +32,18 @@ jobs:
         run: |
           docker build -t $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
           docker tag $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
+
+      # 3b. Run backend Prisma migrations (temporary container)
+      - name: Run backend Prisma migrations
+        run: |
+          docker run --rm \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
+            -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
+            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+            $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} \
+            npx prisma migrate deploy
 
       # 4. Push backend image
       - name: Push backend image
