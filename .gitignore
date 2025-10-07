@@ -2,9 +2,10 @@
 
 # dependencies
 *node_modules
-indianWeddingsBe/node_modules
-indianWeddingsBe/logs
-indianWeddingsBe/uploads
+backend/node_modules
+backend/logs
+backend/uploads
+backend/dist
 *.next
 /.pnp
 .pnp.*
@@ -17,9 +18,13 @@ node_modules
 # testing
 /coverage
 
-indianWeddingsBe/logs
-indianWeddingsBe/uploads
+package-lock.json
+frontend/package-lock.json
+backend/package-lock.json
 
+frontend/node_modules
+frontend/.next
+frontend/.vercel    
 # next.js
 /.next/
 /out/

@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    image: ghcr.io/itsmenavi38123/indianWedding/backend:latest
+    image: ghcr.io/itsmenavi38123/indian-wedding/backend:latest
     container_name: indianweddings-backend
     ports:
       - "${BACKEND_PORT}:3001"    
@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/itsmenavi38123/indianWedding/frontend:latest
+    image: ghcr.io/itsmenavi38123/indian-wedding/frontend:latest
     container_name: indianweddings-frontend
     ports:
       - "${FRONTEND_PORT}:3000"  
