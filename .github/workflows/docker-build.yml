@@ -33,31 +33,19 @@ jobs:
           docker build -t $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
           docker tag $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
-      # 3b. Run backend Prisma migrations (temporary container)
-      - name: Run backend Prisma migrations
-        run: |
-          docker run --rm \
-            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-            -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
-            -e JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} \
-            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-            -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-            $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} \
-            npx prisma migrate deploy
-
-      # 4. Push backend image
+      # 3. Push backend image
       - name: Push backend image
         run: |
           docker push $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
-      # 5. Build frontend Docker image
+      # 4. Build frontend Docker image
       - name: Build frontend image
         run: |
           docker build -t $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
           docker tag $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:latest
 
-      # 6. Push frontend image
+      # 5. Push frontend image
       - name: Push frontend image
         run: |
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
