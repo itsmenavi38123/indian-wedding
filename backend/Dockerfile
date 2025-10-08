@@ -34,5 +34,5 @@ EXPOSE 3001
 
 # Run Prisma migrations then start server
 #CMD npx prisma migrate deploy && node dist/index.js
-CMD npx prisma migrate deploy --skip-seed && sleep 5 && node dist/index.js
+CMD npx prisma migrate deploy && sleep 5 && node dist/index.js
 
