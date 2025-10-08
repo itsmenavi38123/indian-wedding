@@ -9,7 +9,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    # ✅ Needed for pushing images to GHCR
     permissions:
       contents: read
       packages: write
@@ -18,16 +17,15 @@ jobs:
       REGISTRY: ghcr.io
 
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Convert repo name to lowercase (GHCR requires lowercase)
+      # Lowercase repo name for GHCR
       - name: Set lowercase repo name
         id: repo
         run: echo "repo=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
-      # 3. Log in to GitHub Container Registry
+      # Login using built-in GITHUB_TOKEN
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
@@ -35,34 +33,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Build backend Docker image
-      - name: Build backend image
+      # Build & push backend
+      - name: Build backend
         run: |
           docker build -t $REGISTRY/${{ steps.repo.outputs.repo }}/backend:${{ github.sha }} ./backend
           docker tag $REGISTRY/${{ steps.repo.outputs.repo }}/backend:${{ github.sha }} $REGISTRY/${{ steps.repo.outputs.repo }}/backend:latest
-
-      # 5. Push backend Docker image
-      - name: Push backend image
-        run: |
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/backend:${{ github.sha }}
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/backend:latest
 
-      # 6. Build frontend Docker image
-      - name: Build frontend image
+      # Build & push frontend
+      - name: Build frontend
         run: |
           docker build -t $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:${{ github.sha }} ./frontend
           docker tag $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:${{ github.sha }} $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:latest
-
-      # 7. Push frontend Docker image
-      - name: Push frontend image
-        run: |
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:${{ github.sha }}
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:latest
-
-      # 8. 🆕 Make both packages public automatically
-      - name: Make images public
-        run: |
-          gh api --method PATCH /user/packages/container/backend/visibility -f visibility=public || true
-          gh api --method PATCH /user/packages/container/frontend/visibility -f visibility=public || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
