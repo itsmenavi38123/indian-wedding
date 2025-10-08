@@ -19,7 +19,6 @@ import {
   useSaveProposalVersion,
 } from '@/services/api/proposal';
 import { useGetAllTemplates } from '@/services/api/proposalTemplate';
-import { send } from 'process';
 
 type ProposalState = {
   templateId: string;

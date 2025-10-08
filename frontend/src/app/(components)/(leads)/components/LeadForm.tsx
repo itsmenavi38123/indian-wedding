@@ -234,7 +234,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
       }
     }, 30000);
     return () => clearInterval(interval);
-  }, [form, savedId, createLeadMutate, updateLeadMutate]);
+  }, [form, savedId, createLeadMutate, updateLeadMutate, type, role, auth?.id]);
 
   const onSubmit = (data: LeadFormValues) => {
     const payload: CreateLeadPayload = {

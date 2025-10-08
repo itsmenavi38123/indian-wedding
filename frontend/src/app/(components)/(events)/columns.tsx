@@ -2,16 +2,14 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { ArchiveRestore, Edit, Eye, Link2 } from 'lucide-react';
+import { ArchiveRestore } from 'lucide-react';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 import { Lead } from '@/types/lead/Lead';
-import Link from 'next/link';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+
 import { RoleType } from '@/components/common/Header/Header';
 
 const statusColors: Record<Lead['status'], string> = {
@@ -123,6 +121,7 @@ export const getColumns = (role: RoleType | null): ColumnDef<Lead>[] => [
     accessorKey: 'createdAt',
     header: 'Created Date',
     cell: ({ row }) => {
+      console.log('getColumns called with role:', role);
       const date = new Date(row.original.createdAt);
       if (!row.original.createdAt || isNaN(date.getTime())) {
         return '-';

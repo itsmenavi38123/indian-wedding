@@ -18,8 +18,6 @@ import {
   MapPin,
   ChevronDown,
   Loader2,
-  Eye,
-  EyeOff,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import {
@@ -55,7 +53,6 @@ export default function LeadDetailsPage() {
   if (!lead) return <p className="p-4">Lead not found</p>;
 
   const d = lead.data;
-  const vendorIds = d.cards.map((card: any) => card.vendor?.id).filter(Boolean);
   const coupleTitle = `${d.partner1Name} & ${d.partner2Name}`;
   const daysToWedding = differenceInDays(new Date(d.weddingDate), new Date());
 

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Service } from './services-section';
-import { formatINR, parseNumber, formatINRWithCommas, formatPercentage } from '@/lib/format';
+import { formatINR, parseNumber } from '@/lib/format';
 import { useMemo, useEffect } from 'react';
 
 export type PricingLine = {
@@ -73,7 +73,7 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
           <tbody>
             {syncedLines.map((l) => {
               const amt = l.unitPrice * l.quantity;
-              const isCustom = !services.find((s) => s.id === l.id);
+              // const isCustom = !services.find((s) => s.id === l.id);
               return (
                 <tr key={l.id}>
                   <td className="border-b p-2">

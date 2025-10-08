@@ -61,7 +61,10 @@ const LoginPage = () => {
       dispatch(setAdminLoginEmail(''));
       router.push('/admin/leads');
     },
-    onError: (error) => {},
+    onError: (error) => {
+      console.log(error);
+      toast.error('Login failed. Please check your credentials and try again.');
+    },
   });
 
   const onSubmit = (data: AdminLoginInput) => {

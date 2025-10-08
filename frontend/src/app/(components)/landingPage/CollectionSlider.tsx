@@ -158,7 +158,11 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
               <div className=" bg-white">
                 <div className="w-full aspect-[435/330]">
                   {' '}
-                  <Image src={feature.img} alt={feature.alt} className="w-full h-full object-cover" />
+                  <Image
+                    src={feature.img}
+                    alt={feature.alt}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 {/* Edit image */}
@@ -213,7 +217,7 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
                   <button className="cursor-pointer p-0  border-0  text-[16px] text-gold flex items-center gap-[2px]">
                     More{' '}
                     <Image
-                    alt='navigate'
+                      alt="navigate"
                       src="/landing/navigate-next.svg"
                       className="cursor-pointer relative top-[3px]"
                     />

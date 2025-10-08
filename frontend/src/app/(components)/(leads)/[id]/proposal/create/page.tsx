@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProposalTemplate } from '@/services/api/proposalTemplate';
 import { ClientDetails, HeaderSection } from './components/header-section';
@@ -9,9 +9,6 @@ import { PricingTable } from './components/pricing-table';
 import { VersionEntry, VersionHistoryModal } from './components/version-history';
 import { TemplateGallery } from './components/template-gallery';
 import { IntroSection } from './components/intro-section';
-
-import { applyTemplateVariables, formatINR } from '@/lib/format';
-
 import { useGetLead } from '@/services/api/leads';
 import { toast } from 'sonner';
 import { TermsSection } from './components/terms-section';
@@ -65,37 +62,6 @@ export default function CreateProposalPage() {
   };
 
   // Save version to backend
-  const saveVersionToBackend = async (snapshot: ProposalState, isManual: boolean = false) => {
-    if (!proposalIdRef.current) return;
-
-    try {
-      const grandTotal = calculateGrandTotal(snapshot);
-      const versionData = {
-        snapshot: {
-          ...snapshot,
-          grandTotal,
-          timestamp: Date.now(),
-          isManual,
-        },
-      };
-
-      await saveVersionMutation.mutateAsync({
-        proposalId: proposalIdRef.current,
-        snapshot: versionData.snapshot,
-      });
-
-      // Add to local versions for immediate UI update
-      const newVersion: VersionEntry = {
-        id: `version-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: Date.now(),
-        snapshot: { ...snapshot, grandTotal },
-      };
-
-      setVersions((prev) => [newVersion, ...prev.slice(0, 19)]); // Keep max 20 versions
-    } catch (error) {
-      console.error('Failed to save version:', error);
-    }
-  };
 
   // Hooks for API operations
   const { data: draftResponse, isLoading: isLoadingDraft } = useGetProposalDraft(leadId);
@@ -130,7 +96,39 @@ export default function CreateProposalPage() {
       lastSavedAt: undefined,
     };
   });
+  const saveVersionToBackend = useCallback(
+    async (snapshot: ProposalState, isManual: boolean = false) => {
+      if (!proposalIdRef.current) return;
 
+      try {
+        const grandTotal = calculateGrandTotal(snapshot);
+        const versionData = {
+          snapshot: {
+            ...snapshot,
+            grandTotal,
+            timestamp: Date.now(),
+            isManual,
+          },
+        };
+
+        await saveVersionMutation.mutateAsync({
+          proposalId: proposalIdRef.current,
+          snapshot: versionData.snapshot,
+        });
+
+        const newVersion: VersionEntry = {
+          id: `version-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          timestamp: Date.now(),
+          snapshot: { ...snapshot, grandTotal },
+        };
+
+        setVersions((prev) => [newVersion, ...prev.slice(0, 19)]);
+      } catch (error) {
+        console.error('Failed to save version:', error);
+      }
+    },
+    [saveVersionMutation] // dependencies
+  );
   // Initialize data from backend draft or lead data with default template
   useEffect(() => {
     // If draft exists, load it
@@ -238,7 +236,7 @@ export default function CreateProposalPage() {
     }
   }, [leadData, draftResponse, templates, templateInitialized]);
 
-  const vars = useMemo(
+  useMemo(
     () => ({
       couple_names: data.state.client?.name || '',
       wedding_date: data.state.dateISO || '',
@@ -251,39 +249,42 @@ export default function CreateProposalPage() {
   }
 
   // Autosave to backend
-  const saveToBackend = async (stateToSave: ProposalState) => {
-    if (!leadId || leadId === 'unknown') return;
+  const saveToBackend = useCallback(
+    async (stateToSave: ProposalState) => {
+      if (!leadId || leadId === 'unknown') return;
 
-    const proposalData = {
-      reference: stateToSave.reference,
-      title: stateToSave.title,
-      template: stateToSave.templateId,
-      companyName: stateToSave.companyName,
-      logoUrl: stateToSave.logoUrl,
-      dateISO: stateToSave.dateISO,
-      clientName: stateToSave.client.name,
-      clientEmail: stateToSave.client.email || undefined,
-      clientPhone: stateToSave.client.phone || undefined,
-      clientAddress: stateToSave.client.address || undefined,
-      introHTML: stateToSave.introHTML,
-      termsText: stateToSave.termsText,
-      paymentTerms: stateToSave.paymentTerms,
-      taxesPercent: stateToSave.taxesPercent,
-      discount: stateToSave.discount,
-      services: stateToSave.services.map((service) => ({
-        name: service.name,
-        description: service.description,
-        price: service.price,
-        quantity: 1,
-      })),
-    };
+      const proposalData = {
+        reference: stateToSave.reference,
+        title: stateToSave.title,
+        template: stateToSave.templateId,
+        companyName: stateToSave.companyName,
+        logoUrl: stateToSave.logoUrl,
+        dateISO: stateToSave.dateISO,
+        clientName: stateToSave.client.name,
+        clientEmail: stateToSave.client.email || undefined,
+        clientPhone: stateToSave.client.phone || undefined,
+        clientAddress: stateToSave.client.address || undefined,
+        introHTML: stateToSave.introHTML,
+        termsText: stateToSave.termsText,
+        paymentTerms: stateToSave.paymentTerms,
+        taxesPercent: stateToSave.taxesPercent,
+        discount: stateToSave.discount,
+        services: stateToSave.services.map((service) => ({
+          name: service.name,
+          description: service.description,
+          price: service.price,
+          quantity: 1,
+        })),
+      };
 
-    const result = await saveProposalMutation.mutateAsync({ leadId, data: proposalData });
-    if (result?.data) {
-      proposalIdRef.current = result.data.id;
-      setLastBackendSave(new Date());
-    }
-  };
+      const result = await saveProposalMutation.mutateAsync({ leadId, data: proposalData });
+      if (result?.data) {
+        proposalIdRef.current = result.data.id;
+        setLastBackendSave(new Date());
+      }
+    },
+    [leadId, saveProposalMutation]
+  );
 
   // Manual save function
   const forceSave = async () => {
@@ -327,7 +328,7 @@ export default function CreateProposalPage() {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [data.state]);
+  }, [data.state, saveToBackend, saveVersionToBackend]);
 
   function patchState(patch: Partial<ProposalState>) {
     const next = { ...data, state: { ...data.state, ...patch } };
@@ -481,7 +482,7 @@ export default function CreateProposalPage() {
     });
   }
 
-  function insertIntroVariable(variable: string) {
+  function insertIntroVariable() {
     // value is already inserted in editor, keep patch for completeness (no text transform here)
     patchState({ introHTML: data.state.introHTML });
   }

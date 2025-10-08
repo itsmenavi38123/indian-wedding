@@ -17,13 +17,7 @@ type Props = {
   currentVersionId?: string;
 };
 
-export function VersionHistoryModal({
-  open,
-  versions,
-  onClose,
-  onRestore,
-  currentVersionId,
-}: Props) {
+export function VersionHistoryModal({ open, versions, onClose, currentVersionId }: Props) {
   if (!open) return null;
 
   const formatTimestamp = (timestamp: number) => {

@@ -29,7 +29,6 @@ const ClientLogo: React.FC<ClientLogoProps> = ({
   paragraph: propParagraph,
   setParagraph: setPropParagraph,
 }) => {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isHeadingEditing, setIsHeadingEditing] = useState(false);
   const [isParagraphEditing, setIsParagraphEditing] = useState(false);
 

@@ -4,12 +4,7 @@ import { formatCurrencyShort } from '@/lib/format';
 import { BudgetRange } from '@/utils/budget';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import {
-  fetchDestinationsByBudget,
-  fetchDestinationsFromServices,
-  setBudget,
-  setCurrentStep,
-} from '@/store/slices/planning';
+import { fetchDestinationsFromServices, setBudget, setCurrentStep } from '@/store/slices/planning';
 
 type Budget = { min: number; max: number } | null;
 
@@ -41,7 +36,7 @@ export default function BudgetStep({ budget, onChange }: Props) {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">What's your budget?</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">What&apos;s your budget?</h2>
         <p className="text-gray-600">This helps us show you the perfect options</p>
       </div>
 

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
-import { Filter, Loader2, Plus, Search, X } from 'lucide-react';
+import { Filter, Loader2, Search, X } from 'lucide-react';
 import { DataTable } from '@/components/common/table/DataTable';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LeadStatus } from '@/types/lead/Lead';
@@ -26,7 +26,7 @@ import {
   setSorting,
   setStatusFilter,
 } from '@/store/slices/lead';
-import Link from 'next/link';
+
 import { RoleType } from '@/components/common/Header/Header';
 import { getColumns } from './columns';
 import { useGetEvents } from '@/services/api/events';

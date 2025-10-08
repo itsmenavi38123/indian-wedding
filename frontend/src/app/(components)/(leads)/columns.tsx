@@ -10,8 +10,7 @@ import { Button } from '@/components/ui/button';
 
 import { Lead } from '@/types/lead/Lead';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+
 import { RoleType } from '@/components/common/Header/Header';
 
 const statusColors: Record<Lead['status'], string> = {

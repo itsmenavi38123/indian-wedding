@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Check } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { fetchServicesByCategory, setSelectedService } from '@/store/slices/planning';

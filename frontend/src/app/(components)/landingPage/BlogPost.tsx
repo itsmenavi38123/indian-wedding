@@ -46,10 +46,6 @@ const BlogPost: React.FC<BlogPostProps> = ({
   const [isMainButtonEditing, setIsMainButtonEditing] = useState(false);
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
-  const [localBlogs, setLocalBlogs] = useState<Blog[]>(blogs);
-  const [heading, setHeading] = useState(sectionHeading);
-  const [mainButtonText, setMainButtonText] = useState(mainButtonLabel);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, blogId: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -127,7 +123,7 @@ const BlogPost: React.FC<BlogPostProps> = ({
                     src={
                       previewImage instanceof File
                         ? URL.createObjectURL(previewImage)
-                        : previewImage
+                        : previewImage || '/placeholder.png'
                     }
                     alt={blog.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"

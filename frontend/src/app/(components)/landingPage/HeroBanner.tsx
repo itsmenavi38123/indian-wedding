@@ -2,7 +2,7 @@
 
 import { landingContent } from '@/app/admin/constants';
 import { Button } from '@/components/ui/button';
-import { useUpdateSection1 } from '@/hooks/use-landingpage';
+
 import { useRouter } from 'next/navigation';
 import React, { useRef, useState } from 'react';
 
@@ -12,14 +12,14 @@ interface HeroBannerProps {
 
 const HeroBanner: React.FC<HeroBannerProps> = ({ editable = false }) => {
   const router = useRouter();
-  const updateSection1Mutation = useUpdateSection1();
+  // const updateSection1Mutation = useUpdateSection1();
   const [title, setTitle] = useState(landingContent.heroSectionTitle);
   const [videoUrl, setVideoUrl] = useState(landingContent.heroSectionVideoUrl);
   const [button1Text, setButton1Text] = useState(landingContent.heroSectionButton1Text);
   const [heroSectionButton1Visible, setHeroSectionButton1Visible] = useState(true);
   const [button2Text, setButton2Text] = useState(landingContent.heroSectionButton2Text);
   const [button2Visible, setButton2Visible] = useState(true);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editVideoMode, setEditVideoMode] = useState(false);
 
@@ -45,7 +45,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ editable = false }) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const newVideoUrl = URL.createObjectURL(file);
-      if (setVideoFile) setVideoFile(file);
+
       if (setVideoUrl) setVideoUrl(newVideoUrl);
     }
   };

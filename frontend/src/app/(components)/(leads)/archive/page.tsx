@@ -85,7 +85,7 @@ export default function LeadsArchivePage() {
   }, [search]);
 
   const selectedRowIds = Object.keys(rowSelection).filter((id: string) => rowSelection[id]);
-  const route = role === 'ADMIN' ? 'admin' : 'user';
+  // const route = role === 'ADMIN' ? 'admin' : 'user';
 
   // unArchive >>>>>>>>>>>>>>>>>>
   const handleUnarchiveClick = (leadId: string) => {

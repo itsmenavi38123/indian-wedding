@@ -6,7 +6,7 @@ import { Calendar, DollarSign, Clock, Edit, Archive, Loader2, MapPin } from 'luc
 import { ShimmerLoadingBar } from '../components/LoadingIndicators';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { LeadStatus } from '@/types/lead/Lead';
+
 import { useState } from 'react';
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { LeadStatus } from '@/types/lead/Lead';
 
 const formatBudget = (min: number, max: number) => {
   const formatAmount = (amount: number) => {
@@ -32,8 +33,8 @@ interface SortableCardProps {
   card: any;
   column: any;
   isMoving?: boolean;
-  onArchiveLead: (leadId: string) => Promise<void>;
-  // onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
+  onArchiveLead?: (leadId: string) => Promise<void>;
+  onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
 }
 
 export const SortableCard = ({
@@ -92,7 +93,10 @@ export const SortableCard = ({
     if (!selectedLeadId) return;
     setOpen(false);
     try {
-      await onArchiveLead(selectedLeadId);
+      if (onArchiveLead) {
+        await onArchiveLead(selectedLeadId);
+      }
+
       toast.success('Lead archived successfully!');
     } catch (e) {
       console.error('Failed to archive lead:', e);
