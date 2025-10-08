@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "format": "prettier --write .",
+    "start": "node -r module-alias/register dist/index.js",
     "dev": "prettier --write . && ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "prisma:generate": "prisma generate",
@@ -53,6 +54,9 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   },
   "keywords": [],
   "description": ""
