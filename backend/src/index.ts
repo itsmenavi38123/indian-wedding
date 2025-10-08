@@ -1,5 +1,5 @@
 import http from 'http';
-import { env } from '@/env';
+import { env } from './env';
 import { createApp } from '@/app';
 import { logger } from '@/logger';
 import { connectRedis } from './config/redis';

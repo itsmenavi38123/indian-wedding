@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { env } from '@/env';
+import { env } from '../env';
 
 export function generateAccessToken(payload: any): string {
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
