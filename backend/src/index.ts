@@ -1,3 +1,4 @@
+require('module-alias/register');
 import http from 'http';
 import { env } from './env';
 import { createApp } from '@/app';
