@@ -10,7 +10,7 @@ async function main() {
   try {
     await connectRedis();
 
-    const PORT: number = +(env.PORT ?? 3000);
+    const PORT: number = +(env.PORT ?? 3001);
 
     const server = http.createServer(createApp());
 
