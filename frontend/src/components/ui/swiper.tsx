@@ -6,6 +6,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import Image from 'next/image';
 
 interface SlideItem {
   title: string;
@@ -46,7 +47,7 @@ const Swiper: FC<CustomSwiperProps> = ({ slides, heading, backgroundImage, ...sw
             <SwiperSlide key={index} className="flex justify-center">
               <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col w-full max-w-[300px] sm:max-w-[320px] md:max-w-[340px] hover:scale-105 transition-transform duration-300 ease-in-out">
                 <div className="w-full aspect-[4/3]">
-                  <img src={slide.img} alt={slide.alt} className="w-full h-full object-cover" />
+                  <Image src={slide.img} alt={slide.alt} className="w-full h-full object-cover" />
                 </div>
                 <div className="px-4 py-4">
                   <h3 className="text-center text-base sm:text-lg md:text-xl font-semibold text-black">

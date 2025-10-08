@@ -46,11 +46,11 @@ export const LeadFilters = memo(
       onApplyFilters({});
     };
 
-    const formatCurrency = (value: number) => {
-      if (value >= 1_00_00_000) return `₹${value / 10000000}Cr`;
-      if (value >= 1_00_000) return `₹${value / 100000}L`;
-      return `₹${value.toLocaleString()}`;
-    };
+    // const formatCurrency = (value: number) => {
+    //   if (value >= 1_00_00_000) return `₹${value / 10000000}Cr`;
+    //   if (value >= 1_00_000) return `₹${value / 100000}L`;
+    //   return `₹${value.toLocaleString()}`;
+    // };
 
     return (
       <div className="px-4 py-3 mb-6 rounded-md border border-[#e5e5e521]  shadow-sm black-bg">
@@ -175,3 +175,5 @@ export const LeadFilters = memo(
     );
   }
 );
+
+LeadFilters.displayName = 'LeadFilters';

@@ -1,6 +1,5 @@
 import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
-import { AxiosError } from 'axios';
 import { API_URLS } from '../apiBaseUrl';
 
 export const updateSection1 = async (payload: FormData) => {
@@ -13,7 +12,7 @@ export const updateSection1 = async (payload: FormData) => {
 
     toast.success('Section 1 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating section 1:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 1.');
     throw error;
@@ -30,7 +29,7 @@ export const updateSection2 = async (payload: FormData) => {
 
     toast.success('Section 2 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating section 2:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 2.');
     throw error;
@@ -47,7 +46,7 @@ export const updateSection3 = async (payload: FormData) => {
 
     toast.success('Section 3 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating Section 3:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 3.');
     throw error;
@@ -63,7 +62,7 @@ export const updateSection4 = async (payload: FormData) => {
 
     toast.success('Section 4 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating section 4:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 4.');
     throw error;
@@ -80,7 +79,7 @@ export const updateSection5 = async (payload: FormData) => {
 
     toast.success('Section 5 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating Section 5:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 5.');
     throw error;
@@ -97,7 +96,7 @@ export const updateSection6 = async (payload: { heading: string }) => {
 
     toast.success('Section 6 updated successfully');
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error updating Section 6:', error);
     toast.error(error.response?.data?.message || 'Failed to update Section 6.');
     throw error;

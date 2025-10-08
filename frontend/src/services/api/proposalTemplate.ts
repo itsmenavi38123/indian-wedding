@@ -83,7 +83,7 @@ export const useCreateTemplate = () => {
 
   return useMutation({
     mutationFn: createTemplate,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [API_QUERY_KEYS.proposalTemplate.getAll] });
       toast.success('Template created successfully');
     },

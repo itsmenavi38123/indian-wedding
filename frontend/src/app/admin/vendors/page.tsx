@@ -71,13 +71,13 @@ export default function VendorPage() {
     if (vendorData?.data) {
       dispatch(setData(vendorData.data));
     }
-  }, [vendorData, isLoading]);
+  }, [dispatch, vendorData, isLoading]);
 
   // Sync debounced search with Redux
   useEffect(() => {
     dispatch(setSearch(debouncedValue));
     dispatch(setPagination({ ...pagination, pageIndex: 0 })); // reset page on search
-  }, [debouncedValue]);
+  }, [dispatch, pagination, debouncedValue]);
 
   // Sync local search input with Redux state
   useEffect(() => {

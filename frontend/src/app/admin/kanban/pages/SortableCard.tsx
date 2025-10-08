@@ -2,7 +2,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Calendar, DollarSign, Clock, Edit, Archive, Users, Loader2, MapPin } from 'lucide-react';
+import { Calendar, DollarSign, Clock, Edit, Archive, Loader2, MapPin } from 'lucide-react';
 import { ShimmerLoadingBar } from '../components/LoadingIndicators';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -33,7 +33,7 @@ interface SortableCardProps {
   column: any;
   isMoving?: boolean;
   onArchiveLead: (leadId: string) => Promise<void>;
-  onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
+  // onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
 }
 
 export const SortableCard = ({
@@ -41,7 +41,7 @@ export const SortableCard = ({
   column,
   isMoving = false,
   onArchiveLead,
-  onStatusChange,
+  // onStatusChange,
 }: SortableCardProps) => {
   const router = useRouter();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -94,7 +94,8 @@ export const SortableCard = ({
     try {
       await onArchiveLead(selectedLeadId);
       toast.success('Lead archived successfully!');
-    } catch (error) {
+    } catch (e) {
+      console.error('Failed to archive lead:', e);
       toast.error('Failed to archive lead');
     } finally {
       setSelectedLeadId(null);

@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { VendorForm } from '../components/VendorForm';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store/store';
-import { setLoading, addVendor } from '@/store/slices/vendor';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/store';
+import { setLoading } from '@/store/slices/vendor';
 
 const AddVendor = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.vendor);
+  // const { loading } = useSelector((state: RootState) => state.vendor);
 
   useEffect(() => {
     dispatch(setLoading(false));

@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import React, { useRef, useState } from 'react';
 
 export const logos = [
@@ -99,7 +100,7 @@ const ClientLogo: React.FC<ClientLogoProps> = ({
             <div className=" w-full flex flex-wrap  items-center justify-between gap-[10px] md:gap-8">
               {logos?.map((src, idx) => (
                 <div key={idx} className="flex flex-col items-center justify-center">
-                  <img
+                  <Image
                     src={getLogoUrl(src)}
                     alt={`logo-${idx}`}
                     className=" max-h-[30px] md:max-h-[40px] lg:max-h-[77px] w-fit object-contain"

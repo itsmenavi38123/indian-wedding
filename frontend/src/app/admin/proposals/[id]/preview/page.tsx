@@ -7,7 +7,6 @@ import { useMemo, useState, useRef } from 'react';
 import {
   ArrowLeft,
   Download,
-  Mail,
   Eye,
   CheckCircle,
   XCircle,
@@ -18,7 +17,6 @@ import {
   ZoomOut,
   Maximize2,
   Edit,
-  X,
   Copy,
   Check,
 } from 'lucide-react';
@@ -36,6 +34,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 export default function ProposalPreviewPage() {
   const params = useParams<{ id: string }>();
@@ -61,14 +60,13 @@ export default function ProposalPreviewPage() {
   const { data: proposalResponse, isLoading, error } = useGetProposalById(proposalId);
   const proposal = proposalResponse;
 
-  const templateVars = useMemo(() => {
-    if (!proposal) return {};
+  const templateVars: Record<string, string> = useMemo(() => {
     return {
-      couple_names: proposal.clientName || '',
-      wedding_date: proposal.dateISO || '',
-      client_name: proposal.clientName || '',
-      company_name: proposal.companyName || '',
-      reference: proposal.reference || '',
+      couple_names: proposal?.clientName ?? '',
+      wedding_date: proposal?.dateISO ?? '',
+      client_name: proposal?.clientName ?? '',
+      company_name: proposal?.companyName ?? '',
+      reference: proposal?.reference ?? '',
     };
   }, [proposal]);
 
@@ -312,7 +310,7 @@ export default function ProposalPreviewPage() {
                   <h3 className="text-xl text-gray-700 mt-2">{proposal.title}</h3>
                 </div>
                 {proposal.logoUrl && (
-                  <img
+                  <Image
                     src={proposal.logoUrl}
                     alt={`${proposal.companyName} logo`}
                     className="h-16 w-auto object-contain"

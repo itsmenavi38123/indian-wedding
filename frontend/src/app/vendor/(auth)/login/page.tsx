@@ -47,7 +47,6 @@ const LoginPage = () => {
         router.push('/vendor/dashboard');
       }
     },
-    onError: (error) => {},
   });
 
   const onSubmit = (data: VendorLoginInput) => {

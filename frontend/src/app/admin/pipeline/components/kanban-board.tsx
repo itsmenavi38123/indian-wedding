@@ -10,7 +10,7 @@ import EditLeadModal from './edit-lead-modal';
 type Props = {
   leads: Lead[];
   allLeads: Lead[];
-  setLeads: (updater: (prev: Lead[]) => Lead[]) => void;
+  // setLeads: (updater: (prev: Lead[]) => Lead[]) => void;
   updateLead: (id: string, patch: Partial<Lead>) => void;
   archiveLead: (id: string) => void;
   stages?: Stage[];
@@ -18,7 +18,7 @@ type Props = {
 
 export default function KanbanBoard({
   leads,
-  setLeads,
+  // setLeads,
   updateLead,
   archiveLead,
   stages = STAGES,

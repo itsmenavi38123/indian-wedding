@@ -3,12 +3,7 @@
 import React, { useState } from 'react';
 import CollectionSlider, { Feature } from '@/app/(components)/landingPage/CollectionSlider';
 import HeroBanner from '@/app/(components)/landingPage/HeroBanner';
-import {
-  useUpdateSection1,
-  useUpdateSection2,
-  useUpdateSection3,
-  useUpdateSection6,
-} from '@/hooks/use-landingpage';
+import { useUpdateSection2, useUpdateSection3, useUpdateSection6 } from '@/hooks/use-landingpage';
 import BlogPost, { Blog } from '@/app/(components)/landingPage/BlogPost';
 import { updateSection4, updateSection5 } from '@/services/api/landingPage';
 import CreateWebsite from '@/app/(components)/landingPage/CreateWebsite';
@@ -197,7 +192,7 @@ const BannerEditPage: React.FC = () => {
     if (section5BrandsHeading) formData.append('brands[heading]', section5BrandsHeading);
     if (section5BrandsParagraph) formData.append('brands[paragraph]', section5BrandsParagraph);
 
-    Object.entries(cardImages).forEach(([key, file]) => {
+    Object.entries(cardImages).forEach(([file]) => {
       if (file) {
         formData.append('brands[images][]', file);
       }

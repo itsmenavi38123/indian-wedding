@@ -1,7 +1,7 @@
 import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
-import { API_QUERY_KEYS, API_URLS } from '../apiBaseUrl';
+import { API_URLS } from '../apiBaseUrl';
 
 export interface PipelineSummary {
   stage: string;
@@ -11,7 +11,7 @@ export interface PipelineSummary {
 
 const fetchPipelineSummary = async (): Promise<PipelineSummary[]> => {
   try {
-    const response = await axiosInstance.get(API_URLS.pipeline.summary);
+    const response = await axiosInstance.get(API_URLS.pipeline.getLeads);
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {

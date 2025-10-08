@@ -13,7 +13,7 @@ type Props = {
   open: boolean;
   versions: VersionEntry[];
   onClose: () => void;
-  onRestore: (versionId: string) => void;
+  // onRestore: (versionId: string) => void;
   currentVersionId?: string;
 };
 
@@ -21,7 +21,7 @@ export function VersionHistoryModal({
   open,
   versions,
   onClose,
-  onRestore,
+  // onRestore,
   currentVersionId,
 }: Props) {
   if (!open) return null;

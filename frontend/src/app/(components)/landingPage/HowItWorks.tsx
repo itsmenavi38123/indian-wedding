@@ -47,7 +47,11 @@ const HowItWorks: React.FC<HowItWorksProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setHeading ? setHeading(value) : setLocalHeading(value);
+    if (setHeading) {
+      setHeading(value);
+    } else {
+      setLocalHeading(value);
+    }
   };
 
   return (

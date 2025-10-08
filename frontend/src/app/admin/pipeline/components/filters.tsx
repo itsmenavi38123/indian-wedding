@@ -18,7 +18,7 @@ type Props = {
   isLoading?: boolean;
 };
 
-export default function Filters({ assignees, value, onChange, onApply, isLoading = false }: Props) {
+export default function Filters({ assignees, value, onApply, isLoading = false }: Props) {
   const id = useId();
   const [localFilters, setLocalFilters] = useState<FiltersState>(value);
 

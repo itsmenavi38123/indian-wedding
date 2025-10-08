@@ -5,6 +5,7 @@ import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 // Dummy reviews data
 const reviews = [
@@ -105,7 +106,7 @@ const Review: React.FC<ReviewProps> = ({ editable = false, heading, setHeading }
               {/* User */}
               <div className="flex items-center mt-[15px]">
                 <div className="w-[54px] h-[54px] rounded-4xl overflow-hidden mr-4">
-                  <img
+                  <Image
                     src={review.image}
                     alt={review.name}
                     className="w-full h-full rounded-full object-cover"

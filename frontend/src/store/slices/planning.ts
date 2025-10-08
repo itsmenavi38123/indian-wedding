@@ -268,7 +268,7 @@ export const fetchDestinationsFromServices = createAsyncThunk<
 
     const existing = grouped.get(groupKey);
 
-    const mediaUrls = service.media?.map((m) => m.url) || [];
+    // const mediaUrls = service.media?.map((m) => m.url) || [];
 
     if (!existing) {
       grouped.set(groupKey, {

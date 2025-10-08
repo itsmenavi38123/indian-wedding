@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { formatINRWithCommas, parseNumber } from '@/lib/format';
+import { formatINRWithCommas } from '@/lib/format';
 
 interface PriceInputProps {
   value: number;
@@ -172,7 +172,7 @@ export function PercentageInput({
     setDisplayValue(formattedValue);
 
     const numericValue = parseFloat(formattedValue) || 0;
-    let finalValue = Math.min(max, Math.max(min, numericValue));
+    const finalValue = Math.min(max, Math.max(min, numericValue));
 
     onChange(finalValue);
   };

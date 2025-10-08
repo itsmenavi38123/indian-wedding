@@ -52,41 +52,44 @@ export default function PipelinePage() {
   usePipelineSocket(handleSocketUpdate);
 
   // Fetch leads with filters - now only called on Apply
-  const fetchLeads = useCallback(async (filterValues?: FiltersState) => {
-    try {
-      const isInitialLoad = !filterValues;
-      if (!isInitialLoad) {
-        setIsFiltering(true);
-      } else {
-        setIsLoading(true);
+  const fetchLeads = useCallback(
+    async (filterValues?: FiltersState) => {
+      try {
+        const isInitialLoad = !filterValues;
+        if (!isInitialLoad) {
+          setIsFiltering(true);
+        } else {
+          setIsLoading(true);
+        }
+
+        const filtersToUse = filterValues || filters;
+
+        // Convert filters to API format
+        const apiFilters: PipelineFilters = {
+          assignee: filtersToUse.member !== 'all' ? filtersToUse.member : undefined,
+          startDate: filtersToUse.startDate || undefined,
+          endDate: filtersToUse.endDate || undefined,
+          minBudget: filtersToUse.minBudget || undefined,
+          maxBudget: filtersToUse.maxBudget || undefined,
+        };
+
+        const data = await pipelineApi.getLeads(apiFilters);
+        setLeads(data);
+
+        // Update the stored filters if this was from Apply button
+        if (filterValues) {
+          setFilters(filterValues);
+        }
+      } catch (error) {
+        console.error('Failed to fetch leads:', error);
+        toast.error('Failed to load pipeline data');
+      } finally {
+        setIsLoading(false);
+        setIsFiltering(false);
       }
-
-      const filtersToUse = filterValues || filters;
-
-      // Convert filters to API format
-      const apiFilters: PipelineFilters = {
-        assignee: filtersToUse.member !== 'all' ? filtersToUse.member : undefined,
-        startDate: filtersToUse.startDate || undefined,
-        endDate: filtersToUse.endDate || undefined,
-        minBudget: filtersToUse.minBudget || undefined,
-        maxBudget: filtersToUse.maxBudget || undefined,
-      };
-
-      const data = await pipelineApi.getLeads(apiFilters);
-      setLeads(data);
-
-      // Update the stored filters if this was from Apply button
-      if (filterValues) {
-        setFilters(filterValues);
-      }
-    } catch (error) {
-      console.error('Failed to fetch leads:', error);
-      toast.error('Failed to load pipeline data');
-    } finally {
-      setIsLoading(false);
-      setIsFiltering(false);
-    }
-  }, []);
+    },
+    [filters]
+  );
 
   // Handle filter apply
   const handleApplyFilters = useCallback(
@@ -99,7 +102,7 @@ export default function PipelinePage() {
   // Initial load only
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [fetchLeads]);
 
   // Get unique assignees from current leads for filter dropdown
   const assignees = useMemo(() => {
@@ -207,7 +210,7 @@ export default function PipelinePage() {
             <KanbanBoard
               leads={leads}
               allLeads={leads}
-              setLeads={setLeads}
+              // setLeads={setLeads}
               updateLead={updateLead}
               archiveLead={archiveLead}
               stages={STAGES}
@@ -219,7 +222,11 @@ export default function PipelinePage() {
           </div>
         ) : (
           <div className="h-full w-full overflow-auto">
-            <PipelineCalendarView leads={leads} updateLead={updateLead} archiveLead={archiveLead} />
+            <PipelineCalendarView
+              leads={leads}
+              //  updateLead={updateLead}
+              archiveLead={archiveLead}
+            />
           </div>
         )}
       </div>

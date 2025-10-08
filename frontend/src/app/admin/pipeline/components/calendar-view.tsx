@@ -11,7 +11,7 @@ import ConfirmModal from './confirm-modal';
 
 interface CalendarViewProps {
   leads: Lead[];
-  updateLead: (id: string, patch: Partial<Lead>) => void;
+  // updateLead: (id: string, patch: Partial<Lead>) => void;
   archiveLead: (id: string) => void;
 }
 
@@ -29,7 +29,7 @@ const localizer = dateFnsLocalizer({
 
 export default function PipelineCalendarView({
   leads,
-  updateLead,
+  // updateLead,
   archiveLead,
 }: CalendarViewProps) {
   // Default = today's date

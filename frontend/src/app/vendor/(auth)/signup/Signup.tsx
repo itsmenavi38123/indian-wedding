@@ -23,6 +23,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { countryCodes } from '@/utils/data';
+import Link from 'next/link';
 
 export const Signup = () => {
   const { setEmail, setUserName } = useUser();
@@ -61,7 +62,8 @@ export const Signup = () => {
         form.reset();
         router.push('/vendor/login');
       }
-    } catch (err: any) {
+    } catch (error) {
+      console.error('Signup error:', error);
     } finally {
       setLoading(false);
     }
@@ -325,9 +327,9 @@ export const Signup = () => {
 
           <div className="text-center mt-4 text-sm text-gray-600">
             Already have an account?{' '}
-            <a href="/vendor/login" className="text-blue-600 hover:underline">
+            <Link href="/vendor/login" className="text-blue-600 hover:underline">
               Login
-            </a>
+            </Link>
           </div>
         </Form>
       </div>

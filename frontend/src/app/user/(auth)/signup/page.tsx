@@ -20,6 +20,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { countryCodes } from '@/utils/data';
+import Link from 'next/link';
 
 const UserSignUpPage = () => {
   const { setEmail, setUserName } = useUser();
@@ -43,7 +44,7 @@ const UserSignUpPage = () => {
 
   const {
     reset,
-    formState: { errors },
+    formState: {},
   } = form;
 
   const onSubmit = async (data: UserSignUpInput) => {
@@ -67,6 +68,7 @@ const UserSignUpPage = () => {
         router.push('/user/login');
       }
     } catch (err) {
+      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }
@@ -231,9 +233,9 @@ const UserSignUpPage = () => {
 
           <div className="text-center mt-4 text-sm text-gray-600">
             Already have an account?{' '}
-            <a href="/user/login" className="text-blue-600 hover:underline">
+            <Link href="/user/login" className="text-blue-600 hover:underline">
               Login
-            </a>
+            </Link>
           </div>
         </Form>
       </div>

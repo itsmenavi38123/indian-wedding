@@ -6,6 +6,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 
 export const features = [
   { title: 'All in One Planning', img: '/landing/collection-one.png', alt: 'All in One Planning' },
@@ -38,7 +39,7 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
   setTitle,
   setFeatures,
   editable = false,
-  cardImages,
+  // cardImages,
   setCardImages,
 }) => {
   const handleCardTitleChange = (index: number, newTitle: string) => {
@@ -157,7 +158,7 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
               <div className=" bg-white">
                 <div className="w-full aspect-[435/330]">
                   {' '}
-                  <img src={feature.img} alt={feature.alt} className="w-full h-full object-cover" />
+                  <Image src={feature.img} alt={feature.alt} className="w-full h-full object-cover" />
                 </div>
 
                 {/* Edit image */}
@@ -211,7 +212,8 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
                   )}
                   <button className="cursor-pointer p-0  border-0  text-[16px] text-gold flex items-center gap-[2px]">
                     More{' '}
-                    <img
+                    <Image
+                    alt='navigate'
                       src="/landing/navigate-next.svg"
                       className="cursor-pointer relative top-[3px]"
                     />

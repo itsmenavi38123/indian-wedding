@@ -15,6 +15,7 @@ import { RootState, useAppDispatch, useAppSelector } from '@/store/store';
 import { fetchDestinationsFromServices } from '@/store/slices/planning';
 import Category from './components/steps/Category';
 import ServicesStep from './components/steps/Services';
+import Image from 'next/image';
 
 // Types
 type WizardStep =
@@ -286,11 +287,12 @@ export default function GalleryPage() {
                         wizardData.destination === dest.id ? 'ring-4 ring-rose-500' : ''
                       }`}
                     >
-                      <img
-                        src={dest.heroImage}
+                      <Image
+                        src={dest.heroImage || '/placeholder.jpg'}
                         alt={dest.name}
                         className="w-full h-48 object-cover"
                       />
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         <h3 className="text-xl font-bold">{dest.name}</h3>

@@ -11,7 +11,6 @@ interface UseAutoSaveOptions {
 export function useAutoSave({
   data,
   onSave,
-  interval = 0, // Completely disabled by default
   debounceDelay = 3000, // Default: 3 seconds
   enabled = true,
 }: UseAutoSaveOptions) {
@@ -36,7 +35,7 @@ export function useAutoSave({
       isInitializedRef.current = true;
       console.log('[AutoSave] Initialized with initial data');
     }
-  }, []); // Only run once on mount
+  }, [data]); // Only run once on mount
 
   // Force save function - only saves if data changed
   const forceSave = useCallback(async () => {

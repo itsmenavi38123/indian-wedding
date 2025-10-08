@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import React, { useRef, useState } from 'react';
 
 export interface Blog {
@@ -122,7 +123,7 @@ const BlogPost: React.FC<BlogPostProps> = ({
                 )}
 
                 <div className="aspect-[528.82/655]">
-                  <img
+                  <Image
                     src={
                       previewImage instanceof File
                         ? URL.createObjectURL(previewImage)

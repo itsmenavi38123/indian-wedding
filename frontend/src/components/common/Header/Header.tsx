@@ -3,16 +3,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/store/slices/auth';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Loader2,
-  LogOut,
   LayoutDashboard,
   Users,
   Briefcase,
@@ -22,7 +13,6 @@ import {
   CreditCard,
   BarChart3,
   Settings,
-  Menu,
   GitBranch,
   FileText,
   CircuitBoard,
@@ -34,7 +24,6 @@ import { useMutation } from '@tanstack/react-query';
 import { adminLogout } from '@/services/api/auth';
 import { toast } from 'sonner';
 import { useRouter, usePathname } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

@@ -3,7 +3,6 @@ import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
 import Header from '@/components/common/Header/Header';
-import { Footer } from 'react-day-picker';
 
 export const metadata: Metadata = {
   title: 'Create Next App',

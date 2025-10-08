@@ -3,7 +3,6 @@ import { API_QUERY_KEYS, API_URLS } from '../apiBaseUrl';
 import { UserLoginInput } from '@/app/user/(auth)/schema';
 import { toast } from 'sonner';
 import axiosInstance from '../axiosInstance';
-import { AxiosError } from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 export const userSignup = async (formData: User) => {
@@ -34,7 +33,7 @@ const getCurrentUser = async () => {
   try {
     const { data } = await axiosInstance.get(`${API_URLS.userAuth.currentUser}`);
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     throw error;
   }
 };
@@ -53,7 +52,7 @@ export const userLogout = async () => {
   try {
     const { data } = await axiosInstance.post(API_URLS.userAuth.userLogout);
     return data;
-  } catch (error: AxiosError | any) {
+  } catch (error: any) {
     console.error('Error:', error);
     toast.error(error.response?.data?.message || 'Failed to logout.');
     throw error;

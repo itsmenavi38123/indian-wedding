@@ -23,18 +23,18 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ editable = false }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editVideoMode, setEditVideoMode] = useState(false);
 
-  const handleSaveSection1 = () => {
-    const formData = new FormData();
-    formData.append('text1', title);
-    formData.append('buttons[0][label]', button1Text);
-    formData.append('buttons[0][show]', String(heroSectionButton1Visible));
-    formData.append('buttons[1][label]', button2Text);
-    formData.append('buttons[1][show]', String(button2Visible));
-    if (videoFile) {
-      formData.append('video', videoFile);
-    }
-    updateSection1Mutation.mutate(formData);
-  };
+  // const handleSaveSection1 = () => {
+  //   const formData = new FormData();
+  //   formData.append('text1', title);
+  //   formData.append('buttons[0][label]', button1Text);
+  //   formData.append('buttons[0][show]', String(heroSectionButton1Visible));
+  //   formData.append('buttons[1][label]', button2Text);
+  //   formData.append('buttons[1][show]', String(button2Visible));
+  //   if (videoFile) {
+  //     formData.append('video', videoFile);
+  //   }
+  //   updateSection1Mutation.mutate(formData);
+  // };
 
   const handleVideoClick = () => {
     if (editable && fileInputRef.current) {

@@ -6,6 +6,7 @@ import {
   useGetAllTemplates,
   useSeedTemplates,
 } from '@/services/api/proposalTemplate';
+import Image from 'next/image';
 
 type Props = {
   value: string;
@@ -91,7 +92,7 @@ export function TemplateGallery({ value, onChange }: Props) {
                 aria-label={`Select ${template.name} template`}
               >
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={thumbnailFor(template.templateId) || '/placeholder.svg'}
                     alt={`${template.name} thumbnail`}
                     className="h-16 w-16 rounded object-cover"

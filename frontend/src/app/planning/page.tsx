@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ImageCard } from './Image-card';
+import Image from 'next/image';
 
 // Types
 type CategoryId = 'entertainment' | 'food' | 'photography';
@@ -189,7 +190,7 @@ export default function WeddingGallery() {
                     className="relative aspect-[4/3] w-full overflow-hidden rounded-md"
                   >
                     {/* Simple <img> to avoid next/image layout in dialog; alt included for a11y */}
-                    <img
+                    <Image
                       src={img.src || '/placeholder.svg'}
                       alt={img.alt}
                       className="h-full w-full object-cover"

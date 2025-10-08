@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp, UserX, UsersRound } from 'lucide-react';
 import { FormFieldWrapper } from './FormFieldWrapper';
 import { BASE_URL } from '@/lib/constant';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 interface TeamProps {
   teamIndex: number;
@@ -31,7 +32,7 @@ export const Team: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
 
   useEffect(() => {
     setMemberOpen(memberFields.map(() => true));
-  }, [memberFields.length]);
+  }, [memberFields]);
 
   const getAvatarUrl = (mIndex: number) => {
     const member = members[mIndex];
@@ -191,7 +192,7 @@ export const Team: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
                         <div className="flex justify-center">
                           <div className="w-24 h-24 rounded-full overflow-hidden border flex items-center justify-center bg-gray-100">
                             {hasAvatar ? (
-                              <img
+                              <Image
                                 src={avatarUrl}
                                 alt={`${memberName} avatar`}
                                 className="w-full h-full object-cover"

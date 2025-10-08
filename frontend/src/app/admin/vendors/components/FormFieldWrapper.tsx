@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormItem, FormLabel } from '@/components/ui/form';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Eye, EyeOff } from 'lucide-react';
 

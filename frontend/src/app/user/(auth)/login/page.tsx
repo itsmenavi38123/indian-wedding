@@ -47,7 +47,6 @@ const LoginPage = () => {
         router.push('/user/dashboard');
       }
     },
-    onError: (error) => {},
   });
 
   const onSubmit = (data: UserLoginInput) => {

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Check } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { fetchServicesByCategory, setSelectedService } from '@/store/slices/planning';
+import Image from 'next/image';
 interface ServicesStepProps {
   selectedCategories: string[];
   selectedVendors: {
@@ -47,7 +48,7 @@ export default function ServicesStep({ selectedCategories }: ServicesStepProps) 
                     ${selectedService?.id === service.id ? 'ring-4 ring-rose-500' : ''}`}
                   onClick={() => dispatch(setSelectedService(service))}
                 >
-                  <img
+                  <Image
                     src={service.media?.[0]?.url || 'https://via.placeholder.com/150'}
                     alt={service.title}
                     className="w-full h-32 object-cover"

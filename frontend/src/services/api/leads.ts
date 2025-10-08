@@ -3,7 +3,7 @@ import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
 import { LeadStatus, SaveStatus } from '@/types/lead/Lead';
 import { AxiosError } from 'axios';
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { LeadBoardColumn, LeadFilters } from '@/app/admin/kanban/pages/type';
 
 export interface CreateLeadPayload {

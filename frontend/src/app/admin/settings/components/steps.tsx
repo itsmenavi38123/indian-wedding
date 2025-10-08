@@ -2,17 +2,17 @@ interface StepProps {
   stepNumber: number;
   title: string;
   description: string;
-  editable: boolean;
+  // editable: boolean;
   editMode: boolean;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
 }
 
-const Step: React.FC<StepProps> = ({
+export const Step: React.FC<StepProps> = ({
   stepNumber,
   title,
   description,
-  editable,
+  // editable,
   editMode,
   onTitleChange,
   onDescriptionChange,

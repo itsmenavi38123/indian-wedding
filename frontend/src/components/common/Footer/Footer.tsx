@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -8,7 +9,11 @@ const Footer = () => {
         {/* Logo & About */}
         <div className="logo-side">
           <div className=" mb-3">
-            <img src="/logo.png" alt="Indian Weddings" className="max-w-[160px] md:max-w-[204px]" />
+            <Image
+              src="/logo.png"
+              alt="Indian Weddings"
+              className="max-w-[160px] md:max-w-[204px]"
+            />
           </div>
           <p className="text-[14px] text-white mt-2 leading-[22px] font-montserrat">
             This platform serves as a trusted space for Indian wedding couples and vendors to
@@ -18,8 +23,8 @@ const Footer = () => {
             agreements made outside the platform.
           </p>
           <div className="flex gap-3 mt-4">
-            <img src="/landing/appstore.svg" alt="App Store" className="cursor-pointer" />
-            <img src="/landing/googleplay.svg" alt="Google Play" className="cursor-pointer" />
+            <Image src="/landing/appstore.svg" alt="App Store" className="cursor-pointer" />
+            <Image src="/landing/googleplay.svg" alt="Google Play" className="cursor-pointer" />
           </div>
         </div>
 
@@ -137,13 +142,13 @@ const Footer = () => {
             </p>
             <div className="flex gap-4 mt-2 text-gray-400">
               <Link href="#" className="hover:text-white">
-                <img src="landing/fb.svg" />
+                <Image src="landing/fb.svg" alt="fb" />
               </Link>
               <Link href="#" className="hover:text-white">
-                <img src="landing/insta.svg" />
+                <Image src="landing/insta.svg" alt="insta" />
               </Link>
               <Link href="#" className="hover:text-white">
-                <img src="landing/tiktok.svg" />
+                <Image src="landing/tiktok.svg" alt="tiktok" />
               </Link>
             </div>
           </div>

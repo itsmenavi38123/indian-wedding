@@ -182,7 +182,7 @@ export const useSaveProposalVersion = () => {
 
   return useMutation({
     mutationFn: saveProposalVersion,
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // Invalidate the draft query to refresh versions
       queryClient.invalidateQueries({
         queryKey: [API_QUERY_KEYS.proposal.getDraft],
@@ -212,7 +212,7 @@ export const useFinalizeProposal = () => {
 
   return useMutation({
     mutationFn: finalizeProposal,
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Invalidate proposal queries
       queryClient.invalidateQueries({
         queryKey: [API_QUERY_KEYS.proposal.getDraft],

@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LeadStatus } from '@/types/lead/Lead';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 
 interface BoardListViewProps {
   data: any[];
@@ -47,7 +46,11 @@ export const BoardListView = ({
   const toggleExpand = (id: string) => {
     setExpanded((prev) => {
       const newSet = new Set(prev);
-      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
       return newSet;
     });
   };
@@ -73,7 +76,7 @@ export const BoardListView = ({
   const archiveCard = async (leadId: string) => {
     try {
       await onArchiveLead(leadId);
-    } catch (err) {}
+    } catch {}
   };
 
   const columns = [

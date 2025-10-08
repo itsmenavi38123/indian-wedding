@@ -8,10 +8,10 @@ import { LeadStatus } from '@/types/lead/Lead';
 interface DroppableColumnProps {
   column: any;
   children: ReactNode;
-  onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
+  // onStatusChange?: (leadId: string, newStatus: LeadStatus) => Promise<void>;
 }
 
-export const DroppableColumn = ({ column, children, onStatusChange }: DroppableColumnProps) => {
+export const DroppableColumn = ({ column, children }: DroppableColumnProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
