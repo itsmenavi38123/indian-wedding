@@ -20,7 +20,7 @@ WORKDIR /app
 
 # Copy package.json and install only prod dependencies
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copy built app
 COPY --from=builder /app/.next ./.next
