@@ -1,7 +1,8 @@
 services:
   db:
     image: postgres:16
-    container_name: postgres_dev
+    container_name: postgres
+    platform: linux/amd64
     restart: always
     environment:
       POSTGRES_USER: postgres
