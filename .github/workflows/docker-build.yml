@@ -9,6 +9,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    # ✅ Needed for pushing images to GHCR
     permissions:
       contents: read
       packages: write
@@ -21,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Convert repo name to lowercase (GHCR requires lowercase paths)
+      # 2. Convert repo name to lowercase (GHCR requires lowercase)
       - name: Set lowercase repo name
         id: repo
         run: echo "repo=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
@@ -57,3 +58,11 @@ jobs:
         run: |
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:${{ github.sha }}
           docker push $REGISTRY/${{ steps.repo.outputs.repo }}/frontend:latest
+
+      # 8. 🆕 Make both packages public automatically
+      - name: Make images public
+        run: |
+          gh api --method PATCH /user/packages/container/backend/visibility -f visibility=public || true
+          gh api --method PATCH /user/packages/container/frontend/visibility -f visibility=public || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
