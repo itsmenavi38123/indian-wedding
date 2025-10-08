@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Copy all code
 COPY . .
@@ -18,17 +18,20 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install 'serve' to serve Next.js static build
-RUN npm install -g serve
+# Copy package.json and install only prod dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Copy build output and package.json
+# Copy built app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-#COPY --from=builder /app/.env ./  
+COPY --from=builder /app/next.config.js ./
+
+# Copy environment variables if needed
+# COPY .env .env.production
 
 # Expose port
 EXPOSE 3000
 
 # Start Next.js app
-CMD ["npx", "next", "start", "-p", "3000"]
+CMD ["npm", "run", "start"]
