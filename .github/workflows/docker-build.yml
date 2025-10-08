@@ -11,8 +11,8 @@ jobs:
 
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
-      IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
+      IMAGE_NAME_BACKEND: ${{ github.repository  | toLowerCase }}/backend
+      IMAGE_NAME_FRONTEND: ${{ github.repository  | toLowerCase }}/frontend
 
     steps:
       # 1. Checkout repository
