@@ -1,7 +1,6 @@
 {
   "name": "backend",
-  "version": "0.0.0",
-  "description": "",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
     "format": "prettier --write .",
@@ -26,7 +25,6 @@
     "fs": "^0.0.1-security",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
-    "module-alias": "^2.2.3",
     "moment": "^2.30.1",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
@@ -54,5 +52,7 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }
