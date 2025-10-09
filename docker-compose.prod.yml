@@ -5,18 +5,25 @@ services:
     image: ghcr.io/itsmenavi38123/indian-wedding/backend:latest
     container_name: indianweddings-backend
     ports:
-      - "3001:3001"    
+      - "3001:3001"
     env_file:
-      - .env.production           
+      - .env.production
+
+    volumes:
+      - uploads-data:/usr/src/app/uploads
     restart: unless-stopped
 
   frontend:
     image: ghcr.io/itsmenavi38123/indian-wedding/frontend:latest
     container_name: indianweddings-frontend
     ports:
-      - "3000:3000"  
+      - "3000:3000"
     env_file:
-      - .env.production          
+      - .env.production
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  uploads-data:
+    driver: local
