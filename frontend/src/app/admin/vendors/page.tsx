@@ -77,7 +77,7 @@ export default function VendorPage() {
   useEffect(() => {
     dispatch(setSearch(debouncedValue));
     dispatch(setPagination({ ...pagination, pageIndex: 0 })); // reset page on search
-  }, [dispatch, pagination, debouncedValue]);
+  }, [dispatch, debouncedValue]);
 
   // Sync local search input with Redux state
   useEffect(() => {
