@@ -162,6 +162,8 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
                     src={feature.img}
                     alt={feature.alt}
                     className="w-full h-full object-cover"
+                    width={435}
+                    height={330}
                   />
                 </div>
 
@@ -220,6 +222,8 @@ const CollectionSlider: FC<CollectionSliderProps> = ({
                       alt="navigate"
                       src="/landing/navigate-next.svg"
                       className="cursor-pointer relative top-[3px]"
+                      width={16}
+                      height={16}
                     />
                   </button>
                 </div>

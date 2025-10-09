@@ -150,11 +150,11 @@ export function vendorRoute(): Router {
     authenticateVendor,
     vendorServiceController.getServiceById.bind(vendorServiceController)
   );
-  
+
   vendorRouter.get(
-  '/get/services/category/:category',
-  vendorServiceController.getServicesByCategory.bind(vendorServiceController)
-);
+    '/get/services/category/:category',
+    vendorServiceController.getServicesByCategory.bind(vendorServiceController)
+  );
 
   vendorRouter.delete(
     '/service/:serviceId',

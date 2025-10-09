@@ -104,6 +104,8 @@ const ClientLogo: React.FC<ClientLogoProps> = ({
                     alt={`logo-${idx}`}
                     className=" max-h-[30px] md:max-h-[40px] lg:max-h-[77px] w-fit object-contain"
                     loading="lazy"
+                    width={150}
+                    height={77}
                   />
                   {editable && (
                     <input

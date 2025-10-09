@@ -257,7 +257,6 @@ export class VendorServiceController {
 
   // ================= GET SERVICES =================
   public async getServices(req: AuthenticatedVendorRequest, res: Response) {
-
     try {
       const services = await prisma.vendorService.findMany();
 

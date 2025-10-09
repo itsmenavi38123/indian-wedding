@@ -13,6 +13,8 @@ const Footer = () => {
               src="/logo.png"
               alt="Indian Weddings"
               className="max-w-[160px] md:max-w-[204px]"
+              width={204}
+              height={60}
             />
           </div>
           <p className="text-[14px] text-white mt-2 leading-[22px] font-montserrat">
@@ -23,8 +25,12 @@ const Footer = () => {
             agreements made outside the platform.
           </p>
           <div className="flex gap-3 mt-4">
-            <Image src="/landing/appstore.svg" alt="App Store" className="cursor-pointer" />
-            <Image src="/landing/googleplay.svg" alt="Google Play" className="cursor-pointer" />
+            <Image src="/landing/appstore.svg" alt="App Store" className="cursor-pointer"
+              width={135}
+              height={40} />
+            <Image src="/landing/googleplay.svg" alt="Google Play" className="cursor-pointer"
+              width={135}
+              height={40} />
           </div>
         </div>
 
@@ -142,13 +148,19 @@ const Footer = () => {
             </p>
             <div className="flex gap-4 mt-2 text-gray-400">
               <Link href="#" className="hover:text-white">
-                <Image src="landing/fb.svg" alt="fb" />
+                <Image src="landing/fb.svg" alt="fb"
+                 width={16}
+                  height={16} />
               </Link>
               <Link href="#" className="hover:text-white">
-                <Image src="landing/insta.svg" alt="insta" />
+                <Image src="landing/insta.svg" alt="insta"
+                 width={16}
+                  height={16} />
               </Link>
               <Link href="#" className="hover:text-white">
-                <Image src="landing/tiktok.svg" alt="tiktok" />
+                <Image src="landing/tiktok.svg" alt="tiktok"
+                 width={16}
+                  height={16} />
               </Link>
             </div>
           </div>

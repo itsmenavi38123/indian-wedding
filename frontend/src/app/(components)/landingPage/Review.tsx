@@ -109,6 +109,8 @@ const Review: React.FC<ReviewProps> = ({ editable = false, heading, setHeading }
                   <Image
                     src={review.image}
                     alt={review.name}
+                    width={54}
+                    height={54}
                     className="w-full h-full rounded-full object-cover"
                   />
                 </div>
