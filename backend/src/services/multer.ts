@@ -27,7 +27,11 @@ export const dynamicUpload = (folderName: string) => {
     },
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname);
-      const filename = `${Date.now()}-${file.fieldname}${ext}`;
+       const safeName = path.basename(file.originalname, ext)
+        .replace(/\[/g, '_')
+        .replace(/\]/g, '_')
+        .replace(/\s+/g, '_')
+      const filename = `${Date.now()}-${safeName}${ext}`;
       cb(null, filename);
     },
   });
