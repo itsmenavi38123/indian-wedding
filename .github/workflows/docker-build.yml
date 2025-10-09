@@ -1,5 +1,7 @@
 name: Docker Build & Push
 
+
+
 on:
   push:
     branches:
@@ -15,6 +17,17 @@ jobs:
       IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
 
     steps:
+
+          # Debug: Check if NEXT_PUBLIC_API_URL is available
+      - name: Verify NEXT_PUBLIC_API_URL secret
+        run: |
+          if [ -z "${{ secrets.NEXT_PUBLIC_API_URL }}" ]; then
+            echo "❌ NEXT_PUBLIC_API_URL is NOT set!"
+            exit 1
+          else
+            echo "✅ NEXT_PUBLIC_API_URL is set successfully (value hidden for security)."
+          fi
+
       # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
