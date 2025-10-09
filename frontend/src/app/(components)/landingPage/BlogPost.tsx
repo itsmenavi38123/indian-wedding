@@ -125,6 +125,8 @@ const BlogPost: React.FC<BlogPostProps> = ({
                         ? URL.createObjectURL(previewImage)
                         : previewImage || '/placeholder.png'
                     }
+                    width={528.82}
+                    height={655}
                     alt={blog.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />

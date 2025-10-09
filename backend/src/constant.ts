@@ -5,7 +5,8 @@ export const CONST_KEYS = {
 
 export const cookiesOption = (maxAge: number) => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  //  secure: process.env.NODE_ENV === 'production','
+  secure: false,
   sameSite: 'lax' as const,
   maxAge: maxAge,
 });

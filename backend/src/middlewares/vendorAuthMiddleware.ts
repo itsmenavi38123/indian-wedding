@@ -46,7 +46,7 @@ export const authenticateVendor = async (
     req.vendorEmail = decoded.email;
     req.vendorName = decoded.name;
     req.vendorRole = decoded.role;
-console.log('Decoded Vendor:', decoded);
+    console.log('Decoded Vendor:', decoded);
 
     next();
   } catch (error: any) {
