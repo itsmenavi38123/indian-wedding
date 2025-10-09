@@ -196,6 +196,8 @@ export const Team: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
                                 src={avatarUrl}
                                 alt={`${memberName} avatar`}
                                 className="w-full h-full object-cover"
+                                width={96}
+                                height={96}
                                 onError={(e) => {
                                   console.warn('Avatar failed to load:', avatarUrl);
                                   e.currentTarget.style.display = 'none';
