@@ -10,7 +10,7 @@ services:
       - .env.production
 
     volumes:
-      - uploads-data:/usr/src/app/uploads
+      - ./uploads:/usr/src/app/uploads
     restart: unless-stopped
 
   frontend:
