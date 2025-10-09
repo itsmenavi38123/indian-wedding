@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
         pathname: '/uploads/**', // allow uploaded images
       },
       {
-        protocol: 'https',
+        protocol: 'http',
         hostname: '209.38.121.128', // your production backend domain
         pathname: '/uploads/**',
       },
