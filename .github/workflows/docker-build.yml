@@ -42,7 +42,9 @@ jobs:
       # 4. Build frontend Docker image
       - name: Build frontend image
         run: |
-          docker build -t $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+            -t $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
           docker tag $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:latest
 
       # 5. Push frontend image
