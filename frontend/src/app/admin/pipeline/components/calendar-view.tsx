@@ -62,22 +62,22 @@ export default function PipelineCalendarView({
   }, [leads, selectedDate]);
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto px-4 py-4 space-y-4">
+    <div className="flex flex-col h-full overflow-y-auto px-4 py-4 space-y-4 black-bg rounded-lg border border-[#e5e5e521]">
       {/* Date Picker */}
-      <div className="p-4 border-b bg-white flex items-center gap-4 rounded-lg">
+      <div className="p-4 border border-[#e5e5e521] order dark-bg flex items-center gap-4 rounded-lg">
         <input
           type="date"
-          className="border rounded px-3 py-2 text-sm"
+          className="border border-[#e5e5e521] text-white rounded bg-gold px-3 py-2 text-sm"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-white">
           {selectedEvents.length} wedding{selectedEvents.length !== 1 ? 's' : ''} on this date
         </span>
       </div>
 
       {/* Big Calendar - Month View Only */}
-      <div className="p-4 bg-gray-50 rounded-lg">
+      <div className="p-4 dark-bg rounded-lg black-bg border border-[#e5e5e521]">
         <Calendar
           localizer={localizer}
           events={events}
@@ -126,8 +126,8 @@ export default function PipelineCalendarView({
       </div>
 
       {/* Wedding cards below */}
-      <div className="p-4 bg-white border-t rounded-lg">
-        <h2 className="font-bold text-lg mb-3">
+      <div className="p-4 bg-gold rounded-lg">
+        <h2 className="font-bold text-white text-lg mb-3">
           {format(new Date(selectedDate), 'MMMM do, yyyy')}
         </h2>
 
@@ -148,7 +148,7 @@ export default function PipelineCalendarView({
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 italic">No weddings scheduled for this date.</p>
+          <p className="text-white italic">No weddings scheduled for this date.</p>
         )}
       </div>
 

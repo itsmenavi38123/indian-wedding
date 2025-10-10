@@ -166,9 +166,7 @@ export default function PipelinePage() {
       <header className="flex flex-col  gap-2 sm:gap-3 md:gap-4 w-full max-w-full">
         <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 sm:gap-3 w-full max-w-full">
           <div className="flex items-center p-2 gap-2 sm:gap-3 flex-shrink-0 min-w-0 max-w-full">
-            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold tracking-tight truncate">
-              Pipeline
-            </h1>
+            <h1 className="text-2xl font-semibold text-white">Pipeline</h1>
             <div className="flex">
               <ConnectionStatus />
             </div>

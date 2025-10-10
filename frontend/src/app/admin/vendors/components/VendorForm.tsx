@@ -160,7 +160,7 @@ export const VendorForm: React.FC<VendorFormProps> = ({
           (data) => onSubmit(data),
           (errors) => console.log('Validation errors', errors)
         )}
-        className="space-y-6 bg-white p-6 rounded-lg shadow"
+        className="space-y-6 p-6 rounded-lg shadow bg-black"
       >
         <div className="grid md:grid-cols-2 gap-4">
           <FormFieldWrapper name="name" label="Vendor Name" disabled={readOnly} />
@@ -208,8 +208,10 @@ export const VendorForm: React.FC<VendorFormProps> = ({
         {!readOnly && (
           <div className="space-y-4">
             <div className="flex items-center justify-between w-full sm:w-auto">
-              <h1 className="text-2xl font-bold">Teams</h1>
+              <h1 className="text-2xl font-bold text-white">Teams</h1>
               <Button
+                variant="ghost"
+                className="text-black bg-white"
                 type="button"
                 onClick={() =>
                   appendTeam({
@@ -231,7 +233,9 @@ export const VendorForm: React.FC<VendorFormProps> = ({
 
         {!readOnly && (
           <div className="flex justify-end mt-6">
-            <Button type="submit">Save Vendor</Button>
+            <Button variant="ghost" className="text-black bg-white" type="submit">
+              Save Vendor
+            </Button>
           </div>
         )}
       </form>

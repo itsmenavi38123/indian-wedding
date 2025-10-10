@@ -22,19 +22,27 @@ export default function ListView({ leads, updateLead, archiveLead }: Props) {
   const [leadToArchive, setLeadToArchive] = useState<Lead | undefined>(undefined);
 
   return (
-    <section className="w-full h-full flex flex-col rounded-lg border border-gray-200 bg-white">
+    <section className="w-full h-full flex flex-col rounded-lg border border-[#e5e5e521] overflow-hidden">
       {/* Scrollable wrapper with fixed height */}
       <div className="flex-1 w-full overflow-auto">
         <table className="min-w-[700px] w-full border-collapse">
           <thead className="sticky top-0 z-10">
-            <tr className="bg-gray-50 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-              <th className="px-3 py-2 sm:px-4 sm:py-3">Couple</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3">Wedding date</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3">Budget</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3">Stage</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3 hidden sm:table-cell">Days in stage</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3 hidden sm:table-cell">Assignee</th>
-              <th className="px-3 py-2 sm:px-4 sm:py-3 text-right">Actions</th>
+            <tr className="bg-gold text-left text-xs font-medium text-gray-700 border-b border-[#e5e5e521]">
+              <th className="px-3 py-2 sm:px-4 sm:py-3 text-white font-medium text-sm">Couple</th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 text-white font-medium text-sm">
+                Wedding date
+              </th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 text-white font-medium text-sm">Budget</th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 text-white font-medium text-sm">Stage</th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 hidden sm:table-cell text-white font-medium text-sm">
+                Days in stage
+              </th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 hidden sm:table-cell text-white font-medium text-sm">
+                Assignee
+              </th>
+              <th className="px-3 py-2 sm:px-4 sm:py-3 text-right text-white font-medium text-sm">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -100,7 +108,7 @@ export default function ListView({ leads, updateLead, archiveLead }: Props) {
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-600">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-white">
                   No leads match the current filters.
                 </td>
               </tr>

@@ -315,6 +315,25 @@
 .dark-bg {
   background: var(--dark-bg);
 }
+.rbc-calendar span.rbc-btn-group button {
+  background: #aa8d43;
+  color: #fff;
+}
+.rbc-calendar .rbc-toolbar .rbc-toolbar-label {
+  color: #fff !important ;
+}
+.rbc-calendar .rbc-header span {
+  color: #fff;
+}
+.rbc-calendar button.rbc-button-link {
+  color: #fff;
+}
+.rbc-calendar .rbc-off-range-bg {
+  background: #aa8d43;
+}
+.rbc-calendar .rbc-today {
+  background-color: #16171a;
+}
 @media screen and (max-width: 1199px) {
   section.w-full.how-work::after {
     background: linear-gradient(270deg, rgba(173, 139, 58, 0) 0%, #ad8b3a 95%);

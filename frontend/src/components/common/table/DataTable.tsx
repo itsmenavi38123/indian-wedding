@@ -115,9 +115,9 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="overflow-auto rounded-md border border-[#e5e5e521] text-white">
+    <div className="dark-bg overflow-auto rounded-md border border-[#e5e5e521] text-white">
       <Table className="border-[#e5e5e521] text-white">
-        <TableHeader className="border-[#e5e5e521] text-white">
+        <TableHeader className="border-b border-[#e5e5e521] text-white">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -185,7 +185,7 @@ export function DataTable<TData, TValue>({
         {/* Pagination Controls */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <Button
-            className=" bg-transparent text-white"
+            className=" bg-transparent text-white "
             variant="outline"
             size="sm"
             onClick={() => onPaginationChange({ ...pagination, pageIndex: 0 })}
@@ -254,7 +254,7 @@ export function DataTable<TData, TValue>({
               })
             }
           >
-            <SelectTrigger className="w-[120px] h-9 rounded-lg border border-gray-300 bg-white shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-sm">
+            <SelectTrigger className="w-[120px] h-9 rounded-lg text-white bg-gold hover:bg-white hover:text-accent-foreground  shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-sm">
               <SelectValue placeholder={`${pagination.pageSize} / page`} />
             </SelectTrigger>
             <SelectContent className="rounded-lg shadow-lg border border-gray-200">
