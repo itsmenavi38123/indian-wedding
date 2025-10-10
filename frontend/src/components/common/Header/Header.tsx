@@ -58,6 +58,7 @@ const navItemsByRole = {
   ],
   VENDOR: [
     { name: 'Dashboard', href: '/vendor/dashboard', icon: LayoutDashboard },
+    { name: 'services', href: '/vendor/services', icon: Briefcase },
     { name: 'Team', href: '/vendor/team', icon: Building2 },
     { name: 'Events', href: '/vendor/events', icon: CalendarCheck },
     { name: 'Gallery', href: '/vendor/gallery', icon: GalleryHorizontal },

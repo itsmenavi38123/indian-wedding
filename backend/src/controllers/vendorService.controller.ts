@@ -282,14 +282,16 @@ export class VendorServiceController {
   // ================= GET SERVICE BY ID =================
   public async getServiceById(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
-      const service = await prisma.vendorService.findUnique({ where: { id } });
+      const { serviceId } = req.params;
+      console.log('id param', serviceId);
+      const service = await prisma.vendorService.findUnique({ where: { id: serviceId } });
+      console.log('found service', service);
       if (!service)
         return res
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.SERVICE_NOT_FOUND));
 
-      const transformed = await transformServiceFull(id);
+      const transformed = await transformServiceFull(serviceId);
       return res
         .status(statusCodes.OK)
         .json(new ApiResponse(statusCodes.OK, transformed, successMessages.FETCH_SUCCESS));
@@ -351,19 +353,19 @@ export class VendorServiceController {
   // ================= DELETE SERVICE =================
   public async deleteService(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
-      const service = await prisma.vendorService.findUnique({ where: { id } });
+      const { serviceId } = req.params;
+      const service = await prisma.vendorService.findUnique({ where: { id: serviceId } });
       if (!service)
         return res
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.SERVICE_NOT_FOUND));
 
       const mediaFiles = await prisma.vendorServiceMedia.findMany({
-        where: { vendorServiceId: id },
+        where: { vendorServiceId: serviceId },
       });
       mediaFiles.forEach((m) => deleteFile(path.join(process.cwd(), m.url)));
-      await prisma.vendorServiceMedia.deleteMany({ where: { vendorServiceId: id } });
-      await prisma.vendorService.delete({ where: { id } });
+      await prisma.vendorServiceMedia.deleteMany({ where: { vendorServiceId: serviceId } });
+      await prisma.vendorService.delete({ where: { id: serviceId } });
 
       return res
         .status(statusCodes.OK)
@@ -415,7 +417,7 @@ function moveFilesToServiceFolder(serviceId: string, files: MulterFile[]): Moved
     const safeName = sanitizeFilename(file.originalname);
     const destPath = path.join(serviceDir, safeName);
     fs.renameSync(file.path, destPath);
-   const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
+    const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
     movedFiles.push({
       path: destPath,
       fieldname: file.fieldname,
