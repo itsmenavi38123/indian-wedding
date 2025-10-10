@@ -10,7 +10,7 @@ import leadReducer from './slices/lead';
 import vendorReducer from '@/store/slices/vendor';
 import forgotPasswordReducer from './slices/forgotPassword';
 import planningReducer from './slices/planning';
-
+import vendorServiceReducer from './slices/vendorServices';
 const persistConfig = {
   key: 'root',
   storage,
@@ -21,6 +21,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   lead: leadReducer,
   vendor: vendorReducer,
+  vendorService: vendorServiceReducer,
   forgotPassword: forgotPasswordReducer,
   planning: planningReducer,
 });

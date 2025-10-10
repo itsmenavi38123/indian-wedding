@@ -133,13 +133,6 @@ export function vendorRoute(): Router {
     vendorServiceController.createService.bind(vendorServiceController)
   );
 
-  vendorRouter.put(
-    '/service/update/:serviceId',
-    authenticateVendor,
-    vendorServiceUploadMiddleware,
-    vendorServiceController.updateService.bind(vendorServiceController)
-  );
-
   vendorRouter.get(
     '/get/services',
     vendorServiceController.getServices.bind(vendorServiceController)
@@ -149,6 +142,12 @@ export function vendorRoute(): Router {
     '/service/:serviceId',
     authenticateVendor,
     vendorServiceController.getServiceById.bind(vendorServiceController)
+  );
+  vendorRouter.put(
+    '/service/update/:serviceId',
+    authenticateVendor,
+    vendorServiceUploadMiddleware,
+    vendorServiceController.updateService.bind(vendorServiceController)
   );
 
   vendorRouter.get(

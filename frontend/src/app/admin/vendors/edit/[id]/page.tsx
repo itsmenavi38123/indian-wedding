@@ -6,17 +6,14 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { VendorForm } from '../../components/VendorForm';
-
 interface EditVendorPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 const EditVendorPage = ({ params }: EditVendorPageProps) => {
   const router = useRouter();
 
-  // Use React.use() to unwrap the params promise
-  const unwrappedParams = React.use(params);
-  const { id } = unwrappedParams;
+  const { id } = params;
 
   const { data: vendor, isLoading } = useGetVendor(id);
 

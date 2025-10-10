@@ -48,6 +48,13 @@ export const API_URLS = {
     exportVendorsWithIdsCsv: '/vendor/export-vendor-with-ids/csv',
     event: '/vendor/events',
   },
+  vendorService: {
+    create: '/vendor/service/create',
+    getAllByVendor: '/vendor/get/services',
+    getById: (id: string) => `/vendor/service/${id}`,
+    updateById: (id: string) => `/vendor/service/update/${id}`,
+    deleteById: (id: string) => `/vendor/service/${id}`,
+  },
   pipeline: {
     getLeads: '/pipeline/leads',
     updateLeadStatus: (id: string) => `/pipeline/leads/${id}/status`,
@@ -125,6 +132,13 @@ export const API_QUERY_KEYS = {
     resetPassword: 'resetPassword',
     currentVendor: 'currentVendor',
     vendorForgotPassword: 'vendorForgotPassword',
+  },
+  vendorService: {
+    createVendorService: 'createVendorService',
+    getAllByVendor: 'getAllVendorServices',
+    getById: 'getVendorServiceById',
+    updateById: 'updateVendorServiceById',
+    deleteById: 'deleteVendorServiceById',
   },
   user: {
     userSignup: 'userSignup',
