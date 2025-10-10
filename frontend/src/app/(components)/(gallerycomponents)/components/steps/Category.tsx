@@ -33,6 +33,8 @@ export default function Category({ selectedCategories, onChange }: CategoryProps
               alt={service}
               loading="lazy"
               className="w-full h-32 object-cover"
+              width={400}
+              height={192}
             />
             <div className="p-3 font-semibold text-gray-800 text-base">{service}</div>
             {isSelected && (

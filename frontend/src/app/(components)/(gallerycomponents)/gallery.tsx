@@ -137,7 +137,7 @@ export default function GalleryPage() {
 
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
-
+  console.log('destinations', destinations);
   useEffect(() => {
     dispatch(fetchDestinationsFromServices({}));
   }, [dispatch]);
@@ -289,6 +289,8 @@ export default function GalleryPage() {
                         src={dest.heroImage || '/placeholder.jpg'}
                         alt={dest.name}
                         className="w-full h-48 object-cover"
+                        width={400}
+                        height={192}
                       />
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

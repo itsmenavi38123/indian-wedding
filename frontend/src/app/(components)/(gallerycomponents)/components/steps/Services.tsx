@@ -52,6 +52,8 @@ export default function ServicesStep({ selectedCategories }: ServicesStepProps) 
                     src={service.media?.[0]?.url || 'https://via.placeholder.com/150'}
                     alt={service.title}
                     className="w-full h-32 object-cover"
+                    width={400}
+                    height={192}
                   />
                   <div className="p-3 font-semibold text-gray-800">{service.title}</div>
                   {selectedService?.id === service.id && (
