@@ -92,7 +92,7 @@ export default function KanbanBoard({
             const list = byStage.get(stage) ?? [];
             const totalValue = list.reduce((s, l) => s + l.budget, 0);
             return (
-              <span key={stage} className="text-xs sm:text-sm text-gray-700">
+              <span key={stage} className="text-xs sm:text-sm text-white">
                 <span className="hidden sm:inline">{stageDisplayNames[stage]}: </span>
                 <span className="sm:hidden">{stageDisplayNames[stage].slice(0, 3)}: </span>
                 <strong className="font-semibold text-gray-900">{list.length}</strong>
@@ -104,7 +104,7 @@ export default function KanbanBoard({
         <button
           type="button"
           aria-label="Column settings"
-          className="inline-flex h-8 sm:h-9 w-8 sm:w-auto  items-center gap-1 sm:gap-2 rounded-md border border-gray-300 bg-white px-2 sm:px-3 text-xs sm:text-sm text-gray-700 hover:bg-gray-50 focus:outline-none"
+          className="inline-flex h-8 sm:h-9 w-8 sm:w-auto  items-center gap-1 sm:gap-2 rounded-md border border-gray-300 bg-gold px-2 sm:px-3 text-xs sm:text-sm text-white hover:text-foreground hover:bg-gray-50 focus:outline-none"
           onClick={() => setSettingsOpen(true)}
         >
           <SettingsIcon className="h-4 w-4 text-gray-700" />
@@ -130,8 +130,8 @@ export default function KanbanBoard({
               key={stage}
               role="list"
               aria-label={`${stageDisplayNames[stage]} column`}
-              className={`min-w-[85%] sm:min-w-[260px] md:min-w-[320px] snap-start rounded-lg border bg-gray-50 p-2 sm:p-3 transition-colors ${
-                dragOverStage === stage ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+              className={`min-w-[85%] sm:min-w-[260px] md:min-w-[320px] snap-start rounded-lg border black-bg p-2 sm:px-4 sm:py-6 transition-colors ${
+                dragOverStage === stage ? 'border-blue-400 bg-blue-50' : 'border-[#e5e5e521]'
               }`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -145,11 +145,11 @@ export default function KanbanBoard({
               }}
             >
               <div className="mb-2 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs sm:text-sm font-semibold text-gray-900">
+                <div className="flex flex-col gap-6">
+                  <h3 className="text-lg sm:text-sm font-semibold text-white">
                     {stageDisplayNames[stage]}
                   </h3>
-                  <p className="text-[10px] sm:text-xs text-gray-600">
+                  <p className="text-[10px] sm:text-sm text-white">
                     {list.length} • {formatCurrency(totalValue)}
                   </p>
                 </div>

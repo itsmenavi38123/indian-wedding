@@ -48,7 +48,7 @@ export default function ConnectionStatus() {
           isConnected ? 'bg-green-500' : error ? 'bg-red-500' : 'bg-gray-400'
         } ${!error && 'animate-pulse'}`}
       />
-      <span className="text-gray-600">
+      <span className="text-2xl font-semibold text-white">
         {isConnected ? 'Live updates enabled' : error ? 'Connection failed' : 'Connecting...'}
       </span>
     </div>

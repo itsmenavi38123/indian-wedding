@@ -54,11 +54,13 @@ export const FormFieldWrapper: React.FC<FormFieldWrapperProps> = ({
                 {...field}
                 disabled={disabled}
                 required={required}
-                className="border rounded p-2 w-full h-10 bg-white"
+                className="border-0 border-b-2 border-white bg-transparent text-white focus:outline-none p-2 w-full h-10"
               >
-                <option value="">{placeholder || `Select ${label}`}</option>
+                <option className="text-black" value="">
+                  {placeholder || `Select ${label}`}
+                </option>
                 {options.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option className="text-black" key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
@@ -81,7 +83,7 @@ export const FormFieldWrapper: React.FC<FormFieldWrapperProps> = ({
                   placeholder={placeholder}
                   disabled={disabled}
                   required={required}
-                  className="border rounded p-2 w-full h-10 pr-10"
+                  className="border-0 border-b-2 !bg-black border-white text-white focus:outline-none p-2 w-full h-10 pr-10"
                   onChange={(e) => {
                     const val = e.target.value;
                     if (type === 'number') {

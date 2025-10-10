@@ -20,9 +20,9 @@ export default function MetricsBar({ leads }: Props) {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm flex flex-col">
-      <p className="text-xs sm:text-sm font-medium text-gray-600">{label}</p>
-      <p className="mt-1 text-lg sm:text-xl font-semibold text-gray-900">{value}</p>
+    <div className="black-bg rounded-lg border border-[#e5e5e521] px-4 py-6 shadow-sm flex flex-col gap-6">
+      <p className="text-xs sm:text-xl font-medium text-white">{label}</p>
+      <p className="mt-1 text-lg sm:text-xl font-semibold text-white">{value}</p>
     </div>
   );
 }
