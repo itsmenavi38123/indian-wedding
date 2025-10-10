@@ -415,11 +415,11 @@ function moveFilesToServiceFolder(serviceId: string, files: MulterFile[]): Moved
     const safeName = sanitizeFilename(file.originalname);
     const destPath = path.join(serviceDir, safeName);
     fs.renameSync(file.path, destPath);
-
+   const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
     movedFiles.push({
       path: destPath,
       fieldname: file.fieldname,
-      url: `/uploads/service_${serviceId}/${safeName}`,
+      url: `${SERVER_URL}/uploads/service_${serviceId}/${safeName}`,
     });
   }
 
