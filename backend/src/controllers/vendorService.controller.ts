@@ -3,7 +3,7 @@ import prisma from '@/config/prisma';
 import { ApiResponse } from '@/utils/ApiResponse';
 import { logger } from '@/logger';
 import { statusCodes, errorMessages, successMessages } from '@/constant';
-import { createServiceSchema, updateServiceSchema } from '@/validators/services/services';
+import { vendorServiceSchema } from '@/validators/services/services';
 import { AuthenticatedRequest } from '@/middlewares/authMiddleware';
 import { deleteFile } from '@/services/fileService';
 import { File as MulterFile } from 'multer';
@@ -11,8 +11,8 @@ import path from 'path';
 import fs from 'fs';
 import { MediaType } from '@prisma/client';
 import { AuthenticatedVendorRequest } from '@/middlewares/vendorAuthMiddleware';
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
 
-// ================= Type for moved files =================
 type MovedFile = {
   path: string;
   fieldname: string;
@@ -23,13 +23,16 @@ export class VendorServiceController {
   // ================= CREATE SERVICE =================
   public async createService(req: AuthenticatedVendorRequest, res: Response) {
     let service: any = null;
+    const uploadedFiles: string[] = [];
+
     try {
-      if (req.body.price) req.body.price = Number(req.body.price);
-      if (req.body.latitude) req.body.latitude = Number(req.body.latitude);
-      if (req.body.longitude) req.body.longitude = Number(req.body.longitude);
+      // Convert numeric fields
+      ['price', 'latitude', 'longitude'].forEach((field) => {
+        if (req.body[field]) req.body[field] = Number(req.body[field]);
+      });
 
       const vendorId = req.vendorId!;
-      const parsed = createServiceSchema.safeParse(req.body);
+      const parsed = vendorServiceSchema.safeParse(req.body);
 
       if (!parsed.success) {
         const errors = parsed.error.errors
@@ -53,7 +56,7 @@ export class VendorServiceController {
         longitude,
       } = parsed.data;
 
-      // ================= CREATE SERVICE =================
+      // Create service
       service = await prisma.vendorService.create({
         data: {
           vendorId,
@@ -70,50 +73,83 @@ export class VendorServiceController {
         },
       });
 
-      // ================= MOVE FILES =================
-      const files: MulterFile[] = [];
+      logger.info(`Service created with ID: ${service.id}`);
+
+      // ---------------- HANDLE FILES ----------------
+      const thumbnailFiles: MulterFile[] = [];
+      const mediaFiles: MulterFile[] = [];
+
       if (req.files) {
+        logger.info(`Received files: ${JSON.stringify(Object.keys(req.files))}`);
         const f = req.files as { [fieldname: string]: MulterFile[] };
-        if (f.thumbnail) files.push(...f.thumbnail);
-        if (f.media) files.push(...f.media);
+
+        if (f.thumbnail) {
+          logger.info(`Thumbnail files count: ${f.thumbnail.length}`);
+          thumbnailFiles.push(...f.thumbnail);
+        }
+
+        if (f.media) {
+          logger.info(`Media files count: ${f.media.length}`);
+          logger.info(`Media files: ${f.media.map((m) => m.originalname).join(', ')}`);
+          mediaFiles.push(...f.media);
+        }
+      } else {
+        logger.warn('No files received in request');
       }
 
-      const movedFiles: MovedFile[] = moveFilesToServiceFolder(service.id, files);
+      // Move thumbnail files
+      if (thumbnailFiles.length > 0) {
+        const movedThumbnails = moveFilesToServiceFolder(service.id, thumbnailFiles);
+        uploadedFiles.push(...movedThumbnails.map((f) => f.path));
 
-      // ================= SAVE THUMBNAIL =================
-      const thumbnailFile = movedFiles.find((f) => f.fieldname === 'thumbnail');
-      if (thumbnailFile) {
+        const thumbnailFile = movedThumbnails[0]; // Take first thumbnail
         const thumbMedia = await prisma.vendorServiceMedia.create({
-          data: { vendorServiceId: service.id, type: MediaType.THUMBNAIL, url: thumbnailFile.url },
+          data: {
+            vendorServiceId: service.id,
+            type: MediaType.THUMBNAIL,
+            url: thumbnailFile.url,
+          },
         });
         await prisma.vendorService.update({
           where: { id: service.id },
           data: { thumbnailId: thumbMedia.id },
         });
+        logger.info(`Thumbnail saved for service ${service.id}`);
       }
 
-      // ================= SAVE MEDIA FILES =================
-      const mediaFiles = movedFiles.filter((f) => f.fieldname === 'media');
-      for (const media of mediaFiles) {
-        await prisma.vendorServiceMedia.create({
-          data: { vendorServiceId: service.id, type: MediaType.IMAGE, url: media.url },
+      // Move media files (gallery images only)
+      if (mediaFiles.length > 0) {
+        const movedMedia = moveFilesToServiceFolder(service.id, mediaFiles);
+        uploadedFiles.push(...movedMedia.map((f) => f.path));
+
+        await prisma.vendorServiceMedia.createMany({
+          data: movedMedia.map((media) => ({
+            vendorServiceId: service.id,
+            type: MediaType.IMAGE,
+            url: media.url,
+          })),
         });
+        logger.info(`${movedMedia.length} gallery images saved for service ${service.id}`);
       }
 
       const transformed = await transformServiceFull(service.id);
       return res
         .status(statusCodes.CREATED)
         .json(new ApiResponse(statusCodes.CREATED, transformed, successMessages.SERVICE_CREATED));
-    } catch (err) {
+    } catch (err: any) {
       logger.error('Error creating service:', err);
-      if (service) await prisma.vendorService.delete({ where: { id: service.id } });
+
+      if (service?.id) await prisma.vendorService.delete({ where: { id: service.id } });
+
+      uploadedFiles.forEach((filePath) => fs.existsSync(filePath) && fs.unlinkSync(filePath));
+
       return res
         .status(statusCodes.INTERNAL_SERVER_ERROR)
         .json(
           new ApiResponse(
             statusCodes.INTERNAL_SERVER_ERROR,
             null,
-            errorMessages.SERVICE_CREATE_FAILED
+            err.message || errorMessages.SERVICE_CREATE_FAILED
           )
         );
     } finally {
@@ -123,37 +159,117 @@ export class VendorServiceController {
 
   // ================= UPDATE SERVICE =================
   public async updateService(req: AuthenticatedRequest, res: Response) {
+    const uploadedFiles: string[] = [];
+
     try {
-      const { serviceId } = req.params; // <-- use correct route param
-      if (!serviceId) {
-        return res
-          .status(statusCodes.BAD_REQUEST)
-          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'Service ID is required'));
-      }
+      const { serviceId } = req.params;
+      if (!serviceId) return res.status(400).json({ message: 'Service ID is required' });
 
-      // Convert numeric fields from form-data strings
-      if (req.body.price) req.body.price = Number(req.body.price);
-      if (req.body.latitude) req.body.latitude = Number(req.body.latitude);
-      if (req.body.longitude) req.body.longitude = Number(req.body.longitude);
+      // Convert numeric fields
+      ['price', 'latitude', 'longitude'].forEach((field) => {
+        if (req.body[field]) req.body[field] = Number(req.body[field]);
+      });
 
-      // Validate request body
-      const parsed = updateServiceSchema.safeParse(req.body);
+      const parsed = vendorServiceSchema.safeParse(req.body);
       if (!parsed.success) {
         const errors = parsed.error.errors
-          .map((e) => `${e.path.join('.') || 'field'}: ${e.message}`)
+          .map((e) => `${e.path.join('.')}: ${e.message}`)
           .join(', ');
-        return res
-          .status(statusCodes.BAD_REQUEST)
-          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, `Validation failed: ${errors}`));
+        return res.status(400).json({ message: `Validation failed: ${errors}` });
       }
 
-      const existingService = await prisma.vendorService.findUnique({ where: { id: serviceId } });
-      if (!existingService) {
-        return res
-          .status(statusCodes.NOT_FOUND)
-          .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.SERVICE_NOT_FOUND));
+      const existingService = await prisma.vendorService.findUnique({
+        where: { id: serviceId },
+        include: { thumbnail: true, media: true },
+      });
+      if (!existingService) return res.status(404).json({ message: 'Service not found' });
+
+      // Process uploaded files - SEPARATE thumbnail and media
+      const thumbnailFiles: MulterFile[] = [];
+      const mediaFiles: MulterFile[] = [];
+
+      if (req.files) {
+        const f = req.files as { [fieldname: string]: MulterFile[] };
+        if (f.thumbnail) thumbnailFiles.push(...f.thumbnail);
+        if (f.media) mediaFiles.push(...f.media);
       }
 
+      // ---------------- HANDLE THUMBNAIL ----------------
+      if (thumbnailFiles.length > 0) {
+        const movedThumbnails = moveFilesToServiceFolder(serviceId, thumbnailFiles);
+        uploadedFiles.push(...movedThumbnails.map((f) => f.path));
+
+        // Delete old thumbnail
+        if (existingService.thumbnailId) {
+          const oldThumb = await prisma.vendorServiceMedia.findUnique({
+            where: { id: existingService.thumbnailId },
+          });
+          if (oldThumb) {
+            const filePath = getUploadPath(`service_${serviceId}`, path.basename(oldThumb.url));
+            deleteFile(filePath);
+            await prisma.vendorServiceMedia.delete({ where: { id: existingService.thumbnailId } });
+          }
+        }
+
+        // Create new thumbnail
+        const thumbnailFile = movedThumbnails[0];
+        const thumbMedia = await prisma.vendorServiceMedia.create({
+          data: {
+            vendorServiceId: serviceId,
+            type: MediaType.THUMBNAIL,
+            url: thumbnailFile.url,
+          },
+        });
+        await prisma.vendorService.update({
+          where: { id: serviceId },
+          data: { thumbnailId: thumbMedia.id },
+        });
+        logger.info(`Thumbnail updated for service ${serviceId}`);
+      }
+
+      // ---------------- HANDLE MEDIA (Gallery) ----------------
+      if (mediaFiles.length > 0) {
+        const movedMedia = moveFilesToServiceFolder(serviceId, mediaFiles);
+        uploadedFiles.push(...movedMedia.map((f) => f.path));
+
+        await prisma.vendorServiceMedia.createMany({
+          data: movedMedia.map((m) => ({
+            vendorServiceId: serviceId,
+            type: MediaType.IMAGE,
+            url: m.url,
+          })),
+        });
+        logger.info(`${movedMedia.length} gallery images added for service ${serviceId}`);
+      }
+
+      // ---------------- REMOVE MEDIA ----------------
+      // Expecting removeMediaIds to contain URLs instead of IDs
+      const removeMediaUrls: string[] = parsed.data.removeMediaIds || [];
+      if (removeMediaUrls.length) {
+        const mediaToRemove = await prisma.vendorServiceMedia.findMany({
+          where: {
+            url: { in: removeMediaUrls },
+            vendorServiceId: serviceId,
+            type: MediaType.IMAGE,
+          },
+        });
+        for (const media of mediaToRemove) {
+          const filePath = getUploadPath(`service_${serviceId}`, path.basename(media.url));
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+
+        await prisma.vendorServiceMedia.deleteMany({
+          where: {
+            url: { in: removeMediaUrls },
+            vendorServiceId: serviceId,
+            type: MediaType.IMAGE,
+          },
+        });
+
+        logger.info(`${removeMediaUrls.length} gallery images removed from service ${serviceId}`);
+      }
+
+      // Update service details
       const {
         title,
         description,
@@ -165,91 +281,33 @@ export class VendorServiceController {
         name,
         latitude,
         longitude,
-        removeMediaIds,
       } = parsed.data;
-
-      // ================= MOVE UPLOADED FILES =================
-      const files: MulterFile[] = [];
-      if (req.files) {
-        const f = req.files as { [fieldname: string]: MulterFile[] };
-        if (f.thumbnail) files.push(...f.thumbnail);
-        if (f.media) files.push(...f.media);
-      }
-
-      const movedFiles: MovedFile[] = moveFilesToServiceFolder(serviceId, files);
-
-      // ================= HANDLE THUMBNAIL =================
-      const thumbnailFile = movedFiles.find((f) => f.fieldname === 'thumbnail');
-      if (thumbnailFile) {
-        if (existingService.thumbnailId) {
-          const oldThumb = await prisma.vendorServiceMedia.findUnique({
-            where: { id: existingService.thumbnailId },
-          });
-          if (oldThumb) deleteFile(path.join(process.cwd(), oldThumb.url));
-          await prisma.vendorServiceMedia.delete({ where: { id: existingService.thumbnailId } });
-        }
-
-        const thumbMedia = await prisma.vendorServiceMedia.create({
-          data: { vendorServiceId: serviceId, type: MediaType.THUMBNAIL, url: thumbnailFile.url },
-        });
-
-        await prisma.vendorService.update({
-          where: { id: serviceId },
-          data: { thumbnailId: thumbMedia.id },
-        });
-      }
-
-      // ================= REMOVE SELECTED MEDIA =================
-      if (removeMediaIds && removeMediaIds.length > 0) {
-        const mediaToRemove = await prisma.vendorServiceMedia.findMany({
-          where: { id: { in: removeMediaIds }, vendorServiceId: serviceId, type: MediaType.IMAGE },
-        });
-        mediaToRemove.forEach((m) => deleteFile(path.join(process.cwd(), m.url)));
-        await prisma.vendorServiceMedia.deleteMany({
-          where: { id: { in: removeMediaIds }, vendorServiceId: serviceId, type: MediaType.IMAGE },
-        });
-      }
-
-      // ================= ADD NEW MEDIA FILES =================
-      const mediaFiles = movedFiles.filter((f) => f.fieldname === 'media');
-      for (const media of mediaFiles) {
-        await prisma.vendorServiceMedia.create({
-          data: { vendorServiceId: serviceId, type: MediaType.IMAGE, url: media.url },
-        });
-      }
-
-      // ================= UPDATE SERVICE DATA =================
       await prisma.vendorService.update({
         where: { id: serviceId },
         data: {
-          ...(title && { title }),
-          ...(description && { description }),
-          ...(category && { category }),
-          ...(price && { price }),
-          ...(country && { country }),
-          ...(state && { state }),
-          ...(city && { city }),
-          ...(name && { name }),
-          ...(latitude && { latitude }),
-          ...(longitude && { longitude }),
+          title,
+          description,
+          category,
+          price,
+          country,
+          state,
+          city,
+          name,
+          latitude,
+          longitude,
         },
       });
 
       const transformed = await transformServiceFull(serviceId);
       return res
-        .status(statusCodes.OK)
-        .json(new ApiResponse(statusCodes.OK, transformed, successMessages.SERVICE_UPDATED));
-    } catch (err) {
+        .status(200)
+        .json({ success: true, data: transformed, message: successMessages.SERVICE_UPDATED });
+    } catch (err: any) {
       logger.error('Error updating service:', err);
+      uploadedFiles.forEach((file) => fs.existsSync(file) && fs.unlinkSync(file));
       return res
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          new ApiResponse(
-            statusCodes.INTERNAL_SERVER_ERROR,
-            null,
-            errorMessages.SERVICE_UPDATE_FAILED
-          )
-        );
+        .status(500)
+        .json({ success: false, message: err.message || errorMessages.SERVICE_UPDATE_FAILED });
     } finally {
       cleanupTempFolder();
     }
@@ -283,9 +341,8 @@ export class VendorServiceController {
   public async getServiceById(req: AuthenticatedRequest, res: Response) {
     try {
       const { serviceId } = req.params;
-      console.log('id param', serviceId);
       const service = await prisma.vendorService.findUnique({ where: { id: serviceId } });
-      console.log('found service', service);
+
       if (!service)
         return res
           .status(statusCodes.NOT_FOUND)
@@ -354,19 +411,35 @@ export class VendorServiceController {
   public async deleteService(req: AuthenticatedRequest, res: Response) {
     try {
       const { serviceId } = req.params;
-      const service = await prisma.vendorService.findUnique({ where: { id: serviceId } });
-      if (!service)
+
+      if (!serviceId) {
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'Service ID is required'));
+      }
+
+      const service = await prisma.vendorService.findUnique({
+        where: { id: serviceId },
+        include: { media: true, thumbnail: true },
+      });
+
+      if (!service) {
         return res
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.SERVICE_NOT_FOUND));
+      }
 
-      const mediaFiles = await prisma.vendorServiceMedia.findMany({
-        where: { vendorServiceId: serviceId },
-      });
-      mediaFiles.forEach((m) => deleteFile(path.join(process.cwd(), m.url)));
+      // Delete the entire service folder
+      const serviceFolder = getUploadPath(`service_${serviceId}`);
+      if (fs.existsSync(serviceFolder)) {
+        fs.rmSync(serviceFolder, { recursive: true, force: true });
+        logger.info(`Deleted entire service folder: ${serviceFolder}`);
+      }
+
+      // Delete database records
       await prisma.vendorServiceMedia.deleteMany({ where: { vendorServiceId: serviceId } });
       await prisma.vendorService.delete({ where: { id: serviceId } });
-
+      logger.info(`Service ${serviceId} deleted successfully`);
       return res
         .status(statusCodes.OK)
         .json(new ApiResponse(statusCodes.OK, null, successMessages.DELETE_SUCCESS));
@@ -389,7 +462,12 @@ export class VendorServiceController {
 async function transformServiceFull(serviceId: string) {
   const service = await prisma.vendorService.findUnique({
     where: { id: serviceId },
-    include: { media: true, thumbnail: true },
+    include: {
+      media: {
+        where: { type: MediaType.IMAGE }, // Only get IMAGE type for gallery
+      },
+      thumbnail: true,
+    },
   });
 
   if (!service) return null;
@@ -403,36 +481,78 @@ async function transformServiceFull(serviceId: string) {
 
 // ================= MOVE FILES =================
 function moveFilesToServiceFolder(serviceId: string, files: MulterFile[]): MovedFile[] {
-  const serviceDir = path.join(process.cwd(), 'uploads', `service_${serviceId}`);
-  if (!fs.existsSync(serviceDir)) fs.mkdirSync(serviceDir, { recursive: true });
+  logger.info(`moveFilesToServiceFolder called with ${files.length} files`);
+  const serviceDir = getUploadPath(`service_${serviceId}`);
+  if (!fs.existsSync(serviceDir)) {
+    fs.mkdirSync(serviceDir, { recursive: true });
+    logger.info(`Created service directory: ${serviceDir}`);
+  }
 
   const movedFiles: MovedFile[] = [];
-
   for (const file of files) {
+    logger.info(
+      `Processing file: ${file.originalname}, path: ${file.path}, fieldname: ${file.fieldname}`
+    );
+
     if (!fs.existsSync(file.path)) {
-      console.warn(`Temp file not found, skipping: ${file.path}`);
+      logger.warn(`Temp file not found, skipping: ${file.path}`);
       continue;
     }
 
     const safeName = sanitizeFilename(file.originalname);
-    const destPath = path.join(serviceDir, safeName);
-    fs.renameSync(file.path, destPath);
-    const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
-    movedFiles.push({
-      path: destPath,
-      fieldname: file.fieldname,
-      url: `${SERVER_URL}/uploads/service_${serviceId}/${safeName}`,
-    });
+    const timestamp = Date.now();
+    const uniqueName = `${timestamp}-${safeName}`;
+    const destPath = getUploadPath(`service_${serviceId}`, uniqueName);
+    try {
+      fs.renameSync(file.path, destPath);
+      movedFiles.push({
+        path: destPath,
+        fieldname: file.fieldname,
+        url: `${SERVER_URL}/uploads/service_${serviceId}/${uniqueName}`,
+      });
+      logger.info(`Moved file: ${file.originalname} -> ${destPath}`);
+    } catch (err) {
+      logger.error(`Error moving file ${file.path}:`, err);
+    }
   }
 
+  logger.info(`Successfully moved ${movedFiles.length} files`);
   return movedFiles;
 }
 
-function sanitizeFilename(name: string) {
-  return name.replace(/[\[\]\s]/g, '_');
+function sanitizeFilename(name: string): string {
+  return name
+    .replace(/[\[\]\s]/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '')
+    .toLowerCase();
 }
 
 function cleanupTempFolder() {
-  const tempDir = path.join(process.cwd(), 'uploads', 'temp');
-  if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
+  const tempDir = getUploadPath('temp');
+  try {
+    if (fs.existsSync(tempDir)) {
+      const files = fs.readdirSync(tempDir);
+      logger.info(`Cleaning up temp folder. Found ${files.length} files`);
+
+      // Only delete files, not the directory itself
+      files.forEach((file) => {
+        const filePath = path.join(tempDir, file);
+        if (fs.statSync(filePath).isFile()) {
+          fs.unlinkSync(filePath);
+        }
+      });
+
+      logger.info('Cleaned up temp folder');
+    }
+  } catch (err) {
+    logger.error('Error cleaning up temp folder:', err);
+  }
+}
+
+export function getUploadPath(folder: 'temp' | `service_${string}`, filename?: string) {
+  const baseDir = path.join(process.cwd(), 'uploads');
+  if (filename) {
+    return path.join(baseDir, folder, filename);
+  }
+  return path.join(baseDir, folder);
 }

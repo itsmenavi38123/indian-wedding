@@ -4,17 +4,16 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 import { useGetVendorServiceById } from '@/services/api/vendorServices';
 import { VendorServiceForm } from '@/app/vendor/services/components/VendorFormService';
 
 interface EditVendorServicePageProps {
-  params: { id: string }; // pass both vendorId and serviceId
+  params: Promise<{ id: string }>;
 }
 
 const EditVendorServicePage = ({ params }: EditVendorServicePageProps) => {
   const router = useRouter();
-  const { id: serviceId } = params;
+  const { id: serviceId } = React.use(params);
   console.log('serviceId', serviceId);
   const { data: service, isLoading } = useGetVendorServiceById(serviceId);
   console.log('service data', service);
@@ -66,12 +65,7 @@ const EditVendorServicePage = ({ params }: EditVendorServicePageProps) => {
       </div>
 
       {/* Vendor Service Form */}
-      <VendorServiceForm
-        defaultValues={defaultValues}
-        vendorId={serviceId}
-        vendorServiceId={serviceId}
-        type="edit"
-      />
+      <VendorServiceForm defaultValues={defaultValues} vendorServiceId={serviceId} type="edit" />
     </div>
   );
 };
