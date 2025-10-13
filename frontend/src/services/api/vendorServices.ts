@@ -80,8 +80,6 @@ export const createVendorService = async (formData: FormData) => {
     const { data } = await axiosInstance.post(API_URLS.vendorService.create, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-
-    toast.success('Service created successfully!');
     return data;
   } catch (error: any) {
     console.error('Error creating vendor service:', error);
@@ -101,8 +99,6 @@ export const updateVendorService = async (id: string, formData: FormData) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       }
     );
-
-    toast.success('Service updated successfully!');
     return data;
   } catch (error: any) {
     console.error('Error updating vendor service:', error);
@@ -189,7 +185,6 @@ export function useDeleteVendorService() {
       queryClient.invalidateQueries({
         queryKey: [API_QUERY_KEYS.vendorService.getAllByVendor],
       });
-
       console.log(`Deleted vendor service with ID: ${id}`);
     },
     onError: (error: any) => {

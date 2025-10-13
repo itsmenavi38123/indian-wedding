@@ -6,21 +6,27 @@ import { DataTable } from '@/components/common/table/DataTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PaginationState, SortingState } from '@tanstack/react-table';
-
+import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
-
 import Link from 'next/link';
 import { getVendorServiceColumns } from './columns';
 import { setPagination, setSearch, setSorting } from '@/store/slices/vendorServices';
 import { useDeleteVendorService, useGetVendorServices } from '@/services/api/vendorServices';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 export default function VendorServicePage() {
   const dispatch = useDispatch<AppDispatch>();
   const { mutate: deleteService } = useDeleteVendorService();
   const auth = useSelector((state: RootState) => state.auth.user);
   const role = auth?.role;
-  const columns = getVendorServiceColumns(role, deleteService); // adjust columns for vendor services
 
   const { sorting, pagination, categoryFilter, search } = useSelector(
     (state: RootState) => state.vendorService
@@ -29,6 +35,9 @@ export default function VendorServicePage() {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [localSearch, setLocalSearch] = useState(search);
   const [debouncedValue] = useDebounce(localSearch, 500);
+
+  const [open, setOpen] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
   // Update Redux search state after debounce
   useEffect(() => {
@@ -43,14 +52,38 @@ export default function VendorServicePage() {
   const route = role === 'ADMIN' ? 'admin' : 'vendor';
   console.log('auth', auth);
   // Fetch Vendor Services
-  const { data, isLoading } = useGetVendorServices({
+  const { data, isLoading, refetch } = useGetVendorServices({
     vendorId: auth?.id || '',
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
     search,
     category: categoryFilter === 'ALL' ? '' : categoryFilter,
   });
-  console.log('vendor services data', data);
+
+  const handleDeleteClick = (leadId: string) => {
+    setSelectedRowId(leadId);
+    setOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      if (selectedRowId) {
+        deleteService(selectedRowId);
+      }
+    } catch {
+      toast.error('Failed to restore lead');
+    } finally {
+      setOpen(false);
+      setSelectedRowId(null);
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    setSelectedRowId(null);
+  };
+
+  const columns = getVendorServiceColumns(role, handleDeleteClick);
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -105,6 +138,21 @@ export default function VendorServicePage() {
           onRowSelectionChange={setRowSelection}
         />
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Service</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this service?</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel}>
+              No
+            </Button>
+            <Button onClick={handleConfirm}>Yes, Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

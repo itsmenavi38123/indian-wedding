@@ -4,6 +4,7 @@ import { Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
+import { BASE_URL } from '@/lib/constant';
 
 export type VendorService = {
   id: string;
@@ -30,9 +31,9 @@ export const getVendorServiceColumns = (
     header: 'Image',
     cell: ({ row }) => (
       <div className="w-16 h-16">
-        {row.original.thumbnail?.url ? (
+        {row?.original?.thumbnail?.url ? (
           <Image
-            src={row.original.thumbnail.url}
+            src={`${row?.original?.thumbnail?.url}`}
             alt={row.original.title}
             width={64}
             height={64}
@@ -94,9 +95,7 @@ export const getVendorServiceColumns = (
                   variant="destructive"
                   size="icon"
                   onClick={() => {
-                    if (confirm('Are you sure you want to delete this service?')) {
                       onDelete(row.original.id);
-                    }
                   }}
                 >
                   <Trash className="h-4 w-4" />

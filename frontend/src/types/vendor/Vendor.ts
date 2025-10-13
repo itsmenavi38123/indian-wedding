@@ -82,15 +82,16 @@ export const vendorServiceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   category: z.string().min(1, 'Category is required'),
-  price: z.coerce.number().min(1, 'Price must be positive'),
+  price: z.number().min(0, 'Price must be positive'),
   country: z.string().min(1, 'Country is required'),
   state: z.string().min(1, 'State is required'),
   city: z.string().min(1, 'City is required'),
   name: z.string().min(1, 'Vendor name is required'),
-  latitude: z.coerce.number().optional(),
-  longitude: z.coerce.number().optional(),
-  thumbnail: z.any().optional(),
-  media: z.array(z.any()).optional(),
+  latitude: z.number().refine((val) => !isNaN(val), 'Latitude must be a number'),
+  longitude: z.number().refine((val) => !isNaN(val), 'Longitude must be a number'),
+  thumbnail: z.union([z.instanceof(File), z.string()]).nullable(),
+  media: z.array(z.union([z.instanceof(File), z.string()])).optional(),
+  removeMediaIds: z.array(z.string()).optional(),
 });
 
 // Types
