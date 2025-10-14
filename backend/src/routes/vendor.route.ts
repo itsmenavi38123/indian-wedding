@@ -67,8 +67,8 @@ export function vendorRoute(): Router {
   );
 
   vendorRouter.get(
-    '/teams',
-    authenticate(),
+    '/get/teams',
+    authenticateVendor,
     vendorTeamController.getTeamsByVendor.bind(vendorTeamController)
   );
 
@@ -88,6 +88,12 @@ export function vendorRoute(): Router {
     '/team/:teamId',
     authenticate(),
     vendorTeamController.deleteTeam.bind(vendorTeamController)
+  );
+
+  vendorRouter.post(
+    '/teams',
+    authenticateVendor,
+    vendorTeamController.createVendorTeams.bind(vendorTeamController)
   );
 
   /**

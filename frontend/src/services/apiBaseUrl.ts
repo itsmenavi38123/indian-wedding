@@ -47,6 +47,8 @@ export const API_URLS = {
     bulkUpdateVendorStatus: '/vendor/bulk-update-status',
     exportVendorsWithIdsCsv: '/vendor/export-vendor-with-ids/csv',
     event: '/vendor/events',
+    createTeams: '/vendor/teams',
+    getTeams: '/vendor/get/teams'
   },
   vendorService: {
     create: '/vendor/service/create',
@@ -132,6 +134,8 @@ export const API_QUERY_KEYS = {
     resetPassword: 'resetPassword',
     currentVendor: 'currentVendor',
     vendorForgotPassword: 'vendorForgotPassword',
+    getTeams: 'getTeams',
+
   },
   vendorService: {
     createVendorService: 'createVendorService',

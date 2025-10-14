@@ -29,3 +29,20 @@ export const updateTeamMemberSchema = z.object({
   phone: z.string().optional(),
   teamIds: z.array(z.string().uuid()).optional(),
 });
+
+export const createVendorTeamsSchema = z.object({
+  teams: z.array(
+    z.object({
+      name: z.string().min(1, 'Team name is required'),
+      description: z.string().optional(),
+      members: z
+        .array(
+          z.object({
+            name: z.string().min(1, 'Member name is required'),
+            email: z.string().email('Invalid email').optional(),
+          })
+        )
+        .optional(),
+    })
+  ),
+});

@@ -5,6 +5,7 @@ import {
   createTeamSchema,
   updateTeamSchema,
   updateTeamMemberSchema,
+  createVendorTeamsSchema,
 } from '@/validators/team/createTeam';
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
@@ -72,6 +73,11 @@ export class VendorTeamController {
       }
 
       const { page = 1, limit = 10, search } = req.query as any;
+
+      console.log('Query params:', req.query);
+
+      const pageNum = Number(page) || 1;
+      const limitNum = limit === 'all' ? undefined : Number(limit) || 10;
 
       const where: any = { vendorId };
       if (search) {
@@ -559,6 +565,74 @@ export class VendorTeamController {
             statusCodes.INTERNAL_SERVER_ERROR,
             null,
             errorMessages.TEAM_MEMBER_ASSIGN_FAILED
+          )
+        );
+    }
+  }
+
+  //   Add multiple Teams
+  public async createVendorTeams(req: AuthenticatedVendorRequest, res: Response) {
+    try {
+      const vendorId = req.vendorId!;
+      const parsed = createVendorTeamsSchema.safeParse(req.body);
+
+      if (!parsed.success) {
+        const errors = parsed.error.errors.map((e) => e.message).join(', ');
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, `Validation failed: ${errors}`));
+      }
+
+      const { teams } = parsed.data;
+
+      const result = await prisma.$transaction(async (prisma) => {
+        const createdTeams: any[] = [];
+
+        for (const teamData of teams) {
+          const team = await prisma.team.create({
+            data: {
+              name: teamData.name,
+              description: teamData.description,
+              vendor: {
+                connect: { id: vendorId },
+              },
+            },
+          });
+
+          const createdMembers: any[] = [];
+
+          if (teamData.members && teamData.members.length > 0) {
+            for (const memberData of teamData.members) {
+              const member = await prisma.teamMember.create({
+                data: { name: memberData.name, email: memberData.email, vendorId },
+              });
+
+              await prisma.teamMemberOnTeam.create({
+                data: { teamId: team.id, teamMemberId: member.id },
+              });
+
+              createdMembers.push(member);
+            }
+          }
+
+          createdTeams.push({ ...team, members: createdMembers });
+        }
+
+        return createdTeams;
+      });
+
+      res
+        .status(statusCodes.OK)
+        .json(new ApiResponse(statusCodes.OK, result, 'Teams and members created successfully!'));
+    } catch (error) {
+      console.error(error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            'Failed to create teams and members'
           )
         );
     }
