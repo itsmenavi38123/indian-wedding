@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { PlusCircle, Trash2, X } from 'lucide-react';
 import { useCreateVendorTeams } from '@/services/api/vendors';
+import { useRouter } from 'next/navigation';
 
 export const teamSchema = z.object({
   name: z.string().min(1, 'Team name is required'),
@@ -49,14 +50,6 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
     <div className="bg-black rounded-lg shadow p-6 mb-4 border border-gray-200">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold text-white">Team</h2>
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={() => removeTeam(teamIndex)}
-          disabled={teamIndex === 0}
-        >
-          <X className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Team Name */}
@@ -67,7 +60,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
           <FormItem className="mb-2">
             <FormLabel className="text-white">Team Name</FormLabel>
             <FormControl>
-              <Input placeholder="Enter team name" {...field} />
+              <Input placeholder="Enter team name" {...field} className='text-white'/>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -82,7 +75,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
           <FormItem className="mb-4">
             <FormLabel className="text-white">Team Description</FormLabel>
             <FormControl>
-              <Input placeholder="Enter team description" {...field} />
+              <Input placeholder="Enter team description" {...field} className='text-white'/>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -100,7 +93,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <Input placeholder="Name" {...field} className='text-white'/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,7 +105,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex gap-2 items-center">
-                    <Input placeholder="Email" {...field} />
+                    <Input placeholder="Email" {...field} className='text-white'/>
                     <Button
                       variant="destructive"
                       size="icon"
@@ -142,6 +135,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
 };
 
 const VendorFormPage: React.FC = () => {
+    const router = useRouter();
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
@@ -166,11 +160,18 @@ const VendorFormPage: React.FC = () => {
   });
 
   const { mutate: createTeams } = useCreateVendorTeams();
-  const onSubmit = (data: VendorFormValues) => {
-    console.log('Submitting payload:', data);
 
-    createTeams(data);
-  };
+
+  const onSubmit = (data: VendorFormValues) => {
+  createTeams(data, {
+    onSuccess: () => {
+      router.push('/vendor/team'); 
+    },
+    onError: (error) => {
+      console.error('Error creating team:', error);
+    },
+  });
+};
 
   return (
     <FormProvider {...form}>
