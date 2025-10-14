@@ -95,7 +95,7 @@ export const getVendorServiceColumns = (
                   variant="destructive"
                   size="icon"
                   onClick={() => {
-                      onDelete(row.original.id);
+                    onDelete(row.original.id);
                   }}
                 >
                   <Trash className="h-4 w-4" />

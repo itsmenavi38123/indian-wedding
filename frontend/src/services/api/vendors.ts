@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { API_QUERY_KEYS, API_URLS } from '../apiBaseUrl';
 import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
@@ -48,6 +48,55 @@ export function useGetVendors({
     queryFn: getVendors,
   });
 }
+
+interface QueryParams {
+  page: number;
+  limit: number | 'all';
+  search: string;
+}
+
+export const getVendorTeams = async ({ queryKey }: { queryKey: any }) => {
+  // Ensure queryKey has a second element
+  const [, params = { page: 1, limit: 10, search: '' }] = queryKey;
+  const { page, limit, search } = params as QueryParams;
+
+  try {
+    console.log('[getVendorTeams] Calling API...', params);
+
+    const response = await axiosInstance.get(API_URLS.vendor.getTeams, {
+      params: { page, limit, search },
+    });
+
+    console.log('[getVendorTeams] Response:', response.data);
+    return response.data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('[getVendorTeams] API error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to fetch teams.');
+    } else {
+      toast.error('Failed to fetch teams.');
+    }
+    throw error;
+  }
+};
+
+interface VendorTeamsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export const useGetVendorTeams = ({
+  page = 1,
+  limit = 10,
+  search = '',
+}: VendorTeamsParams = {}) => {
+  return useQuery({
+    queryKey: ['vendorTeams', { page, limit, search }],
+    queryFn: getVendorTeams,
+  });
+};
+
 
 /* -------------------- GET VENDOR BY ID -------------------- */
 const getVendorById = async ({ queryKey }: { queryKey: any }) => {
@@ -163,3 +212,33 @@ export const exportVendorsWithIds = async ({ ids }: { ids: string[] }): Promise<
     }
   );
 };
+
+export const createVendorTeams = async (payload: FormData | Record<string, any>) => {
+  try {
+    const isFormData = payload instanceof FormData;
+    const { data } = await axiosInstance.post(
+      API_URLS.vendor.createTeams,
+      payload,
+      isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}
+    );
+    return data;
+  } catch (error: AxiosError | any) {
+    console.error('Error creating vendor teams:', error?.response);
+    toast.error(error.response?.data?.errorMessage || 'Failed to create teams.');
+    throw error;
+  }
+};
+
+export function useCreateVendorTeams() {
+  return useMutation({
+    mutationFn: createVendorTeams,
+    onSuccess: (data) => {
+      toast.success('Teams created successfully!');
+      console.log('Teams created successfully:', data);
+    },
+    onError: (error: any) => {
+      console.error('Failed to create teams:', error?.response?.data || error.message);
+      toast.error(error?.response?.data?.errorMessage || 'Failed to create teams.');
+    },
+  });
+}
