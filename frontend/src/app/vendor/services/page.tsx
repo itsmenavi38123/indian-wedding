@@ -132,8 +132,11 @@ export default function VendorServicePage() {
           onSortingChange={(sorting: SortingState) => dispatch(setSorting(sorting))}
           pagination={pagination}
           onPaginationChange={(pagination: PaginationState) => dispatch(setPagination(pagination))}
-          pageCount={data?.pagination?.totalPages ?? 0}
-          loading={isLoading}
+          pageCount={
+            data?.data?.total && pagination.pageSize
+              ? Math.ceil(Number(data.data.total) / pagination.pageSize)
+              : 1
+          } loading={isLoading}
           rowSelection={rowSelection}
           onRowSelectionChange={setRowSelection}
         />

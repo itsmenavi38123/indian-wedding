@@ -11,6 +11,8 @@ import vendorReducer from '@/store/slices/vendor';
 import forgotPasswordReducer from './slices/forgotPassword';
 import planningReducer from './slices/planning';
 import vendorServiceReducer from './slices/vendorServices';
+import vendorTeamReducer from './slices/vendorTeam';
+
 const persistConfig = {
   key: 'root',
   storage,
@@ -24,6 +26,7 @@ const rootReducer = combineReducers({
   vendorService: vendorServiceReducer,
   forgotPassword: forgotPasswordReducer,
   planning: planningReducer,
+  vendorTeam: vendorTeamReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

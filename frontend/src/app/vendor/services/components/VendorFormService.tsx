@@ -589,7 +589,7 @@ export const VendorServiceForm: React.FC<VendorServiceFormProps> = ({
             type="button"
             onClick={() => router.push('/vendor/services')}
             variant="outline"
-            className="px-6 py-3"
+            className="px-6 py-3 text-black"
           >
             Cancel
           </Button>

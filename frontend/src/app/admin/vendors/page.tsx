@@ -73,15 +73,16 @@ export default function VendorPage() {
     }
   }, [dispatch, vendorData, isLoading]);
 
-  // Sync debounced search with Redux
   useEffect(() => {
     dispatch(setSearch(debouncedValue));
-    dispatch(setPagination({ ...pagination, pageIndex: 0 })); // reset page on search
-  }, [dispatch, debouncedValue, pagination]);
-
-  // Sync local search input with Redux state
+    if (pagination.pageIndex !== 0) {
+      dispatch(setPagination({ pageIndex: 0, pageSize: pagination.pageSize }));
+    }
+  }, [debouncedValue, dispatch, pagination.pageIndex, pagination.pageSize]);
   useEffect(() => {
-    setLocalSearch(search);
+    if (localSearch !== search) {
+      setLocalSearch(search);
+    }
   }, [search]);
 
   // Bulk status update mutation

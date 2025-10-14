@@ -39,13 +39,13 @@ const AddVendor = () => {
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer bg-white"
           >
             <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Button>
         </div>
         <div className="flex items-center justify-center w-full sm:w-auto">
-          <h1 className="text-2xl font-bold text-center sm:text-left">Add New Vendor</h1>
+          <h1 className="text-2xl text-gold font-bold text-center sm:text-left">Add New Service</h1>
         </div>
         <div className="none sm:block sm:w-10"></div>
       </div>

@@ -48,7 +48,10 @@ export const API_URLS = {
     exportVendorsWithIdsCsv: '/vendor/export-vendor-with-ids/csv',
     event: '/vendor/events',
     createTeams: '/vendor/teams',
-    getTeams: '/vendor/get/teams'
+    getTeams: '/vendor/get/teams',
+    getSingleTeam: (teamId: string) => `/vendor/get/team/${teamId}`,
+    deleteById: (id: string) => `/vendor/team/${id}`,
+    updateTeamWithMembers: (teamId: string) => `/vendor/team/${teamId}/members`,
   },
   vendorService: {
     create: '/vendor/service/create',
@@ -135,7 +138,9 @@ export const API_QUERY_KEYS = {
     currentVendor: 'currentVendor',
     vendorForgotPassword: 'vendorForgotPassword',
     getTeams: 'getTeams',
-
+    getSingleTeam: 'getSingleTeam',
+    deleteById: 'deleteVendorTeamById',
+    updateTeamWithMembers: 'updateTeamWithMembers',
   },
   vendorService: {
     createVendorService: 'createVendorService',

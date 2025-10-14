@@ -3,24 +3,27 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
+  Heart,
   MapPin,
   Camera,
   Users,
   Calendar,
   ListFilterPlus,
+  BookImage,
 } from 'lucide-react';
 import BudgetStep from './components/steps/BudgetStep';
 import { RootState, useAppDispatch, useAppSelector } from '@/store/store';
 import { fetchDestinationsFromServices } from '@/store/slices/planning';
 import Category from './components/steps/Category';
 import ServicesStep from './components/steps/Services';
-import Image from 'next/image';
+import Events from './components/steps/Events';
 
 // Types
 type WizardStep =
   | 'budget'
   | 'destination'
   | 'category'
+  | 'events'
   | 'photos'
   | 'services'
   | 'guests'
@@ -81,63 +84,64 @@ interface WizardData {
 //   },
 // ];
 
-// const samplePhotos = [
-//   {
-//     id: '1',
-//     url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-//     vendor: 'Raj Photography',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '2',
-//     url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
-//     vendor: 'Luxury Venues',
-//     type: 'venue',
-//   },
-//   {
-//     id: '3',
-//     url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
-//     vendor: 'Elegant Decor',
-//     type: 'decorator',
-//   },
-//   {
-//     id: '4',
-//     url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
-//     vendor: 'Wedding Bells Photo',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '5',
-//     url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
-//     vendor: 'Dream Venues',
-//     type: 'venue',
-//   },
-//   {
-//     id: '6',
-//     url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
-//     vendor: 'Floral Dreams',
-//     type: 'decorator',
-//   },
-//   {
-//     id: '7',
-//     url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
-//     vendor: 'Capture Moments',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '8',
-//     url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
-//     vendor: 'Royal Palaces',
-//     type: 'venue',
-//   },
-// ];
+const samplePhotos = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
+    vendor: 'Raj Photography',
+    type: 'photographer',
+  },
+  {
+    id: '2',
+    url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
+    vendor: 'Luxury Venues',
+    type: 'venue',
+  },
+  {
+    id: '3',
+    url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
+    vendor: 'Elegant Decor',
+    type: 'decorator',
+  },
+  {
+    id: '4',
+    url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
+    vendor: 'Wedding Bells Photo',
+    type: 'photographer',
+  },
+  {
+    id: '5',
+    url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
+    vendor: 'Dream Venues',
+    type: 'venue',
+  },
+  {
+    id: '6',
+    url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
+    vendor: 'Floral Dreams',
+    type: 'decorator',
+  },
+  {
+    id: '7',
+    url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
+    vendor: 'Capture Moments',
+    type: 'photographer',
+  },
+  {
+    id: '8',
+    url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
+    vendor: 'Royal Palaces',
+    type: 'venue',
+  },
+];
 
 export default function GalleryPage() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('budget');
 
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
-  console.log('destinations', destinations);
+  const allServices = useAppSelector((state: RootState) => state.planning.services);
+
   useEffect(() => {
     dispatch(fetchDestinationsFromServices({}));
   }, [dispatch]);
@@ -161,12 +165,14 @@ export default function GalleryPage() {
     { id: 'budget', title: 'Budget', icon: Calendar },
     { id: 'destination', title: 'Destination', icon: MapPin },
     { id: 'category', title: 'Category', icon: ListFilterPlus },
+    { id: 'events', title: 'Events', icon: BookImage },
     { id: 'services', title: 'Services', icon: Camera },
     { id: 'guests', title: 'Guests', icon: Users },
     { id: 'review', title: 'Review', icon: Check },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const nextStep = () => {
     const nextIndex = currentStepIndex + 1;
@@ -182,17 +188,16 @@ export default function GalleryPage() {
     }
   };
 
-  // const togglePhotoLike = (photoId: string) => {
-  //   setWizardData((prev) => ({
-  //     ...prev,
-  //     likedPhotos: prev.likedPhotos.includes(photoId)
-  //       ? prev.likedPhotos.filter((id) => id !== photoId)
-  //       : [...prev.likedPhotos, photoId],
-  //   }));
-  // };
+  const togglePhotoLike = (photoId: string) => {
+    setWizardData((prev) => ({
+      ...prev,
+      likedPhotos: prev.likedPhotos.includes(photoId)
+        ? prev.likedPhotos.filter((id) => id !== photoId)
+        : [...prev.likedPhotos, photoId],
+    }));
+  };
 
   const handleSubmit = async () => {
-    // API call to create wedding
     console.log('Creating wedding with:', wizardData);
     alert('Wedding created successfully! 🎉');
   };
@@ -285,14 +290,11 @@ export default function GalleryPage() {
                         wizardData.destination === dest.id ? 'ring-4 ring-rose-500' : ''
                       }`}
                     >
-                      <Image
-                        src={dest.heroImage || '/placeholder.jpg'}
+                      <img
+                        src={dest.heroImage}
                         alt={dest.name}
                         className="w-full h-48 object-cover"
-                        width={400}
-                        height={192}
                       />
-
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         <h3 className="text-xl font-bold">{dest.name}</h3>
@@ -322,11 +324,24 @@ export default function GalleryPage() {
             />
           )}
 
-          {/* Step 4: services */}
+          {/* Step 4: Events */}
+          {currentStep === 'events' && (
+            <Events
+              selectedCategories={wizardData.selectedCategories}
+              photographerPreference={wizardData.photographerPreference}
+              onPreferenceSelect={(pref) =>
+                setWizardData({ ...wizardData, photographerPreference: pref })
+              }
+            />
+          )}
+
+          {/* Step 5: services */}
           {currentStep === 'services' && (
             <ServicesStep
+              services={allServices}
               selectedCategories={wizardData.selectedCategories}
               selectedVendors={wizardData.selectedVendors}
+              destination={wizardData.destination}
               onVendorSelect={(category, vendorId) =>
                 setWizardData((prev) => ({
                   ...prev,
@@ -407,7 +422,7 @@ export default function GalleryPage() {
             // </div>
           )}
 
-          {/* Step 5: Guests */}
+          {/* Step 6: Guests */}
           {currentStep === 'guests' && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center mb-8">
