@@ -1,7 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { SERVICE_TYPE_VALUES, serviceTypeToImageMap } from '@/types/lead/Lead';
-import Image from 'next/image';
 
 interface CategoryProps {
   selectedCategories: string[];
@@ -28,13 +27,11 @@ export default function Category({ selectedCategories, onChange }: CategoryProps
             className={`relative border border-gray-300 rounded-lg overflow-hidden text-center shadow-sm cursor-pointer transform transition-transform duration-200 ease-in-out hover:scale-105
               ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
           >
-            <Image
+            <img
               src={serviceTypeToImageMap[service]}
               alt={service}
               loading="lazy"
               className="w-full h-32 object-cover"
-              width={400}
-              height={192}
             />
             <div className="p-3 font-semibold text-gray-800 text-base">{service}</div>
             {isSelected && (

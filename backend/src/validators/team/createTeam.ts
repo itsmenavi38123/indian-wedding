@@ -46,3 +46,16 @@ export const createVendorTeamsSchema = z.object({
     })
   ),
 });
+
+export const updateTeamWithMembersSchema = z.object({
+  name: z.string().min(1, 'Team name is required').optional(),
+  description: z.string().optional(),
+  members: z
+    .array(
+      z.object({
+        name: z.string().min(1, 'Member name is required'),
+        email: z.string().email('Invalid email'),
+      })
+    )
+    .optional(),
+});

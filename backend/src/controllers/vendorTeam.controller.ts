@@ -6,10 +6,12 @@ import {
   updateTeamSchema,
   updateTeamMemberSchema,
   createVendorTeamsSchema,
+  updateTeamWithMembersSchema,
 } from '@/validators/team/createTeam';
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { AuthenticatedVendorRequest } from '@/middlewares/vendorAuthMiddleware';
+import { logger } from '@/logger';
 
 const prisma = new PrismaClient();
 
@@ -84,6 +86,15 @@ export class VendorTeamController {
         where.OR = [
           { name: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
+          {
+            teamMembers: {
+              some: {
+                teamMember: {
+                  name: { contains: search, mode: 'insensitive' },
+                },
+              },
+            },
+          },
         ];
       }
 
@@ -95,6 +106,7 @@ export class VendorTeamController {
         teams = await prisma.team.findMany({
           where,
           include: { teamMembers: { include: { teamMember: true } } },
+          orderBy: { createdAt: 'desc' },
         });
         total = teams.length;
       } else {
@@ -105,6 +117,7 @@ export class VendorTeamController {
             skip,
             take: Number(limit),
             include: { teamMembers: { include: { teamMember: true } } },
+            orderBy: { createdAt: 'desc' },
           }),
           prisma.team.count({ where }),
         ]);
@@ -126,6 +139,42 @@ export class VendorTeamController {
         .json(
           new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, errorMessages.TEAMS_FETCH_FAILED)
         );
+    }
+  }
+
+  public async getTeamById(req: AuthenticatedVendorRequest, res: Response) {
+    try {
+      const { teamId } = req.params;
+      const vendorId = req.vendorId!;
+
+      const team = await prisma.team.findUnique({
+        where: { id: teamId },
+        include: {
+          teamMembers: {
+            include: {
+              teamMember: true,
+            },
+          },
+        },
+      });
+
+      if (!team || team.vendorId !== vendorId) {
+        return res.status(404).json({
+          success: false,
+          message: 'Team not found',
+          data: null,
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: team,
+      });
+    } catch (err) {
+      console.error('Error fetching team by ID:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch team',
+      });
     }
   }
 
@@ -187,11 +236,15 @@ export class VendorTeamController {
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.TEAM_NOT_FOUND));
       }
-
+      // if (team.teamMembers.length > 0) {
+      //   return res
+      //     .status(statusCodes.BAD_REQUEST)
+      //     .json(new ApiResponse(statusCodes.BAD_REQUEST, null, `Cannot delete team with members`));
+      // }
       if (team.teamMembers.length > 0) {
-        return res
-          .status(statusCodes.BAD_REQUEST)
-          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, `Cannot delete team with members`));
+        await prisma.teamMember.deleteMany({
+          where: { id: teamId },
+        });
       }
 
       await prisma.team.delete({ where: { id: teamId } });
@@ -519,6 +572,98 @@ export class VendorTeamController {
             null,
             errorMessages.TEAM_MEMBER_DELETE_FAILED
           )
+        );
+    }
+  }
+
+  public async updateTeamWithMembers(req: AuthenticatedVendorRequest, res: Response) {
+    try {
+      const { teamId } = req.params;
+      const vendorId = req.vendorId!;
+
+      const parsed = updateTeamWithMembersSchema.safeParse(req.body);
+      if (!parsed.success) {
+        const errors = parsed.error.errors.map((e) => e.message).join(', ');
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(
+            new ApiResponse(
+              statusCodes.BAD_REQUEST,
+              null,
+              `${errorMessages.VALIDATION_FAILED}: ${errors}`
+            )
+          );
+      }
+
+      const { name, description, members = [] } = parsed.data;
+      const team = await prisma.team.findUnique({
+        where: { id: teamId },
+        include: {
+          teamMembers: {
+            include: { teamMember: true },
+          },
+        },
+      });
+
+      if (!team || team.vendorId !== vendorId) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.TEAM_NOT_FOUND));
+      }
+      const updatedTeam = await prisma.team.update({
+        where: { id: teamId },
+        data: { name, description },
+      });
+      const existingMembers = team.teamMembers.map((tm) => tm.teamMember);
+      const membersToRemove = existingMembers.filter(
+        (em) => !members.find((m) => m.email === em.email)
+      );
+      if (membersToRemove.length > 0) {
+        await prisma.teamMemberOnTeam.deleteMany({
+          where: {
+            teamMemberId: { in: membersToRemove.map((m) => m.id) },
+            teamId,
+          },
+        });
+      }
+      for (const member of members) {
+        const existing = existingMembers.find((em) => em.email === member.email);
+
+        if (existing) {
+          if (existing.name !== member.name) {
+            await prisma.teamMember.update({
+              where: { id: existing.id },
+              data: { name: member.name },
+            });
+          }
+        } else {
+          const newMember = await prisma.teamMember.create({
+            data: { name: member.name, email: member.email, vendorId },
+          });
+
+          await prisma.teamMemberOnTeam.create({
+            data: { teamId, teamMemberId: newMember.id },
+          });
+        }
+      }
+      const teamWithMembers = await prisma.team.findUnique({
+        where: { id: teamId },
+        include: {
+          teamMembers: {
+            include: { teamMember: true },
+          },
+        },
+      });
+
+      res
+        .status(statusCodes.OK)
+        .json(new ApiResponse(statusCodes.OK, teamWithMembers, successMessages.TEAM_UPDATED));
+    } catch (error) {
+      console.error(error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, errorMessages.TEAM_UPDATE_FAILED)
         );
     }
   }

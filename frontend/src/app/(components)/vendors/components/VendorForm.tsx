@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import z from 'zod';
 import { useForm, useFieldArray, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,7 +60,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
           <FormItem className="mb-2">
             <FormLabel className="text-white">Team Name</FormLabel>
             <FormControl>
-              <Input placeholder="Enter team name" {...field} className='text-white'/>
+              <Input placeholder="Enter team name" {...field} className="text-white" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -75,7 +75,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
           <FormItem className="mb-4">
             <FormLabel className="text-white">Team Description</FormLabel>
             <FormControl>
-              <Input placeholder="Enter team description" {...field} className='text-white'/>
+              <Input placeholder="Enter team description" {...field} className="text-white" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -84,7 +84,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
 
       {/* Team Members */}
       <div className="mb-4">
-        <FormLabel className="text-white">Team Members</FormLabel>
+        <FormLabel className="text-white mb-4">Team Members</FormLabel>
         {memberFields.map((member, mIndex) => (
           <div key={member.id} className="grid grid-cols-2 gap-2 items-center mb-2">
             <FormField
@@ -93,7 +93,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Name" {...field} className='text-white'/>
+                    <Input placeholder="Name" {...field} className="text-white" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -105,7 +105,7 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex gap-2 items-center">
-                    <Input placeholder="Email" {...field} className='text-white'/>
+                    <Input placeholder="Email" {...field} className="text-white" />
                     <Button
                       variant="destructive"
                       size="icon"
@@ -134,21 +134,47 @@ const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
   );
 };
 
-const VendorFormPage: React.FC = () => {
-    const router = useRouter();
+interface VendorFormPageProps {
+  defaultValues?: VendorFormValues;
+  onSubmit?: (data: VendorFormValues) => void;
+  mode?: 'add' | 'edit';
+}
+
+const VendorFormPage: React.FC<VendorFormPageProps> = ({
+  defaultValues,
+  onSubmit,
+  mode = 'add',
+}) => {
+  const router = useRouter();
+  const shouldInitialize = mode === 'add' || !!defaultValues;
+
+  console.log('Constructed defaultValues:', defaultValues);
+
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
-    defaultValues: {
-      teams: [
-        {
-          name: '',
-          description: '',
-          members: [{ name: '', email: '' }],
-        },
-      ],
-    },
+    defaultValues: shouldInitialize
+      ? (defaultValues ?? {
+          teams: [
+            {
+              name: '',
+              description: '',
+              members: [{ name: '', email: '' }],
+            },
+          ],
+        })
+      : undefined,
     mode: 'onBlur',
   });
+
+  const { reset } = form;
+
+  useEffect(() => {
+    if (defaultValues) {
+      console.log('Resetting form with:', defaultValues);
+
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   const {
     fields: teamFields,
@@ -161,26 +187,23 @@ const VendorFormPage: React.FC = () => {
 
   const { mutate: createTeams } = useCreateVendorTeams();
 
-
-  const onSubmit = (data: VendorFormValues) => {
-  createTeams(data, {
-    onSuccess: () => {
-      router.push('/vendor/team'); 
-    },
-    onError: (error) => {
-      console.error('Error creating team:', error);
-    },
-  });
-};
+  const handleSubmit = (data: VendorFormValues) => {
+    if (onSubmit) {
+      onSubmit(data);
+    } else {
+      createTeams(data, {
+        onSuccess: () => router.push('/vendor/team'),
+        onError: (err) => console.error(err),
+      });
+    }
+  };
 
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="p-6 bg-black rounded-lg shadow space-y-6 max-w-5xl mx-auto"
       >
-        <h1 className="text-2xl font-bold text-white">Add New Team</h1>
-
         {teamFields.map((team, tIndex) => (
           <TeamForm key={team.id ?? tIndex} teamIndex={tIndex} removeTeam={removeTeam} />
         ))}
