@@ -1,50 +1,20 @@
 import { z } from 'zod';
-import { MediaType } from '@prisma/client';
 
-// ================= CREATE SERVICE SCHEMA =================
-export const createServiceSchema = z.object({
+// ================= CREATE/UPDATE VENDOR SERVICE SCHEMA =================
+export const vendorServiceSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  description: z.string().min(1, 'Description is required'),
   category: z.string().min(1, 'Category is required'),
-  price: z.number().positive('Price must be positive'),
+  price: z.coerce.number().min(1, 'Price must be positive'),
   country: z.string().min(1, 'Country is required'),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  name: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  // Thumbnail and media are optional, as they may come from req.files
-  thumbnail: z.string().url('Thumbnail must be a valid URL').optional(),
-  media: z
-    .array(
-      z.object({
-        type: z.nativeEnum(MediaType),
-        url: z.string().url('Media URL must be valid'),
-      })
-    )
-    .optional(),
-});
-
-// ================= UPDATE SERVICE SCHEMA (like create) =================
-export const updateServiceSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  price: z.number().positive().optional(),
-  country: z.string().optional(),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  name: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  thumbnail: z.string().url('Thumbnail must be a valid URL').optional(),
-  media: z
-    .array(
-      z.object({
-        type: z.nativeEnum(MediaType),
-        url: z.string().url('Media URL must be valid'),
-      })
-    )
-    .optional(),
+  state: z.string().min(1, 'State is required'),
+  city: z.string().min(1, 'City is required'),
+  name: z.string().min(1, 'Vendor name is required'),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
+  thumbnail: z.any().optional(), // can be File or URL string
+  media: z.array(z.any()).optional(), // array of Files or URLs
   removeMediaIds: z.array(z.string()).optional(),
 });
+
+export type VendorServiceFormData = z.infer<typeof vendorServiceSchema>;

@@ -36,13 +36,13 @@ const LoginSelectModal: React.FC<LoginSelectModalProps> = ({ open, onOpenChange 
 
         <div className="flex flex-col gap-3 mt-6">
           <Button
-            className="bg-gold hover:bg-white hover:text-gold text-white text-lg py-6"
+            className="bg-gold text-white text-lg py-4 rounded-lg shadow-md transition-all duration-300 hover:bg-white hover:text-gold hover:scale-105 hover:shadow-lg"
             onClick={() => handleSelect('vendor')}
           >
             Vendor
           </Button>
           <Button
-            className="bg-white text-gold border border-gold hover:bg-gold hover:text-white text-lg py-6"
+            className="bg-white text-gold border border-gold text-lg py-4 rounded-lg shadow-md transition-all duration-300 hover:bg-gold hover:text-white hover:scale-105 hover:shadow-lg"
             onClick={() => handleSelect('couple')}
           >
             Couple

@@ -6,12 +6,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { leftNav, rightNav, logo } from '../data';
+import { usePathname } from 'next/navigation';
 
 const MobileHeader = () => {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="md:hidden w-full h-[90px] px-[15px]  pt-[27px] pb-[20px] bg-[image:var(--primary-gradient)] fixed top-0 left-0 z-50 shadow-sm">
+    <header className="md:hidden w-full h-[90px] px-[15px] pt-[27px] pb-[20px] bg-[image:var(--primary-gradient)] fixed top-0 left-0 z-50 shadow-sm">
       <div className="h-full flex items-center justify-between">
         {/* Logo */}
         <Link href="/">
@@ -27,7 +31,7 @@ const MobileHeader = () => {
 
         {/* Hamburger */}
         <button
-          className="  text-white"
+          className="text-white"
           onClick={() => setOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
@@ -44,7 +48,9 @@ const MobileHeader = () => {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="text-base font-medium hover:text-primary text-white text-[18px] transition-colors "
+                className={`text-base font-medium text-[18px] transition-colors ${
+                  isActive(item.href) ? 'text-white underline' : 'text-white hover:text-primary'
+                }`}
               >
                 {item.name}
               </Link>

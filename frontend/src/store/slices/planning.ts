@@ -22,6 +22,7 @@ export interface DestinationPhoto {
 }
 
 export interface VendorService {
+  city: any;
   id: string;
   vendorId: string;
   title: string;

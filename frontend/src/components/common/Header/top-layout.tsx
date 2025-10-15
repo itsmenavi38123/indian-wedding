@@ -28,6 +28,8 @@ const TopLayout: React.FC<TopLayoutProps> = ({
   handleLogout,
   loadingLogout,
 }) => {
+  console.log('auth:', auth);
+
   return (
     <header className="w-full h-16 black-bg fixed top-0 left-0 z-50 flex items-center justify-between px-4 shadow-sm">
       <button

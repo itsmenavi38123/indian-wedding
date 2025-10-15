@@ -216,17 +216,17 @@ export class VendorController {
         const updatedTeam =
           team.id && team.id !== 'temp'
             ? await prisma.team.upsert({
-              where: { id: team.id },
-              update: { name: team.name || '', description: team.description || '' },
-              create: {
-                name: team.name || '',
-                description: team.description || '',
-                vendorId: id,
-              },
-            })
+                where: { id: team.id },
+                update: { name: team.name || '', description: team.description || '' },
+                create: {
+                  name: team.name || '',
+                  description: team.description || '',
+                  vendorId: id,
+                },
+              })
             : await prisma.team.create({
-              data: { name: team.name || '', description: team.description || '', vendorId: id },
-            });
+                data: { name: team.name || '', description: team.description || '', vendorId: id },
+              });
 
         const currentTeamMembers = await prisma.teamMemberOnTeam.findMany({
           where: { teamId: updatedTeam.id },
@@ -439,30 +439,30 @@ export class VendorController {
           ...(status ? { status: status as LeadStatus } : {}),
           ...(search
             ? {
-              OR: [
-                {
-                  partner1Name: {
-                    contains: search as string,
-                    mode: 'insensitive',
+                OR: [
+                  {
+                    partner1Name: {
+                      contains: search as string,
+                      mode: 'insensitive',
+                    },
                   },
-                },
-                {
-                  partner2Name: {
-                    contains: search as string,
-                    mode: 'insensitive',
+                  {
+                    partner2Name: {
+                      contains: search as string,
+                      mode: 'insensitive',
+                    },
                   },
-                },
-                {
-                  email: { contains: search as string, mode: 'insensitive' },
-                },
-                {
-                  phoneNumber: {
-                    contains: search as string,
-                    mode: 'insensitive',
+                  {
+                    email: { contains: search as string, mode: 'insensitive' },
                   },
-                },
-              ],
-            }
+                  {
+                    phoneNumber: {
+                      contains: search as string,
+                      mode: 'insensitive',
+                    },
+                  },
+                ],
+              }
             : {}),
         },
         include: {
