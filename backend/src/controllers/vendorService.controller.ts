@@ -323,8 +323,8 @@ export class VendorServiceController {
       ).filter(Boolean);
       if (!transformed.length) {
         return res
-          .status(statusCodes.NOT_FOUND)
-          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'No services found for this vendor'));
+          .status(statusCodes.OK)
+          .json(new ApiResponse(statusCodes.OK, [], 'No services found for this vendor'));
       }
       return res
         .status(statusCodes.OK)
