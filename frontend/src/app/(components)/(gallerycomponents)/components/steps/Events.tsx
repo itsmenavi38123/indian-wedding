@@ -4,25 +4,35 @@ import { useState } from 'react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
+interface WeddingEvent {
+  id?: number;
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
 interface EventsProps {
   selectedCategories: string[];
   photographerPreference: 'local' | 'travel' | 'either';
   onPreferenceSelect: (pref: 'local' | 'travel' | 'either') => void;
+  events: WeddingEvent[];
+  onEventsChange: (events: WeddingEvent[]) => void;
 }
 
 export default function Events({
   selectedCategories,
   photographerPreference,
   onPreferenceSelect,
+  events: initialEvents,
+  onEventsChange,
 }: EventsProps) {
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
     startDate: '',
     endDate: '',
   });
 
-  const [events, setEvents] = useState<
-    { id: number; name: string; date: string; startTime: string; endTime: string }[]
-  >([]);
+  const [events, setEvents] = useState(initialEvents || []);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -53,24 +63,31 @@ export default function Events({
   const addEvent = () => {
     if (!dateRange.startDate || !dateRange.endDate)
       return alert('Please select your wedding timeline first.');
-    setEvents((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: '',
-        date: dateRange.startDate,
-        startTime: '10:00',
-        endTime: '12:00',
-      },
-    ]);
+
+    const newEvent = {
+      id: Date.now(),
+      name: '',
+      date: dateRange.startDate,
+      startTime: '10:00',
+      endTime: '12:00',
+    };
+
+    const updated = [...events, newEvent];
+    setEvents(updated);
+    onEventsChange(updated);
   };
 
-  const updateEvent = (id: number, field: string, value: string) => {
-    setEvents((prev) => prev.map((ev) => (ev.id === id ? { ...ev, [field]: value } : ev)));
+  const updateEvent = (id: number | undefined, field: string, value: string) => {
+    if (typeof id !== 'number') return;
+    const updated = events.map((ev) => (ev.id === id ? { ...ev, [field]: value } : ev));
+    setEvents(updated);
+    onEventsChange(updated);
   };
-
-  const removeEvent = (id: number) => {
-    setEvents((prev) => prev.filter((ev) => ev.id !== id));
+  const removeEvent = (id: number | undefined) => {
+    if (typeof id !== 'number') return;
+    const updated = events.filter((ev) => ev.id !== id);
+    setEvents(updated);
+    onEventsChange(updated);
   };
 
   const showPreferenceSelector =
