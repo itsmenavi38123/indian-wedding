@@ -288,7 +288,7 @@ export function useDeleteVendorTeam() {
 
   return useMutation({
     mutationFn: (teamId: string) => deleteVendorTeam(teamId),
-    onSuccess: (_, teamId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [API_QUERY_KEYS.vendor.getTeams],
       });

@@ -1,16 +1,7 @@
 'use client';
 import React, { use, useState } from 'react';
 import { updateLeadTeamAssignments, useGetVendorsByLeadId } from '@/services/api/leads';
-import {
-  ArrowLeft,
-  Loader2,
-  Phone,
-  Mail,
-  MessageCircle,
-  Calendar,
-  MapPin,
-  ChevronDown,
-} from 'lucide-react';
+import { Loader2, Phone, Mail, MessageCircle, Calendar, MapPin, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { format, differenceInDays } from 'date-fns';
@@ -25,6 +16,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/pageHeader';
 
 interface AssignVendorsLeadPageProps {
   params: Promise<{ id: string }>;
@@ -155,20 +147,7 @@ const AssignVendorsPage = ({ params }: AssignVendorsLeadPageProps) => {
   return (
     <div className="relative max-w-5xl mx-auto flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center cursor-pointer"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
-          </Button>
-        </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2">
-          <h1 className="text-2xl font-bold text-center">Assign Vendors to Lead</h1>
-        </div>
-      </div>
+      <PageHeader title="Assign Vendors to Lead" />
 
       {/* Couple Details */}
       <div className="flex flex-col xs:flex-row items-start xs:items-center justify-start xs:justify-between gap-3">

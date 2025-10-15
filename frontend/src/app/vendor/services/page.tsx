@@ -52,7 +52,7 @@ export default function VendorServicePage() {
   const route = role === 'ADMIN' ? 'admin' : 'vendor';
   console.log('auth', auth);
   // Fetch Vendor Services
-  const { data, isLoading, refetch } = useGetVendorServices({
+  const { data, isLoading } = useGetVendorServices({
     vendorId: auth?.id || '',
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
@@ -136,7 +136,8 @@ export default function VendorServicePage() {
             data?.data?.total && pagination.pageSize
               ? Math.ceil(Number(data.data.total) / pagination.pageSize)
               : 1
-          } loading={isLoading}
+          }
+          loading={isLoading}
           rowSelection={rowSelection}
           onRowSelectionChange={setRowSelection}
         />

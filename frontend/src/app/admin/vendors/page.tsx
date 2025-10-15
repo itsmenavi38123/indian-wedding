@@ -83,7 +83,7 @@ export default function VendorPage() {
     if (localSearch !== search) {
       setLocalSearch(search);
     }
-  }, [search]);
+  }, [localSearch, search]);
 
   // Bulk status update mutation
   const { mutate: updateStatusMutate } = useMutation({

@@ -1,10 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Edit, Trash } from 'lucide-react';
+import { Edit, Eye, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { BASE_URL } from '@/lib/constant';
 
 export type VendorService = {
   id: string;
@@ -85,6 +84,11 @@ export const getVendorServiceColumns = (
         <div className="flex gap-2">
           {role === 'VENDOR' && (
             <>
+              <Link href={`/vendor/services/${row.original.id}`}>
+                <Button variant="ghost" size="icon">
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </Link>
               <Link href={`/vendor/services/edit/${row.original.id}`}>
                 <Button variant="ghost" size="icon">
                   <Edit className="h-4 w-4" />

@@ -2,12 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useDebounce } from 'use-debounce';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-
-import { Plus, Search, X, Filter, Trash, Edit } from 'lucide-react';
-
+import { Plus, Search, X, Filter, Trash, Edit, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -20,7 +17,6 @@ import {
 } from '@/components/ui/select';
 import { DataTable } from '@/components/common/table/DataTable';
 import { RootState, AppDispatch } from '@/store/store';
-import { PaginationState, SortingState } from '@tanstack/react-table';
 import { setSearch, setRoleFilter, setPagination } from '@/store/slices/vendorTeam';
 import { RoleType } from '@/components/common/Header/Header';
 import { useDeleteVendorTeam, useGetVendorTeams } from '@/services/api/vendors';
@@ -37,7 +33,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-const getTeamColumns = (onDelete: (id: string) => void): ColumnDef<any>[] => [
+const getTeamColumns = (onDelete: (id: string) => void, role: any): ColumnDef<any>[] => [
   {
     accessorKey: 'name',
     header: 'Team Name',
@@ -65,11 +61,14 @@ const getTeamColumns = (onDelete: (id: string) => void): ColumnDef<any>[] => [
     header: 'Actions',
     cell: ({ row }) => {
       const teamId = row.original.id;
-      const authUser = useSelector((state: RootState) => state.auth.user);
-      const role = authUser?.role as RoleType | null;
       const route = role === 'VENDOR' ? 'vendor' : 'user';
       return (
         <div className="flex gap-2">
+          <Link href={`/${route}/team/${teamId}`}>
+            <Button variant="ghost" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
           <Link href={`/${route}/team/edit/${teamId}`}>
             <Button variant="ghost" size="icon">
               <Edit className="h-4 w-4" />
@@ -93,13 +92,10 @@ export default function VendorTeamPage() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const searchText = useSelector((state: RootState) => state.vendorTeam.search);
   const selectedRole = useSelector((state: RootState) => state.vendorTeam.roleFilter);
-  const [debouncedSearch] = useDebounce(searchText, 500);
   const [open, setOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const deleteTeamMutation = useDeleteVendorTeam();
-  const { pagination, sorting, search, roleFilter } = useSelector(
-    (state: RootState) => state.vendorTeam
-  );
+  const { pagination } = useSelector((state: RootState) => state.vendorTeam);
   const { pageIndex, pageSize } = pagination;
   const { data, isLoading, isError, error, refetch } = useGetVendorTeams({
     page: pageIndex + 1,
@@ -125,6 +121,7 @@ export default function VendorTeamPage() {
       await deleteTeamMutation.mutateAsync(selectedTeamId);
       queryClient.invalidateQueries({ queryKey: ['vendorTeams'] });
     } catch (err) {
+      console.log(err);
       toast.error('Failed to delete team');
     } finally {
       setOpen(false);
@@ -221,7 +218,7 @@ export default function VendorTeamPage() {
           <div>Failed to load teams.</div>
         ) : (
           <DataTable
-            columns={getTeamColumns(handleDeleteClick)}
+            columns={getTeamColumns(handleDeleteClick, role)}
             data={data?.data?.teams || []}
             sorting={[]}
             onSortingChange={() => {}}

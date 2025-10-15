@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { fetchServicesByCategory, setSelectedService } from '@/store/slices/planning';
 import CategoryServicesView from './CategoryServicesView';
+import Image from 'next/image';
 
 interface ServicesStepProps {
   selectedCategories: string[];
@@ -21,9 +22,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ServicesStep({ selectedCategories, destination }: ServicesStepProps) {
   const dispatch = useAppDispatch();
-  const { servicesByCategory, servicesLoading, selectedService } = useSelector(
-    (state: RootState) => state.planning
-  );
+  const { servicesByCategory, servicesLoading } = useSelector((state: RootState) => state.planning);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<Record<string, any[]>>({});
@@ -100,7 +99,7 @@ export default function ServicesStep({ selectedCategories, destination }: Servic
                       ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
                       onClick={() => handleSelectService(category, service)}
                     >
-                      <img
+                      <Image
                         src={`${BASE_URL}${service.media?.[0]?.url}`}
                         alt={service.title}
                         className="w-full h-32 object-cover"

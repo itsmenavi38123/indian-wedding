@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Check, ArrowLeft } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { setSelectedService } from '@/store/slices/planning';
+import Image from 'next/image';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -23,7 +24,10 @@ export default function CategoryServicesView({
 }: CategoryServicesViewProps) {
   const dispatch = useAppDispatch();
   const { servicesByCategory } = useSelector((state: RootState) => state.planning);
-  const categoryServices = servicesByCategory[category] || [];
+  const categoryServices = useMemo(
+    () => servicesByCategory[category] || [],
+    [servicesByCategory, category]
+  );
 
   const filteredCategoryServices = useMemo(() => {
     if (!destination) return categoryServices;
@@ -80,14 +84,14 @@ export default function CategoryServicesView({
       .sort((a, b) => b.score - a.score);
 
     return scored.slice(0, 8);
-  }, [categoryServices, selectedServices, category]);
+  }, [filteredCategoryServices, selectedServices, category]);
 
   const allNonRecommended = useMemo(() => {
     const recommendedIds = recommended.map((r) => r.id);
     return filteredCategoryServices.filter(
       (s) => !recommendedIds.includes(s.id) || selectedServices.some((sel) => sel.id === s.id)
     );
-  }, [categoryServices, recommended, selectedServices]);
+  }, [filteredCategoryServices, recommended, selectedServices]);
 
   const handleToggle = (service: any) => {
     const isSelected = selectedServices.some((s) => s.id === service.id);
@@ -105,7 +109,7 @@ export default function CategoryServicesView({
         ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
       onClick={() => handleToggle(service)}
     >
-      <img
+      <Image
         src={`${BASE_URL}${service.media?.[0]?.url}`}
         alt={service.title}
         className="w-full h-32 object-cover"
@@ -120,7 +124,7 @@ export default function CategoryServicesView({
   );
 
   const selectedMedia = useMemo(() => {
-    let mediaItems: { url: string; type: 'image' | 'video' }[] = [];
+    const mediaItems: { url: string; type: 'image' | 'video' }[] = [];
     selectedServices.forEach((service) => {
       service.media?.forEach((m: any) => {
         const ext = m.url.split('.').pop()?.toLowerCase();
@@ -172,7 +176,7 @@ export default function CategoryServicesView({
                   className="w-full h-32 object-cover rounded-lg"
                 />
               ) : (
-                <img
+                <Image
                   key={index}
                   src={m.url}
                   alt={`media-${index}`}
