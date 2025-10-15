@@ -1,13 +1,16 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { logger } from '@/logger';
+import { config } from 'dotenv';
+config();
 
 let io: SocketIOServer | null = null;
+const origin = process.env.ALLOWED_ORIGIN || 'http://localhost:3000';
 
 export const initializeSocket = (server: HttpServer) => {
   io = new SocketIOServer(server, {
     cors: {
-      origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
+      origin: origin,
       credentials: true,
       methods: ['GET', 'POST'],
     },
