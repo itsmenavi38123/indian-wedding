@@ -1,16 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import { useGetVendor } from '@/services/api/vendors';
 import { Loader2 } from 'lucide-react';
 import { VendorForm } from '../../components/VendorForm';
 import { PageHeader } from '@/components/ui/pageHeader';
 interface EditVendorPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const EditVendorPage = ({ params }: EditVendorPageProps) => {
-  const { id } = params;
+  const { id } = use(params);
   const { data: vendor, isLoading } = useGetVendor(id);
 
   if (isLoading) {
