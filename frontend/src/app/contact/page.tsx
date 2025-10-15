@@ -9,8 +9,8 @@ const ContactPage = () => {
         Coming Soon
       </h1>
       <p className="text-lg md:text-2xl mb-8 text-center max-w-xl">
-        Want to get in touch? Fill out our contact form or email us directly at info@yourcompany.com.
-        We’ll respond as soon as possible.
+        Want to get in touch? Fill out our contact form or email us directly at
+        info@yourcompany.com. We’ll respond as soon as possible.
       </p>
       <div className="flex gap-4">
         <Link

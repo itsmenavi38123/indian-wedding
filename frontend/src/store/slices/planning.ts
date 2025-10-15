@@ -37,6 +37,7 @@ export interface VendorService {
   updatedAt: string;
   state: string;
   country: string;
+  destinationId: string;
 }
 
 export interface VendorServiceMedia {
@@ -261,6 +262,7 @@ export const fetchDestinationsFromServices = createAsyncThunk<
   const grouped = new Map<string, Destination>();
 
   for (const service of services) {
+    const destinationId = service.destinationId || service.id || service.state || service.country;
     const state = service.state || '';
     const country = service.country || 'Unknown';
 
@@ -273,7 +275,7 @@ export const fetchDestinationsFromServices = createAsyncThunk<
 
     if (!existing) {
       grouped.set(groupKey, {
-        id: groupKey,
+        id: destinationId,
         name: displayName,
         country,
         baseCostMin: service.price,

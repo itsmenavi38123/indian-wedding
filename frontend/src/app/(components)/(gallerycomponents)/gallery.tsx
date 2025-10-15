@@ -16,7 +16,10 @@ import { fetchDestinationsFromServices } from '@/store/slices/planning';
 import Category from './components/steps/Category';
 import ServicesStep from './components/steps/Services';
 import Events from './components/steps/Events';
+import { useCreateWeddingPlan } from '@/services/api/weddingPlan';
 import Image from 'next/image';
+import { useGetCurrentUser } from '@/services/api/userAuth';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Types
 type WizardStep =
@@ -31,8 +34,10 @@ type WizardStep =
 
 interface WizardData {
   budget: { min: number; max: number } | null;
+  destinationId: string | null;
   destination: string | null;
   weddingDate: string | null;
+  category: string | null;
   guestCount: number | null;
   likedPhotos: string[];
   selectedVendors: {
@@ -40,100 +45,66 @@ interface WizardData {
     venue: string | null;
     decorator: string | null;
   };
+  events: {
+    name: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  }[];
   photographerPreference: 'local' | 'travel' | 'either';
   selectedCategories: string[];
 }
 
-// Sample data
-// const destinations = [
-//   {
-//     id: 'fiji',
-//     name: 'Fiji',
-//     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400',
-//     priceRange: '₹15L-₹50L',
-//   },
-//   {
-//     id: 'bali',
-//     name: 'Bali',
-//     image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400',
-//     priceRange: '₹10L-₹35L',
-//   },
-//   {
-//     id: 'thailand',
-//     name: 'Thailand',
-//     image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=400',
-//     priceRange: '₹8L-₹30L',
-//   },
-//   {
-//     id: 'goa',
-//     name: 'Goa',
-//     image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400',
-//     priceRange: '₹5L-₹20L',
-//   },
-//   {
-//     id: 'udaipur',
-//     name: 'Udaipur',
-//     image: 'https://images.unsplash.com/photo-1609920658906-8223bd289001?w=400',
-//     priceRange: '₹12L-₹40L',
-//   },
-//   {
-//     id: 'jaipur',
-//     name: 'Jaipur',
-//     image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=400',
-//     priceRange: '₹8L-₹25L',
-//   },
-// ];
-
-// const samplePhotos = [
-//   {
-//     id: '1',
-//     url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-//     vendor: 'Raj Photography',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '2',
-//     url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
-//     vendor: 'Luxury Venues',
-//     type: 'venue',
-//   },
-//   {
-//     id: '3',
-//     url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
-//     vendor: 'Elegant Decor',
-//     type: 'decorator',
-//   },
-//   {
-//     id: '4',
-//     url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
-//     vendor: 'Wedding Bells Photo',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '5',
-//     url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
-//     vendor: 'Dream Venues',
-//     type: 'venue',
-//   },
-//   {
-//     id: '6',
-//     url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
-//     vendor: 'Floral Dreams',
-//     type: 'decorator',
-//   },
-//   {
-//     id: '7',
-//     url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
-//     vendor: 'Capture Moments',
-//     type: 'photographer',
-//   },
-//   {
-//     id: '8',
-//     url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
-//     vendor: 'Royal Palaces',
-//     type: 'venue',
-//   },
-// ];
+const samplePhotos = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
+    vendor: 'Raj Photography',
+    type: 'photographer',
+  },
+  {
+    id: '2',
+    url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
+    vendor: 'Luxury Venues',
+    type: 'venue',
+  },
+  {
+    id: '3',
+    url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
+    vendor: 'Elegant Decor',
+    type: 'decorator',
+  },
+  {
+    id: '4',
+    url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
+    vendor: 'Wedding Bells Photo',
+    type: 'photographer',
+  },
+  {
+    id: '5',
+    url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
+    vendor: 'Dream Venues',
+    type: 'venue',
+  },
+  {
+    id: '6',
+    url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
+    vendor: 'Floral Dreams',
+    type: 'decorator',
+  },
+  {
+    id: '7',
+    url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
+    vendor: 'Capture Moments',
+    type: 'photographer',
+  },
+  {
+    id: '8',
+    url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
+    vendor: 'Royal Palaces',
+    type: 'venue',
+  },
+];
 
 export default function GalleryPage() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('budget');
@@ -141,22 +112,36 @@ export default function GalleryPage() {
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
   const allServices = useAppSelector((state: RootState) => state.planning.services);
+  const { mutate: createWeddingPlan } = useCreateWeddingPlan();
+  const router = useRouter();
+  const { data: currentUser } = useGetCurrentUser();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    dispatch(fetchDestinationsFromServices({}));
+    dispatch(fetchDestinationsFromServices({}))
+      .unwrap()
+      .then((data) => {
+        console.log('Fetched destinations from services:', data);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch destinations:', error);
+      });
   }, [dispatch]);
 
   const [wizardData, setWizardData] = useState<WizardData>({
     budget: null,
     destination: null,
+    destinationId: null,
     weddingDate: null,
     guestCount: null,
+    category: null,
     likedPhotos: [],
     selectedVendors: {
       photographer: null,
       venue: null,
       decorator: null,
     },
+    events: [],
     photographerPreference: 'either',
     selectedCategories: [],
   });
@@ -197,9 +182,72 @@ export default function GalleryPage() {
   //   }));
   // };
 
-  const handleSubmit = async () => {
-    console.log('Creating wedding with:', wizardData);
-    alert('Wedding created successfully! 🎉');
+  const selectedServiceEntries = Object.entries(wizardData.selectedVendors)
+    .filter(([_, serviceId]) => !!serviceId)
+    .map(([category, serviceId]) => ({
+      serviceId: serviceId as string,
+      notes: `${category} service`,
+    }));
+
+  const selectedVendorsPayload = Object.entries(wizardData.selectedVendors || {})
+    .filter(([_, vendorId]) => !!vendorId)
+    .reduce(
+      (acc, [categoryKey, vendorId]) => {
+        const category = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1).toLowerCase();
+
+        acc[category] = {
+          vendorId: vendorId ?? '',
+          name: '',
+          email: '',
+        };
+        return acc;
+      },
+      {} as Record<string, { vendorId: string; name?: string; email?: string }>
+    );
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('pendingWeddingPlan');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setWizardData(parsed);
+        localStorage.removeItem('pendingWeddingPlan');
+      } catch (error) {
+        console.error('Failed to restore saved wizard data:', error);
+      }
+    }
+  }, []);
+
+  const handleSubmit = () => {
+    if (!currentUser) {
+      localStorage.setItem('pendingWeddingPlan', JSON.stringify(wizardData));
+      router.push('/user/login');
+      return;
+    }
+    if (!wizardData.destination || !wizardData.budget) {
+      return alert('Please complete all steps before submitting.');
+    }
+
+    const payload = {
+      destinationId: wizardData.destinationId,
+      totalBudget: wizardData.budget.max,
+      minBudget: wizardData.budget.min,
+      maxBudget: wizardData.budget.max,
+      category: wizardData.selectedCategories,
+      weddingDate: wizardData.weddingDate || new Date().toISOString(),
+      guestCount: wizardData.guestCount || 0,
+      selectedVendors: selectedVendorsPayload,
+      events: wizardData.events.map((ev) => ({
+        name: ev.name,
+        date: ev.date,
+        startTime: ev.startTime,
+        endTime: ev.endTime,
+      })),
+      services: selectedServiceEntries,
+    };
+
+    console.log('Sending payload:', payload);
+    createWeddingPlan(payload);
   };
 
   return (
@@ -282,34 +330,46 @@ export default function GalleryPage() {
                       (d.baseCostMin <= wizardData.budget.max &&
                         d.baseCostMax >= wizardData.budget.min)
                   )
-                  .map((dest) => (
-                    <button
-                      key={dest.id}
-                      onClick={() => setWizardData({ ...wizardData, destination: dest.id })}
-                      className={`group relative overflow-hidden rounded-xl transition-all hover:scale-105 ${
-                        wizardData.destination === dest.id ? 'ring-4 ring-rose-500' : ''
-                      }`}
-                    >
-                      <Image
-                        src={dest.heroImage ? dest.heroImage : ''}
-                        alt={dest.name}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="text-xl font-bold">{dest.name}</h3>
-                        <p className="text-sm text-gray-200">
-                          ₹{(dest.baseCostMin / 100000).toFixed(0)}L - ₹
-                          {(dest.baseCostMax / 100000).toFixed(0)}L
-                        </p>{' '}
-                      </div>
-                      {wizardData.destination === dest.id && (
-                        <div className="absolute top-2 right-2 bg-rose-500 rounded-full p-2">
-                          <Check size={16} className="text-white" />
+                  .map((dest) => {
+                    console.log('🧭 Destination option:', dest);
+
+                    return (
+                      <button
+                        key={dest.id}
+                        onClick={() =>
+                          setWizardData({
+                            ...wizardData,
+                            destination: dest.name,
+                            destinationId: dest.id,
+                          })
+                        }
+                        className={`group relative overflow-hidden rounded-xl transition-all hover:scale-105 ${
+                          wizardData.destinationId === dest.id ? 'ring-4 ring-rose-500' : ''
+                        }`}
+                      >
+                        <Image
+                          src={dest.heroImage ? dest.heroImage : ''}
+                          alt={dest.name}
+                          className="w-full h-48 object-cover"
+                          width={400}
+                          height={300}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                          <h3 className="text-xl font-bold">{dest.name}</h3>
+                          <p className="text-sm text-gray-200">
+                            ₹{(dest.baseCostMin / 100000).toFixed(0)}L - ₹
+                            {(dest.baseCostMax / 100000).toFixed(0)}L
+                          </p>{' '}
                         </div>
-                      )}
-                    </button>
-                  ))}
+                        {wizardData.destination === dest.id && (
+                          <div className="absolute top-2 right-2 bg-rose-500 rounded-full p-2">
+                            <Check size={16} className="text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
           )}
@@ -319,7 +379,11 @@ export default function GalleryPage() {
             <Category
               selectedCategories={wizardData.selectedCategories}
               onChange={(categories) =>
-                setWizardData({ ...wizardData, selectedCategories: categories })
+                setWizardData({
+                  ...wizardData,
+                  selectedCategories: categories,
+                  category: categories[0] ?? null,
+                })
               }
             />
           )}
@@ -332,6 +396,8 @@ export default function GalleryPage() {
               onPreferenceSelect={(pref) =>
                 setWizardData({ ...wizardData, photographerPreference: pref })
               }
+              events={wizardData.events || []}
+              onEventsChange={(newEvents) => setWizardData({ ...wizardData, events: newEvents })}
             />
           )}
 
@@ -456,7 +522,7 @@ export default function GalleryPage() {
             </div>
           )}
 
-          {/* Step 6: Review */}
+          {/* Step 7: Review */}
           {currentStep === 'review' && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center mb-8">

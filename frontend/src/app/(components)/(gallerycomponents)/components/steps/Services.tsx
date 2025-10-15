@@ -18,7 +18,16 @@ interface ServicesStepProps {
   onVendorSelect: (category: string, vendorId: string) => void;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+console.log('BASE_URL:', BASE_URL);
+
+export const getImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${BASE_URL}${url}`;
+};
 
 export default function ServicesStep({ selectedCategories, destination }: ServicesStepProps) {
   const dispatch = useAppDispatch();
@@ -91,6 +100,8 @@ export default function ServicesStep({ selectedCategories, destination }: Servic
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
                 {filteredServices.slice(0, 4).map((service) => {
+                  console.log('Image URL:', `${BASE_URL}${service.media?.[0]?.url}`);
+
                   const isSelected = selectedServices[category]?.some((s) => s.id === service.id);
                   return (
                     <div
@@ -99,8 +110,8 @@ export default function ServicesStep({ selectedCategories, destination }: Servic
                       ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
                       onClick={() => handleSelectService(category, service)}
                     >
-                      <Image
-                        src={`${BASE_URL}${service.media?.[0]?.url}`}
+                      <img
+                        src={getImageUrl(service.media?.[0]?.url)}
                         alt={service.title}
                         className="w-full h-32 object-cover"
                       />

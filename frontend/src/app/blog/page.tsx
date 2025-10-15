@@ -10,8 +10,9 @@ const BlogPage = () => {
         Coming Soon
       </h1>
       <p className="text-lg md:text-2xl mb-8 text-center max-w-xl text-black">
-        Our blog will soon feature expert advice, inspiration, and stories from Indian weddings across the country.
-        Stay tuned to discover tips, trends, and vendor highlights for your perfect celebration.
+        Our blog will soon feature expert advice, inspiration, and stories from Indian weddings
+        across the country. Stay tuned to discover tips, trends, and vendor highlights for your
+        perfect celebration.
       </p>
       <div className="flex gap-4">
         <a

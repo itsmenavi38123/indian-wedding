@@ -96,6 +96,9 @@ export const API_URLS = {
     updateSection5: '/home/section/section5',
     updateSection6: '/home/section/section6',
   },
+  weddingPlan: {
+    create: '/wedding-plan/create',
+  },
 };
 
 export const API_QUERY_KEYS = {
@@ -180,5 +183,8 @@ export const API_QUERY_KEYS = {
     update: 'updateTemplate',
     delete: 'deleteTemplate',
     seed: 'seedTemplates',
+  },
+  weddingPlan: {
+    create: 'createWeddingPlan',
   },
 };
