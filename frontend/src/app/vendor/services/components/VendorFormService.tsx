@@ -340,7 +340,7 @@ export const VendorServiceForm: React.FC<VendorServiceFormProps> = ({
         }
       });
     };
-  }, []);
+  }, [thumbnailPreview, mediaPreviews]);
   // -------------------- RENDER --------------------
   return (
     <FormProvider {...form}>

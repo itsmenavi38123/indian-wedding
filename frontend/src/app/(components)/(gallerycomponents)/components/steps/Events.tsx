@@ -167,7 +167,7 @@ export default function Events({
 
           {events.length === 0 ? (
             <p className="text-gray-500 italic text-center py-6">
-              No events added yet. Click "Add Event" to begin.
+              {`No events added yet. Click "Add Event" to begin.`}
             </p>
           ) : (
             <div className="space-y-4">

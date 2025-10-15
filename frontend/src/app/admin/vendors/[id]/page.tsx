@@ -2,19 +2,16 @@
 
 import React from 'react';
 import { useGetVendor } from '@/services/api/vendors';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { VendorForm } from '../components/VendorForm';
 import { AssignedVendorTeams } from '@/app/(components)/(leads)/components/AssignedVendorTeams';
+import { PageHeader } from '@/components/ui/pageHeader';
 
 interface ViewVendorPageProps {
   params: Promise<{ id: string }>;
 }
 
 const ViewVendorPage = ({ params }: ViewVendorPageProps) => {
-  const router = useRouter();
-
   // Unwrap params promise
   const unwrappedParams = React.use(params);
   const { id } = unwrappedParams;
@@ -73,24 +70,8 @@ const ViewVendorPage = ({ params }: ViewVendorPageProps) => {
 
   return (
     <div className="relative max-w-5xl mx-auto flex flex-col gap-8">
-      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
-        <div className="flex w-full sm:w-10 justify-start">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center cursor-pointer"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
-          </Button>
-        </div>
-        <div className="flex items-center justify-center w-full sm:w-auto">
-          <h1 className="text-2xl font-bold text-center sm:text-left">Vendor Details</h1>
-        </div>
-        <div className="none sm:block sm:w-10"></div>
-      </div>
-
+      <PageHeader title="Vendor Details" />
       <VendorForm defaultValues={defaultValues} type="view" readOnly />
-
       {/* Show teams using AssignedVendorTeams */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Assigned Teams</h2>

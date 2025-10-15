@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { PlusCircle, Trash2, X } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { useCreateVendorTeams } from '@/services/api/vendors';
 import { useRouter } from 'next/navigation';
 
@@ -32,10 +32,9 @@ export type VendorFormValues = z.infer<typeof vendorSchema>;
 
 interface TeamProps {
   teamIndex: number;
-  removeTeam: (index: number) => void;
 }
 
-const TeamForm: React.FC<TeamProps> = ({ teamIndex, removeTeam }) => {
+const TeamForm: React.FC<TeamProps> = ({ teamIndex }) => {
   const { control } = useFormContext<VendorFormValues>();
   const {
     fields: memberFields,
@@ -179,7 +178,7 @@ const VendorFormPage: React.FC<VendorFormPageProps> = ({
   const {
     fields: teamFields,
     append: appendTeam,
-    remove: removeTeam,
+    // remove: removeTeam,
   } = useFieldArray({
     control: form.control,
     name: 'teams',
@@ -205,7 +204,7 @@ const VendorFormPage: React.FC<VendorFormPageProps> = ({
         className="p-6 bg-black rounded-lg shadow space-y-6 max-w-5xl mx-auto"
       >
         {teamFields.map((team, tIndex) => (
-          <TeamForm key={team.id ?? tIndex} teamIndex={tIndex} removeTeam={removeTeam} />
+          <TeamForm key={team.id ?? tIndex} teamIndex={tIndex} />
         ))}
 
         <div className="flex gap-4 justify-end">

@@ -2,9 +2,8 @@
 import React, { use } from 'react';
 import LeadForm from '../../components/LeadForm';
 import { useGetLead } from '@/services/api/leads';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/ui/pageHeader';
 
 interface EditLeadPageProps {
   params: Promise<{ id: string }>;
@@ -12,7 +11,6 @@ interface EditLeadPageProps {
 
 const EditPage = ({ params }: EditLeadPageProps) => {
   const { id } = use(params);
-  const router = useRouter();
   const { data: lead, isLoading } = useGetLead(id);
   if (isLoading) {
     return (
@@ -54,21 +52,7 @@ const EditPage = ({ params }: EditLeadPageProps) => {
 
   return (
     <div className="relative max-w-5xl mx-auto flex flex-col gap-4">
-      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
-        <div className="flex w-full sm:w-10 justify-start">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center cursor-pointer bg-gold text-white"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
-          </Button>
-        </div>
-        <div className="flex items-center justify-center w-full sm:w-auto">
-          <h1 className="text-2xl font-bold text-center sm:text-left text-white">Edit Lead</h1>
-        </div>
-        <div className="none sm:block sm:w-10"></div>
-      </div>
+      <PageHeader title="Edit Lead" />
       <LeadForm defaultValues={defaultValues} type={'edit'} />
     </div>
   );
