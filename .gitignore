@@ -6,6 +6,7 @@ backend/node_modules
 backend/logs
 backend/uploads
 backend/dist
+backend/*.txt
 *.next
 /.pnp
 .pnp.*
