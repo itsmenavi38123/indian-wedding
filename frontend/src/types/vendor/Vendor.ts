@@ -78,12 +78,29 @@ export const vendorSchemaEdit = z.object({
     .optional(),
 });
 
+export const vendorServiceSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  category: z.string().min(1, 'Category is required'),
+  price: z.number().min(0, 'Price must be positive'),
+  country: z.string().min(1, 'Country is required'),
+  state: z.string().min(1, 'State is required'),
+  city: z.string().min(1, 'City is required'),
+  name: z.string().min(1, 'Vendor name is required'),
+  latitude: z.number().refine((val) => !isNaN(val), 'Latitude must be a number'),
+  longitude: z.number().refine((val) => !isNaN(val), 'Longitude must be a number'),
+  thumbnail: z.union([z.instanceof(File), z.string()]).nullable(),
+  media: z.array(z.union([z.instanceof(File), z.string()])).optional(),
+  removeMediaIds: z.array(z.string()).optional(),
+});
+
 // Types
 export type TeamMember = z.infer<typeof teamMemberSchema>;
 export type Team = z.infer<typeof teamSchema>;
 export type VendorFormValuesAdd = z.infer<typeof vendorSchemaAdd>;
 export type VendorFormValuesEdit = z.infer<typeof vendorSchemaEdit>;
 type VendorFormValues = VendorFormValuesAdd | VendorFormValuesEdit;
+export type VendorServiceFormData = z.infer<typeof vendorServiceSchema>;
 
 // Props for form
 export type TeamFieldsProps = {

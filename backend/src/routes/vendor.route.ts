@@ -67,9 +67,15 @@ export function vendorRoute(): Router {
   );
 
   vendorRouter.get(
-    '/teams',
-    authenticate(),
+    '/get/teams',
+    authenticateVendor,
     vendorTeamController.getTeamsByVendor.bind(vendorTeamController)
+  );
+
+  vendorRouter.get(
+    '/get/team/:teamId',
+    authenticateVendor,
+    vendorTeamController.getTeamById.bind(vendorTeamController)
   );
 
   vendorRouter.get(
@@ -86,8 +92,20 @@ export function vendorRoute(): Router {
 
   vendorRouter.delete(
     '/team/:teamId',
-    authenticate(),
+    authenticateVendor,
     vendorTeamController.deleteTeam.bind(vendorTeamController)
+  );
+
+  vendorRouter.post(
+    '/teams',
+    authenticateVendor,
+    vendorTeamController.createVendorTeams.bind(vendorTeamController)
+  );
+
+  vendorRouter.put(
+    '/team/:teamId/members',
+    authenticateVendor,
+    vendorTeamController.updateTeamWithMembers.bind(vendorTeamController)
   );
 
   /**
@@ -133,13 +151,6 @@ export function vendorRoute(): Router {
     vendorServiceController.createService.bind(vendorServiceController)
   );
 
-  vendorRouter.put(
-    '/service/update/:serviceId',
-    authenticateVendor,
-    vendorServiceUploadMiddleware,
-    vendorServiceController.updateService.bind(vendorServiceController)
-  );
-
   vendorRouter.get(
     '/get/services',
     vendorServiceController.getServices.bind(vendorServiceController)
@@ -149,6 +160,12 @@ export function vendorRoute(): Router {
     '/service/:serviceId',
     authenticateVendor,
     vendorServiceController.getServiceById.bind(vendorServiceController)
+  );
+  vendorRouter.put(
+    '/service/update/:serviceId',
+    authenticateVendor,
+    vendorServiceUploadMiddleware,
+    vendorServiceController.updateService.bind(vendorServiceController)
   );
 
   vendorRouter.get(

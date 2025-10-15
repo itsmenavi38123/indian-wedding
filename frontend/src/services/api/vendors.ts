@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_QUERY_KEYS, API_URLS } from '../apiBaseUrl';
 import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
@@ -49,6 +49,54 @@ export function useGetVendors({
   });
 }
 
+interface QueryParams {
+  page: number;
+  limit: number | 'all';
+  search: string;
+}
+
+export const getVendorTeams = async ({ queryKey }: { queryKey: any }) => {
+  // Ensure queryKey has a second element
+  const [, params = { page: 1, limit: 10, search: '' }] = queryKey;
+  const { page, limit, search } = params as QueryParams;
+
+  try {
+    console.log('[getVendorTeams] Calling API...', params);
+
+    const response = await axiosInstance.get(API_URLS.vendor.getTeams, {
+      params: { page, limit, search },
+    });
+
+    console.log('[getVendorTeams] Response:', response.data);
+    return response.data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      console.error('[getVendorTeams] API error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to fetch teams.');
+    } else {
+      toast.error('Failed to fetch teams.');
+    }
+    throw error;
+  }
+};
+
+interface VendorTeamsParams {
+  page?: number;
+  limit?: number | 'all';
+  search?: string;
+}
+
+export const useGetVendorTeams = ({
+  page = 1,
+  limit = 10,
+  search = '',
+}: VendorTeamsParams = {}) => {
+  return useQuery({
+    queryKey: ['vendorTeams', { page, limit, search }],
+    queryFn: getVendorTeams,
+  });
+};
+
 /* -------------------- GET VENDOR BY ID -------------------- */
 const getVendorById = async ({ queryKey }: { queryKey: any }) => {
   const [, vendorId] = queryKey;
@@ -73,6 +121,34 @@ export function useGetVendor(vendorId?: string) {
     queryKey: [API_QUERY_KEYS.vendor.getSingleVendor, vendorId],
     queryFn: getVendorById,
     enabled: !!vendorId,
+  });
+}
+
+const getVendorTeamById = async ({ queryKey }: { queryKey: any }) => {
+  const [, teamId] = queryKey;
+
+  if (!teamId) {
+    toast.error('Team ID is required to fetch team details.');
+    throw new Error('Team ID is required');
+  }
+
+  const url = API_URLS.vendor.getSingleTeam(teamId);
+  console.log('[getVendorTeamById] Request URL:', url);
+  try {
+    const { data } = await axiosInstance.get(url);
+    return data;
+  } catch (error: AxiosError | any) {
+    console.error('Error fetching vendor team:', error);
+    toast.error(error.response?.data?.message || 'Failed to fetch team.');
+    throw error;
+  }
+};
+
+export function useGetVendorTeamById(teamId?: string) {
+  return useQuery({
+    queryKey: [API_QUERY_KEYS.vendor.getSingleTeam, teamId],
+    queryFn: getVendorTeamById,
+    enabled: !!teamId,
   });
 }
 
@@ -163,3 +239,111 @@ export const exportVendorsWithIds = async ({ ids }: { ids: string[] }): Promise<
     }
   );
 };
+
+export const createVendorTeams = async (payload: FormData | Record<string, any>) => {
+  try {
+    const isFormData = payload instanceof FormData;
+    const { data } = await axiosInstance.post(
+      API_URLS.vendor.createTeams,
+      payload,
+      isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}
+    );
+    return data;
+  } catch (error: AxiosError | any) {
+    console.error('Error creating vendor teams:', error?.response);
+    toast.error(error.response?.data?.errorMessage || 'Failed to create teams.');
+    throw error;
+  }
+};
+
+export function useCreateVendorTeams() {
+  return useMutation({
+    mutationFn: createVendorTeams,
+    onSuccess: (data) => {
+      toast.success('Teams created successfully!');
+      console.log('Teams created successfully:', data);
+    },
+    onError: (error: any) => {
+      console.error('Failed to create teams:', error?.response?.data || error.message);
+      toast.error(error?.response?.data?.errorMessage || 'Failed to create teams.');
+    },
+  });
+}
+
+export const deleteVendorTeam = async (teamId: string) => {
+  if (!teamId) throw new Error('Team ID is required for deletion');
+
+  try {
+    const { data } = await axiosInstance.delete(API_URLS.vendor.deleteById(teamId));
+    return data;
+  } catch (error: any) {
+    console.error('Error deleting vendor team:', error);
+    toast.error(error.response?.data?.message || 'Failed to delete vendor team.');
+    throw error;
+  }
+};
+
+export function useDeleteVendorTeam() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (teamId: string) => deleteVendorTeam(teamId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [API_QUERY_KEYS.vendor.getTeams],
+      });
+      toast.success(`Deleted team successfully`);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to delete team');
+      console.error('Delete team error:', error);
+    },
+  });
+}
+
+/* -------------------- UPDATE TEAM WITH MEMBERS -------------------- */
+export interface UpdateTeamWithMembersPayload {
+  name?: string;
+  description?: string;
+  members?: {
+    id?: string;
+    name: string;
+    email?: string;
+  }[];
+}
+export const updateTeamWithMembers = async (
+  teamId: string,
+  payload: UpdateTeamWithMembersPayload
+) => {
+  try {
+    const { data } = await axiosInstance.put(
+      API_URLS.vendor.updateTeamWithMembers(teamId),
+      payload
+    );
+    return data;
+  } catch (error: AxiosError | any) {
+    console.error('Error updating team with members:', error);
+    toast.error(error?.response?.data?.message || 'Failed to update team.');
+    throw error;
+  }
+};
+
+export function useUpdateTeamWithMembers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (variables: { teamId: string; payload: UpdateTeamWithMembersPayload }) =>
+      updateTeamWithMembers(variables.teamId, variables.payload),
+    onSuccess: (_, variables) => {
+      toast.success('Team updated successfully!');
+      queryClient.invalidateQueries({ queryKey: [API_QUERY_KEYS.vendor.getTeams] });
+      queryClient.invalidateQueries({
+        queryKey: [API_QUERY_KEYS.vendor.getSingleTeam, variables.teamId],
+      });
+    },
+    onError: (error: any) => {
+      console.error('Failed to update team:', error?.response?.data || error.message);
+      toast.error(error?.response?.data?.message || 'Failed to update team.');
+    },
+  });
+}

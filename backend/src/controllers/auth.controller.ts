@@ -447,6 +447,7 @@ export class AuthController {
   // vendor >>>>>>>>>>>>>
   public async vendorLogin(req: Request, res: Response) {
     try {
+      console.log(req.body, '>>vendorLogin');
       const { email, password, rememberMe } = req.body;
       const vendor = await prisma.vendor.findUnique({
         where: { email },

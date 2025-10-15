@@ -8,12 +8,14 @@ import {
   Users,
   Calendar,
   ListFilterPlus,
+  BookImage,
 } from 'lucide-react';
 import BudgetStep from './components/steps/BudgetStep';
 import { RootState, useAppDispatch, useAppSelector } from '@/store/store';
 import { fetchDestinationsFromServices } from '@/store/slices/planning';
 import Category from './components/steps/Category';
 import ServicesStep from './components/steps/Services';
+import Events from './components/steps/Events';
 import Image from 'next/image';
 
 // Types
@@ -21,6 +23,7 @@ type WizardStep =
   | 'budget'
   | 'destination'
   | 'category'
+  | 'events'
   | 'photos'
   | 'services'
   | 'guests'
@@ -137,7 +140,8 @@ export default function GalleryPage() {
 
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
-  console.log('destinations', destinations);
+  const allServices = useAppSelector((state: RootState) => state.planning.services);
+
   useEffect(() => {
     dispatch(fetchDestinationsFromServices({}));
   }, [dispatch]);
@@ -161,12 +165,14 @@ export default function GalleryPage() {
     { id: 'budget', title: 'Budget', icon: Calendar },
     { id: 'destination', title: 'Destination', icon: MapPin },
     { id: 'category', title: 'Category', icon: ListFilterPlus },
+    { id: 'events', title: 'Events', icon: BookImage },
     { id: 'services', title: 'Services', icon: Camera },
     { id: 'guests', title: 'Guests', icon: Users },
     { id: 'review', title: 'Review', icon: Check },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
+  // const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const nextStep = () => {
     const nextIndex = currentStepIndex + 1;
@@ -192,7 +198,6 @@ export default function GalleryPage() {
   // };
 
   const handleSubmit = async () => {
-    // API call to create wedding
     console.log('Creating wedding with:', wizardData);
     alert('Wedding created successfully! 🎉');
   };
@@ -286,13 +291,10 @@ export default function GalleryPage() {
                       }`}
                     >
                       <Image
-                        src={dest.heroImage || '/placeholder.jpg'}
+                        src={dest.heroImage ? dest.heroImage : ''}
                         alt={dest.name}
                         className="w-full h-48 object-cover"
-                        width={400}
-                        height={192}
                       />
-
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         <h3 className="text-xl font-bold">{dest.name}</h3>
@@ -322,11 +324,24 @@ export default function GalleryPage() {
             />
           )}
 
-          {/* Step 4: services */}
+          {/* Step 4: Events */}
+          {currentStep === 'events' && (
+            <Events
+              selectedCategories={wizardData.selectedCategories}
+              photographerPreference={wizardData.photographerPreference}
+              onPreferenceSelect={(pref) =>
+                setWizardData({ ...wizardData, photographerPreference: pref })
+              }
+            />
+          )}
+
+          {/* Step 5: services */}
           {currentStep === 'services' && (
             <ServicesStep
+              services={allServices}
               selectedCategories={wizardData.selectedCategories}
               selectedVendors={wizardData.selectedVendors}
+              destination={wizardData.destination}
               onVendorSelect={(category, vendorId) =>
                 setWizardData((prev) => ({
                   ...prev,
@@ -407,7 +422,7 @@ export default function GalleryPage() {
             // </div>
           )}
 
-          {/* Step 5: Guests */}
+          {/* Step 6: Guests */}
           {currentStep === 'guests' && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center mb-8">
