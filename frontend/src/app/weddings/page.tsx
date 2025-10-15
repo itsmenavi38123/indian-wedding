@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import React from 'react';
 
 const WeddingsPage = () => {
@@ -12,18 +13,18 @@ const WeddingsPage = () => {
         plan your perfect day with Indian Weddings.
       </p>
       <div className="flex gap-4">
-        <a
+        <Link
           href="mailto:info@yourcompany.com"
           className="px-6 py-3 bg-gold text-white font-semibold rounded-lg shadow-lg hover:bg-yellow-600 transition"
         >
           Contact Us
-        </a>
-        <a
+        </Link>
+        <Link
           href="/"
           className="px-6 py-3 border-2 border-gold text-gold font-semibold rounded-lg hover:bg-gold hover:text-white transition"
         >
           Go Home
-        </a>
+        </Link>
       </div>
     </div>
   );
