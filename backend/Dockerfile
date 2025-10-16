@@ -24,7 +24,9 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy built files and node_modules
+# Install Postgres client for pg_isready
+RUN apk add --no-cache postgresql-client bash
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
