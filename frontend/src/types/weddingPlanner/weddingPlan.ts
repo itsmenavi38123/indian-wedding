@@ -3,7 +3,10 @@ export interface CreateWeddingPlanPayload {
   totalBudget: number;
   minBudget?: number;
   maxBudget?: number;
-  weddingDate?: string;
+  weddingDate?: {
+    startDate: string;
+    endDate: string;
+  };
   guestCount?: number;
   selectedVendors?: {
     photographer?: string;

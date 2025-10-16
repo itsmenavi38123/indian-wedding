@@ -59,12 +59,12 @@ export default function LeadDetailsPage() {
   return (
     <div className="">
       <div>
-        <Button variant="ghost" onClick={() => router.back()}>
+        <Button variant="ghost" className="bg-white" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4 mr-2 cursor-pointer" /> Back
         </Button>
         <div className="flex flex-col xs:flex-row items-start xs:items-center justify-start xs:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">{coupleTitle}</h1>
+          <div className="mt-4">
+            <h1 className="text-2xl font-bold text-white">{coupleTitle}</h1>
             <span className="text-sm text-muted-foreground">
               Last Updated: {format(new Date(d.updatedAt), 'PPpp')}
             </span>
@@ -110,7 +110,7 @@ export default function LeadDetailsPage() {
               <div className="flex gap-6">
                 <div className="flex items-center justify-between gap-3">
                   <Avatar>
-                    <AvatarFallback>{d.partner1Name?.[0]}</AvatarFallback>
+                    <AvatarFallback className="text-black">{d.partner1Name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">{d.partner1Name}</p>
@@ -119,7 +119,7 @@ export default function LeadDetailsPage() {
                 {/* Partner 2 */}
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarFallback>{d.partner2Name?.[0]}</AvatarFallback>
+                    <AvatarFallback className="text-black">{d.partner2Name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">{d.partner2Name}</p>
@@ -130,13 +130,13 @@ export default function LeadDetailsPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline">
-                    <Phone className="h-4 w-4" />
+                    <Phone className="h-4 w-4 text-black" />
                   </Button>
                   <p className="text-sm text-muted-foreground">{d.phoneNumber}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline">
-                    <MessageCircle className="h-4 w-4" />
+                  <Button size="sm" variant="outline" className="mt-2.5">
+                    <MessageCircle className="h-4 w-4 text-black" />
                   </Button>
                   <p className="text-sm text-muted-foreground">{d.whatsappNumber}</p>
                 </div>
@@ -146,7 +146,7 @@ export default function LeadDetailsPage() {
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <span>{d.email}</span>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" className="text-black">
                   Send Email
                 </Button>
               </div>
@@ -274,18 +274,19 @@ export default function LeadDetailsPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
-                className="w-full"
+                className="w-full text-black"
+                variant="outline"
                 onClick={() => router.push(`/admin/leads/${leadId}/proposal/create`)}
               >
                 Create Proposal
               </Button>
-              <Button className="w-full" variant="outline">
+              <Button className="w-full text-black" variant="outline">
                 Schedule Meeting
               </Button>
-              <Button className="w-full" variant="outline">
+              <Button className="w-full text-black" variant="outline">
                 Send Email
               </Button>
-              <Button className="w-full" variant="outline">
+              <Button className="w-full text-black" variant="outline">
                 Add Task
               </Button>
             </CardContent>
