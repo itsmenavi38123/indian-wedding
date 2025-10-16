@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ChevronRight,
   ChevronLeft,
@@ -36,7 +36,7 @@ interface WizardData {
   budget: { min: number; max: number } | null;
   destinationId: string | null;
   destination: string | null;
-  weddingDate: string | null;
+  weddingDate: { startDate: string; endDate: string };
   category: string | null;
   guestCount: number | null;
   likedPhotos: string[];
@@ -132,7 +132,7 @@ export default function GalleryPage() {
     budget: null,
     destination: null,
     destinationId: null,
-    weddingDate: null,
+    weddingDate: { startDate: '', endDate: '' },
     guestCount: null,
     category: null,
     likedPhotos: [],
@@ -205,6 +205,13 @@ export default function GalleryPage() {
       {} as Record<string, { vendorId: string; name?: string; email?: string }>
     );
 
+  const handleVendorSelect = useCallback((category: string, vendorId: string) => {
+    setWizardData((prev) => ({
+      ...prev,
+      selectedVendors: { ...prev.selectedVendors, [category]: vendorId },
+    }));
+  }, []);
+
   useEffect(() => {
     const savedData = localStorage.getItem('pendingWeddingPlan');
     if (savedData) {
@@ -234,7 +241,10 @@ export default function GalleryPage() {
       minBudget: wizardData.budget.min,
       maxBudget: wizardData.budget.max,
       category: wizardData.selectedCategories,
-      weddingDate: wizardData.weddingDate || new Date().toISOString(),
+      weddingDate: wizardData.weddingDate || {
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0],
+      },
       guestCount: wizardData.guestCount || 0,
       selectedVendors: selectedVendorsPayload,
       events: wizardData.events.map((ev) => ({
@@ -398,6 +408,7 @@ export default function GalleryPage() {
               }
               events={wizardData.events || []}
               onEventsChange={(newEvents) => setWizardData({ ...wizardData, events: newEvents })}
+              onDateChange={(range) => setWizardData((prev) => ({ ...prev, weddingDate: range }))}
             />
           )}
 
@@ -408,84 +419,8 @@ export default function GalleryPage() {
               selectedCategories={wizardData.selectedCategories}
               selectedVendors={wizardData.selectedVendors}
               destination={wizardData.destination}
-              onVendorSelect={(category, vendorId) =>
-                setWizardData((prev) => ({
-                  ...prev,
-                  selectedVendors: { ...prev.selectedVendors, [category.toLowerCase()]: vendorId },
-                }))
-              }
+              onVendorSelect={handleVendorSelect}
             />
-            // <div className="space-y-6 animate-fade-in">
-            //   <div className="text-center mb-8">
-            //     <h2 className="text-3xl font-bold text-gray-900 mb-2">Choose your services</h2>
-            //     <p className="text-gray-600">Based on your style preferences</p>
-            //   </div>
-
-            //   <div className="space-y-6 max-w-4xl mx-auto">
-            //     <div>
-            //       <h3 className="text-lg font-semibold mb-3">Photographer Preference</h3>
-            //       <div className="grid grid-cols-3 gap-3">
-            //         {['local', 'travel', 'either'].map((pref) => (
-            //           <button
-            //             key={pref}
-            //             onClick={() =>
-            //               setWizardData({ ...wizardData, photographerPreference: pref as any })
-            //             }
-            //             className={`p-4 rounded-lg border-2 transition-all ${wizardData.photographerPreference === pref
-            //               ? 'border-rose-500 bg-rose-50'
-            //               : 'border-gray-200 hover:border-rose-200'
-            //               }`}
-            //           >
-            //             <div className="font-medium capitalize">{pref}</div>
-            //             <div className="text-xs text-gray-500 mt-1">
-            //               {pref === 'local'
-            //                 ? 'From destination'
-            //                 : pref === 'travel'
-            //                   ? 'Flies with you'
-            //                   : 'No preference'}
-            //             </div>
-            //           </button>
-            //         ))}
-            //       </div>
-            //     </div>
-
-            //     {['photographer', 'venue', 'decorator'].map((vendorType) => {
-            //       const relevantPhotos = samplePhotos.filter((p) => p.type === vendorType);
-            //       return (
-            //         <div key={vendorType}>
-            //           <h3 className="text-lg font-semibold mb-3 capitalize">{vendorType}</h3>
-            //           <div className="grid grid-cols-4 gap-3">
-            //             {relevantPhotos.map((photo) => (
-            //               <button
-            //                 key={photo.id}
-            //                 onClick={() =>
-            //                   setWizardData({
-            //                     ...wizardData,
-            //                     selectedVendors: {
-            //                       ...wizardData.selectedVendors,
-            //                       [vendorType]: photo.vendor,
-            //                     },
-            //                   })
-            //                 }
-            //                 className={`relative overflow-hidden rounded-lg transition-all ${wizardData.selectedVendors[
-            //                   vendorType as keyof typeof wizardData.selectedVendors
-            //                 ] === photo.vendor
-            //                   ? 'ring-4 ring-rose-500'
-            //                   : ''
-            //                   }`}
-            //               >
-            //                 <img src={photo.url} alt="" className="w-full h-24 object-cover" />
-            //                 <div className="p-2 bg-white border-t">
-            //                   <p className="text-xs font-medium truncate">{photo.vendor}</p>
-            //                 </div>
-            //               </button>
-            //             ))}
-            //           </div>
-            //         </div>
-            //       );
-            //     })}
-            //   </div>
-            // </div>
           )}
 
           {/* Step 6: Guests */}
@@ -545,7 +480,13 @@ export default function GalleryPage() {
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="font-semibold text-gray-700">Wedding Date</div>
-                  <div className="text-lg">{wizardData.weddingDate}</div>
+                  <div className="text-lg">
+                    {wizardData.weddingDate?.startDate && wizardData.weddingDate?.endDate
+                      ? wizardData.weddingDate.startDate === wizardData.weddingDate.endDate
+                        ? wizardData.weddingDate.startDate
+                        : `${wizardData.weddingDate.startDate} → ${wizardData.weddingDate.endDate}`
+                      : 'No date selected'}
+                  </div>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="font-semibold text-gray-700">Guest Count</div>
@@ -553,15 +494,14 @@ export default function GalleryPage() {
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="font-semibold text-gray-700">Photographer</div>
-                  <div className="text-lg">
+                  {/* <div className="text-lg">
                     {wizardData.selectedVendors.photographer || 'Not selected'}
-                  </div>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="font-semibold text-gray-700">Venue</div>
-                  <div className="text-lg">
-                    {wizardData.selectedVendors.venue || 'Not selected'}
-                  </div>
+                  </div> */}
+                  {wizardData.photographerPreference && (
+                    <div className="text-sm text-gray-500 mt-1">
+                      <span className="capitalize">{wizardData.photographerPreference}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
