@@ -4,6 +4,7 @@ import { Check, ArrowLeft } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { setSelectedService } from '@/store/slices/planning';
 import { getImageUrl } from './Services';
+import Image from 'next/image';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -181,6 +182,8 @@ export default function CategoryServicesView({
                   src={m.url}
                   alt={`media-${index}`}
                   className="w-full h-32 object-cover rounded-lg"
+                  width={400}
+                  height={300}
                 />
               )
             )}
