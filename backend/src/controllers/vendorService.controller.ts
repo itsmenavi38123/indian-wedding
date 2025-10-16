@@ -9,7 +9,7 @@ import { deleteFile } from '@/services/fileService';
 import { File as MulterFile } from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { MediaType } from '@prisma/client';
+import { Destination, MediaType } from '@prisma/client';
 import { AuthenticatedVendorRequest } from '@/middlewares/vendorAuthMiddleware';
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
 
@@ -56,6 +56,36 @@ export class VendorServiceController {
         longitude,
       } = parsed.data;
 
+      let destinationName = city || state || country;
+      if (destinationName) destinationName = destinationName.trim();
+
+      let destination: Destination | null = null;
+      if (destinationName) {
+        destination = await prisma.destination.findFirst({
+          where: {
+            name: { equals: destinationName, mode: 'insensitive' },
+          },
+        });
+
+        if (!destination) {
+          const baseMin = price && price > 0 ? Math.floor(price * 0.8) : 0;
+          const baseMax = price && price > 0 ? Math.floor(price * 1.2) : 0;
+
+          destination = await prisma.destination.create({
+            data: {
+              name: destinationName,
+              country: country || destinationName,
+              baseCostMin: baseMin,
+              baseCostMax: baseMax,
+              heroImage: undefined,
+            },
+          });
+
+          logger.info(`🆕 Created new destination: ${destination.name} (${destination.id})`);
+        } else {
+          logger.info(`✅ Linked to existing destination: ${destination.name} (${destination.id})`);
+        }
+      }
       // Create service
       service = await prisma.vendorService.create({
         data: {
@@ -70,6 +100,7 @@ export class VendorServiceController {
           name,
           latitude,
           longitude,
+          destinationId: destination ? destination.id : null,
         },
       });
 

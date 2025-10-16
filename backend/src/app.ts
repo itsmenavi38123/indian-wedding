@@ -9,7 +9,7 @@ config();
 export function createApp(): Application {
   const app: Application = express();
   const origin = process.env.ALLOWED_ORIGIN || 'http://localhost:3000';
-  console.log(origin , "originoriginorigin")
+  console.log(origin, 'originoriginorigin');
   app.use(
     cors({
       //   origin: true,

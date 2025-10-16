@@ -7,6 +7,7 @@ import { proposalRoute } from './proposal.route';
 import { proposalTemplateRoute } from './proposalTemplate.route';
 import { vendorRoute } from './vendor.route';
 import { landingPageRoute } from './home.route';
+import { weddingPlanRoute } from './weddingPlan.route';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/proposal-templates', proposalTemplateRoute());
 router.use('/proposals', proposalRoute());
 router.use('/vendor', vendorRoute());
 router.use('/home', landingPageRoute());
+router.use('/wedding-plan', weddingPlanRoute());
 
 export default router;

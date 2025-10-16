@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { LoginForm } from '@/app/(components)/LoginForm';
@@ -16,7 +16,10 @@ import { userLogin } from '@/services/api/userAuth';
 const LoginPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
   const { userLoginEmail } = useSelector((state: RootState) => state.auth);
+  const redirectTo = searchParams.get('redirect') || '/user/dashboard';
+
   const form = useForm<UserLoginInput>({
     resolver: zodResolver(userLoginSchema),
     defaultValues: {
@@ -44,7 +47,8 @@ const LoginPage = () => {
       if (data?.statusCode) {
         toast.success(data?.message ?? 'User logged in successfully.');
         dispatch(setUserLoginEmail(''));
-        router.push('/user/dashboard');
+        router.push(redirectTo);
+        router.push('/gallery');
       }
     },
   });

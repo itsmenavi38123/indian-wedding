@@ -3,9 +3,10 @@ import { useSelector } from 'react-redux';
 import { Check, ArrowLeft } from 'lucide-react';
 import { RootState, useAppDispatch } from '@/store/store';
 import { setSelectedService } from '@/store/slices/planning';
+import { getImageUrl } from './Services';
 import Image from 'next/image';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface CategoryServicesViewProps {
   category: string;
@@ -109,8 +110,8 @@ export default function CategoryServicesView({
         ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
       onClick={() => handleToggle(service)}
     >
-      <Image
-        src={`${BASE_URL}${service.media?.[0]?.url}`}
+      <img
+        src={getImageUrl(service.media?.[0]?.url)}
         alt={service.title}
         className="w-full h-32 object-cover"
       />
@@ -129,7 +130,7 @@ export default function CategoryServicesView({
       service.media?.forEach((m: any) => {
         const ext = m.url.split('.').pop()?.toLowerCase();
         const type = ext === 'mp4' || ext === 'mov' ? 'video' : 'image';
-        mediaItems.push({ url: `${BASE_URL}${m.url}`, type });
+        mediaItems.push({ url: getImageUrl(m.url), type });
       });
     });
     return mediaItems;
@@ -181,6 +182,8 @@ export default function CategoryServicesView({
                   src={m.url}
                   alt={`media-${index}`}
                   className="w-full h-32 object-cover rounded-lg"
+                  width={400}
+                  height={300}
                 />
               )
             )}
