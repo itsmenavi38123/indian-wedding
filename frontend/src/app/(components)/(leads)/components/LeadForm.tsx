@@ -276,7 +276,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="partner1Name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Partner 1 Name</FormLabel>
+                <FormLabel className="text-white">Partner 1 Name</FormLabel>
                 <FormControl>
                   <Input className="text-white" placeholder="Enter partner 1 name" {...field} />
                 </FormControl>
@@ -291,7 +291,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
               <FormItem>
                 <FormLabel className="text-white">Partner 2 Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter partner 2 name" {...field} />
+                  <Input className="text-white" placeholder="Enter partner 2 name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -304,11 +304,11 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="primaryContact"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Primary Contact Person</FormLabel>
+                <FormLabel className="text-white">Primary Contact Person</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full text-white">
-                      <SelectValue placeholder="Select contact" />
+                      <SelectValue className="text-white" placeholder="Select contact" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -327,7 +327,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel className="text-white">Phone Number</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -339,6 +339,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                       value = '+91 ' + value.slice(2);
                       field.onChange(value);
                     }}
+                    className="text-white"
                   />
                 </FormControl>
                 <FormMessage />
@@ -355,14 +356,14 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
 
               return (
                 <FormItem>
-                  <FormLabel>WhatsApp Number</FormLabel>
+                  <FormLabel className="text-white">WhatsApp Number</FormLabel>
                   <FormControl>
                     <Input
                       className="text-white"
                       placeholder="Enter WhatsApp number"
                       {...field}
                       onChange={(e) => {
-                        let value = e.target.value.replace(/[^\d]/g, ''); // keep only digits
+                        let value = e.target.value.replace(/[^\d]/g, '');
                         if (!value.startsWith('91')) {
                           value = '91' + value.replace(/^91/, '');
                         }
@@ -467,6 +468,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                           const newMin = Number(e.target.value) || 0;
                           field.onChange([newMin, field.value[1]]);
                         }}
+                        className="text-white"
                       />
                       <span>-</span>
                       <Input
@@ -478,6 +480,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                           const newMax = Number(e.target.value) || 0;
                           field.onChange([field.value[0], newMax]);
                         }}
+                        className="text-white"
                       />
                     </div>
                   </div>
@@ -493,7 +496,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="budget"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Budget Range</FormLabel>
+                <FormLabel className="text-white">Budget Range</FormLabel>
                 <FormControl>
                   <div>
                     {/* Slider */}
@@ -521,6 +524,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                           const newMin = Number(e.target.value) || 0;
                           field.onChange([newMin, field.value[1]]);
                         }}
+                        className="text-white"
                       />
                       <span>-</span>
                       <Input
@@ -532,6 +536,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                           const newMax = Number(e.target.value) || 0;
                           field.onChange([field.value[0], newMax]);
                         }}
+                        className="text-white"
                       />
                     </div>
 
@@ -571,7 +576,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
 
               return (
                 <FormItem>
-                  <FormLabel>Preferred Locations</FormLabel>
+                  <FormLabel className="text-white">Preferred Locations</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <MultiSelect
@@ -593,11 +598,11 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="leadSource"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Lead Source</FormLabel>
+                <FormLabel className="text-white">Lead Source</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl className="w-full">
+                  <FormControl className="w-full text-white">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select source" />
+                      <SelectValue className="text-white" placeholder="Select source" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -622,11 +627,11 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
               }));
               return (
                 <FormItem>
-                  <FormLabel>Service Types</FormLabel>
+                  <FormLabel className="text-white">Service Types</FormLabel>
                   <FormControl>
                     <MultiSelect
                       options={options}
-                      value={field.value.split(',')} // convert string → array
+                      value={field.value.split(',')}
                       onChange={(newVal) => {
                         form.setValue('serviceTypes', (newVal as string[]).join(','), {
                           shouldDirty: true,
@@ -646,9 +651,9 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="saveStatus"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Save Status</FormLabel>
+                <FormLabel className="text-white">Save Status</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl className="w-full">
+                  <FormControl className="w-full text-white">
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -673,8 +678,8 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
               name="referralDetails"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Referral Details</FormLabel>
-                  <FormControl>
+                  <FormLabel className="text-white">Referral Details</FormLabel>
+                  <FormControl className="text-white">
                     <Input {...field} placeholder="Who referred?" />
                   </FormControl>
                   <FormMessage />
@@ -689,8 +694,8 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
             name="initialNotes"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel>Initial Notes</FormLabel>
-                <FormControl>
+                <FormLabel className="text-white">Initial Notes</FormLabel>
+                <FormControl className="text-white">
                   <Textarea placeholder="Enter notes..." {...field} />
                 </FormControl>
                 <FormMessage />
@@ -721,7 +726,10 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                   'Create Lead'
                 )}
               </Button>
-              <button type="button" className="text-primary underline text-sm w-full xs:w-auto">
+              <button
+                type="button"
+                className="text-white cursor-pointer underline text-sm w-full xs:w-auto"
+              >
                 {type === 'edit' ? 'Update & Add Another' : 'Create & Add Another'}
               </button>
             </div>

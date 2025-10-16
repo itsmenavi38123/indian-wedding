@@ -15,7 +15,7 @@ interface ServicesStepProps {
   };
   destination?: string | null;
   services: any[];
-  onVendorSelect: (category: string, vendorId: string) => void;
+  onVendorSelect: (category: string, VendorServiceId: string) => void;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -29,7 +29,11 @@ export const getImageUrl = (url: string) => {
   return `${BASE_URL}${url}`;
 };
 
-export default function ServicesStep({ selectedCategories, destination }: ServicesStepProps) {
+export default function ServicesStep({
+  selectedCategories,
+  destination,
+  onVendorSelect,
+}: ServicesStepProps) {
   const dispatch = useAppDispatch();
   const { servicesByCategory, servicesLoading } = useSelector((state: RootState) => state.planning);
 
