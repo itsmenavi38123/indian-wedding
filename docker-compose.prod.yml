@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # Backend Service
   backend:
     image: ghcr.io/itsmenavi38123/indian-wedding/backend:latest
     container_name: indianweddings-backend
@@ -8,11 +9,15 @@ services:
       - "3001:3001"
     env_file:
       - .env.production
-
+    depends_on:
+      - db
+      - redis
     volumes:
-      - ./uploads:/app/uploads
+      - uploads-data:/app/uploads   # persist uploaded files
+      - backend-db-data:/app/db     # if backend stores any local DB
     restart: unless-stopped
 
+  # Frontend Service
   frontend:
     image: ghcr.io/itsmenavi38123/indian-wedding/frontend:latest
     container_name: indianweddings-frontend
@@ -24,6 +29,37 @@ services:
       - backend
     restart: unless-stopped
 
+  # Postgres Database
+  db:
+    image: postgres:16
+    container_name: postgres
+    platform: linux/amd64
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: indianweddings
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # persistent Postgres data
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: redis-teo
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data   # persistent Redis data
+
+# Named Volumes
 volumes:
   uploads-data:
+    driver: local
+  backend-db-data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis-data:
     driver: local
