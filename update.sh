@@ -1,5 +1,3 @@
-  GNU nano 7.2                                                                                                                update.sh                                                                                                                         
-
 # Define project directory and compose file
 PROJECT_DIR="/var/www/indianWedding"
 COMPOSE_FILE="docker-compose.prod.yml"
@@ -25,30 +23,26 @@ docker compose -f "$COMPOSE_FILE" up -d 2>&1 | tee -a "$LOG_FILE"
 echo "🧹 Cleaning up old images in background..." | tee -a "$LOG_FILE"
 docker image prune -f > /dev/null 2>&1 &
 
-# Show status
+# Wait for Postgres to be ready
+echo "⏳ Waiting for Postgres to be ready..." | tee -a "$LOG_FILE"
+until docker exec indianweddings-backend pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" >/dev/null 2>&1; do
+    echo "Postgres not ready yet, retrying in 2s..." | tee -a "$LOG_FILE"
+    sleep 2
+done
+echo "✅ Postgres is ready!" | tee -a "$LOG_FILE"
+
+# Run Prisma migrations
+echo "🔄 Running Prisma migrations..." | tee -a "$LOG_FILE"
+docker exec indianweddings-backend npx prisma migrate deploy 2>&1 | tee -a "$LOG_FILE"
+
+# Show container status
 echo "✅ Deployment complete. Running containers:" | tee -a "$LOG_FILE"
 docker ps | tee -a "$LOG_FILE"
 
-# Check Prisma migrations
-echo "🔍 Checking Prisma migrations..." | tee -a "$LOG_FILE"
+# Optional: check Prisma status
+echo "🔍 Prisma migration status:" | tee -a "$LOG_FILE"
 docker exec indianweddings-backend npx prisma migrate status 2>&1 | tee -a "$LOG_FILE"
 
 echo "========================================" | tee -a "$LOG_FILE"
 echo "Deployment finished at: $(date)" | tee -a "$LOG_FILE"
 echo "========================================" | tee -a "$LOG_FILE"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
