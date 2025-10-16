@@ -29,6 +29,10 @@ docker image prune -f > /dev/null 2>&1 &
 echo "✅ Deployment complete. Running containers:" | tee -a "$LOG_FILE"
 docker ps | tee -a "$LOG_FILE"
 
+# Check Prisma migrations
+echo "🔍 Checking Prisma migrations..." | tee -a "$LOG_FILE"
+docker exec indianweddings-backend npx prisma migrate status 2>&1 | tee -a "$LOG_FILE"
+
 echo "========================================" | tee -a "$LOG_FILE"
 echo "Deployment finished at: $(date)" | tee -a "$LOG_FILE"
 echo "========================================" | tee -a "$LOG_FILE"
