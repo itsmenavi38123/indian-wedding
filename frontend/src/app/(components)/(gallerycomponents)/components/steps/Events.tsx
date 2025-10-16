@@ -18,6 +18,7 @@ interface EventsProps {
   onPreferenceSelect: (pref: 'local' | 'travel' | 'either') => void;
   events: WeddingEvent[];
   onEventsChange: (events: WeddingEvent[]) => void;
+  onDateRangeChange?: (range: { startDate: string; endDate: string }) => void;
 }
 
 export default function Events({
@@ -49,7 +50,7 @@ export default function Events({
       startDate,
       endDate: prev.endDate && new Date(prev.endDate) < new Date(startDate) ? '' : prev.endDate,
     }));
-    // Filter events within range
+
     setEvents((prev) => prev.filter((ev) => new Date(ev.date) >= new Date(startDate)));
   };
 
