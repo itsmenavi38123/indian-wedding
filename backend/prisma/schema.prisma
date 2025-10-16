@@ -128,6 +128,9 @@ model User {
 
   resetTokens  PasswordResetToken[]
   refreshToken String?
+
+  weddingPlans  WeddingPlan[]
+  weddingEvents WeddingEvent[]
 }
 
 model Lead {
@@ -421,6 +424,11 @@ model VendorService {
   thumbnailId       String?              @unique
 
   thumbnail VendorServiceMedia? @relation("ThumbnailRelation", fields: [thumbnailId], references: [id])
+
+  destinationId String?
+  destination   Destination? @relation(fields: [destinationId], references: [id])
+
+  weddingPlanServices WeddingPlanService[]
 }
 
 model VendorServiceMedia {
@@ -445,7 +453,9 @@ model Destination {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  photos DestinationPhoto[]
+  photos        DestinationPhoto[]
+  weddingPlans  WeddingPlan[]
+  VendorService VendorService[]
 }
 
 model DestinationPhoto {
@@ -519,5 +529,46 @@ model RSVPGuest {
   inviteCode    String?     @unique
   partySize     Int         @default(1)
   notes         String?
+  createdAt     DateTime    @default(now())
+}
+
+// ===== Wedding Planning Models =====
+
+model WeddingPlan {
+  id            String       @id @default(uuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  destinationId String?
+  destination   Destination? @relation(fields: [destinationId], references: [id])
+  totalBudget   BigInt?
+  guests        Int?
+  category      String[] @default([])   
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  services WeddingPlanService[]
+  events   WeddingEvent[]
+}
+
+model WeddingPlanService {
+  id              String        @id @default(uuid())
+  weddingPlanId   String
+  weddingPlan     WeddingPlan   @relation(fields: [weddingPlanId], references: [id])
+  vendorServiceId String
+  vendorService   VendorService @relation(fields: [vendorServiceId], references: [id])
+  quantity        Int?
+  notes           String?
+}
+
+model WeddingEvent {
+  id            String      @id @default(uuid())
+  weddingPlanId String
+  weddingPlan   WeddingPlan @relation(fields: [weddingPlanId], references: [id])
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  name          String
+  date          DateTime // Store as ISO string from <input type="date">
+  startTime     String
+  endTime       String
   createdAt     DateTime    @default(now())
 }

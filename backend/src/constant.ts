@@ -44,6 +44,7 @@ export const errorMessages = {
 
   USER_EXISTED: 'User already exists',
   REQUIRE_FIELD_MISSING: 'Required field is missing',
+  CREATE_FAILED: 'Failed to create resource.',
 
   //Leads:
   LEAD_NOT_FOUND: 'Lead not found',
@@ -232,4 +233,7 @@ export const successMessages = {
   SERVICES_FETCHED: 'Services fetched successfully',
   MEDIA_UPLOADED: 'Media uploaded successfully',
   MEDIA_DELETED: 'Media deleted successfully',
+
+  // create wedding
+  WEDDING_PLAN_CREATED: 'Wedding plan created successfully',
 };
