@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
@@ -18,7 +18,7 @@ interface EventsProps {
   onPreferenceSelect: (pref: 'local' | 'travel' | 'either') => void;
   events: WeddingEvent[];
   onEventsChange: (events: WeddingEvent[]) => void;
-  onDateRangeChange?: (range: { startDate: string; endDate: string }) => void;
+  onDateChange?: (range: { startDate: string; endDate: string }) => void;
 }
 
 export default function Events({
@@ -27,6 +27,7 @@ export default function Events({
   onPreferenceSelect,
   events: initialEvents,
   onEventsChange,
+  onDateChange,
 }: EventsProps) {
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
     startDate: '',
@@ -34,6 +35,12 @@ export default function Events({
   });
 
   const [events, setEvents] = useState(initialEvents || []);
+
+  useEffect(() => {
+    if (dateRange.startDate || dateRange.endDate) {
+      onDateChange?.(dateRange);
+    }
+  }, [dateRange]);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -50,14 +57,15 @@ export default function Events({
       startDate,
       endDate: prev.endDate && new Date(prev.endDate) < new Date(startDate) ? '' : prev.endDate,
     }));
-
     setEvents((prev) => prev.filter((ev) => new Date(ev.date) >= new Date(startDate)));
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const endDate = e.target.value;
-    setDateRange((prev) => ({ ...prev, endDate }));
-    // Filter events within range
+    setDateRange((prev) => ({
+      ...prev,
+      endDate,
+    }));
     setEvents((prev) => prev.filter((ev) => new Date(ev.date) <= new Date(endDate)));
   };
 
