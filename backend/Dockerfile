@@ -24,16 +24,15 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install Postgres client for pg_isready
-RUN apk add --no-cache postgresql-client bash
-
+# Copy built files and node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/wait-for-postgres.sh ./wait-for-postgres.sh
 
 EXPOSE 3001
 
-# Use wait-for script to ensure Postgres is ready before migrations
-CMD ["./wait-for-postgres.sh", "db", "npx", "prisma", "migrate", "deploy", "&&", "node", "dist/index.js"]
+# Run Prisma migrations then start server
+#CMD npx prisma migrate deploy && node dist/index.js
+CMD npx prisma migrate deploy && sleep 5 && node dist/index.js
+
