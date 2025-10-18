@@ -167,6 +167,9 @@ model Lead {
   createdById String?
   createdBy   User?   @relation("AssignedLeads", fields: [createdById], references: [id])
 
+  weddingPlanId String?      @unique
+  weddingPlan   WeddingPlan? @relation(fields: [weddingPlanId], references: [id])
+
   // Back-relations
   proposals    Proposal[]
   contracts    Contract[]
@@ -542,12 +545,13 @@ model WeddingPlan {
   destination   Destination? @relation(fields: [destinationId], references: [id])
   totalBudget   BigInt?
   guests        Int?
-  category      String[] @default([])   
+  category      String[]     @default([])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   services WeddingPlanService[]
   events   WeddingEvent[]
+  lead     Lead?
 }
 
 model WeddingPlanService {

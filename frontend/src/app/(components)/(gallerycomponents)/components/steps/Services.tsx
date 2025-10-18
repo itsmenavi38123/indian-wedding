@@ -14,8 +14,10 @@ interface ServicesStepProps {
     decorator: string | null;
   };
   destination?: string | null;
+  selectedServices: Record<string, any[]>;
   services: any[];
   onVendorSelect: (category: string, VendorServiceId: string) => void;
+  onUpdateServices: (updated: Record<string, any[]>) => void;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -33,29 +35,45 @@ export default function ServicesStep({
   selectedCategories,
   destination,
   onVendorSelect,
+  selectedServices: selectedServicesProp,
+  onUpdateServices,
 }: ServicesStepProps) {
   const dispatch = useAppDispatch();
   const { servicesByCategory, servicesLoading } = useSelector((state: RootState) => state.planning);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const [selectedServices, setSelectedServices] = useState<Record<string, any[]>>({});
+  const [selectedServices, setSelectedServices] = useState<Record<string, any[]>>(
+    selectedServicesProp || {}
+  );
+  useEffect(() => {
+    const categoriesToFetch = selectedCategories.filter(
+      (category) => !servicesByCategory?.[category]
+    );
+    if (categoriesToFetch.length > 0) {
+      categoriesToFetch.forEach((category) => {
+        dispatch(fetchServicesByCategory({ category }));
+      });
+    }
+  }, [selectedCategories, dispatch]);
 
   useEffect(() => {
-    selectedCategories.forEach((category) => {
-      if (!servicesByCategory[category]) {
-        dispatch(fetchServicesByCategory({ category }));
-      }
-    });
-  }, [selectedCategories, servicesByCategory, dispatch]);
+    setSelectedServices(selectedServicesProp || {});
+  }, [selectedServicesProp]);
 
   const handleSelectService = (category: string, service: any) => {
-    setSelectedServices((prev) => {
-      const alreadySelected = prev[category]?.find((s) => s.id === service.id);
-      const updated = alreadySelected
-        ? prev[category].filter((s) => s.id !== service.id)
-        : [...(prev[category] || []), service];
-      return { ...prev, [category]: updated };
-    });
+    const prev = selectedServicesProp || selectedServices || {}; // fallback
+    const alreadySelected = prev[category]?.find((s) => s.id === service.id);
+    const current = selectedServices;
+    const updated = alreadySelected
+      ? prev[category].filter((s) => s.id !== service.id)
+      : [...(prev[category] || []), service];
+    const newServices = { ...current, [category]: updated };
+    onUpdateServices(newServices);
+    setSelectedServices(newServices);
+    if (service?.id) {
+      onVendorSelect(category, service.id);
+      console.log('Selected vendor sent to parent:', category, service.id);
+    }
     dispatch(setSelectedService(service));
   };
 
