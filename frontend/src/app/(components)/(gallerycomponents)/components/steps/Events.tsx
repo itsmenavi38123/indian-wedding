@@ -19,6 +19,7 @@ interface EventsProps {
   events: WeddingEvent[];
   onEventsChange: (events: WeddingEvent[]) => void;
   onDateChange?: (range: { startDate: string; endDate: string }) => void;
+  weddingDate?: { startDate: string; endDate: string };
 }
 
 export default function Events({
@@ -28,11 +29,18 @@ export default function Events({
   events: initialEvents,
   onEventsChange,
   onDateChange,
+  weddingDate,
 }: EventsProps) {
-  const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({
-    startDate: '',
-    endDate: '',
-  });
+  const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>(
+    weddingDate || {
+      startDate: '',
+      endDate: '',
+    }
+  );
+
+  useEffect(() => {
+    if (weddingDate) setDateRange(weddingDate);
+  }, [weddingDate]);
 
   const [events, setEvents] = useState(initialEvents || []);
 

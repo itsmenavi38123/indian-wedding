@@ -67,6 +67,8 @@ export class LeadController {
       if (status) where.status = String(status).toUpperCase();
       if (archived === 'true') {
         where.saveStatus = 'ARCHIVED';
+      } else {
+        where.saveStatus = { not: 'ARCHIVED' };
       }
       if (search) {
         where.OR = [
@@ -140,29 +142,29 @@ export class LeadController {
           saveStatus: { not: 'ARCHIVED' },
           ...(search
             ? {
-                OR: [
-                  { partner1Name: { contains: search as string, mode: 'insensitive' } },
-                  { partner2Name: { contains: search as string, mode: 'insensitive' } },
-                ],
-              }
+              OR: [
+                { partner1Name: { contains: search as string, mode: 'insensitive' } },
+                { partner2Name: { contains: search as string, mode: 'insensitive' } },
+              ],
+            }
             : {}),
           ...(budgetMin ? { budgetMin: { gte: parseInt(budgetMin as string, 10) } } : {}),
           ...(budgetMax ? { budgetMax: { lte: parseInt(budgetMax as string, 10) } } : {}),
           ...(location
             ? {
-                OR: [
-                  { preferredLocations: { has: location as string } },
-                  { preferredLocations: { equals: [] } },
-                ],
-              }
+              OR: [
+                { preferredLocations: { has: location as string } },
+                { preferredLocations: { equals: [] } },
+              ],
+            }
             : {}),
           ...(weddingFrom || weddingTo
             ? {
-                weddingDate: {
-                  ...(weddingFrom ? { gte: weddingFrom } : {}),
-                  ...(weddingTo ? { lte: weddingTo } : {}),
-                },
-              }
+              weddingDate: {
+                ...(weddingFrom ? { gte: weddingFrom } : {}),
+                ...(weddingTo ? { lte: weddingTo } : {}),
+              },
+            }
             : {}),
         },
         include: { createdBy: true },
@@ -222,10 +224,10 @@ export class LeadController {
             },
             assignedUser: lead.createdBy
               ? {
-                  id: lead.createdBy.id,
-                  name: lead.createdBy.name,
-                  email: lead.createdBy.email,
-                }
+                id: lead.createdBy.id,
+                name: lead.createdBy.name,
+                email: lead.createdBy.email,
+              }
               : null,
             teamMembers: [],
             createdAt: lead.createdAt,
@@ -305,8 +307,22 @@ export class LeadController {
               },
             },
           },
+          weddingPlan: {
+            include: {
+              destination: true,
+              events: true,
+              services: {
+                include: {
+                  vendorService: {
+                    include: { vendor: true },
+                  },
+                },
+              },
+            },
+          },
         },
       });
+
       if (!lead) {
         throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
       }

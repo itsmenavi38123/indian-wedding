@@ -10,7 +10,17 @@ export class WeddingPlanController {
   public async createWeddingPlan(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = req.userId;
-      const { destinationId, totalBudget, guestCount, category, events, services } = req.body;
+      const {
+        destinationId,
+        totalBudget,
+        guestCount,
+        category,
+        events,
+        services,
+        selectedVendors,
+      } = req.body;
+
+      let destination: any = null;
 
       if (!userId) {
         return res
@@ -18,13 +28,39 @@ export class WeddingPlanController {
           .json(new ApiResponse(statusCodes.UNAUTHORIZED, null, 'Unauthorized: userId missing'));
       }
       if (destinationId) {
-        const destination = await prisma.destination.findUnique({
+        destination = await prisma.destination.findUnique({
           where: { id: destinationId },
         });
+        logger.info(`Fetched destination: ${JSON.stringify(destination)}`);
         if (!destination) {
           return res
             .status(statusCodes.NOT_FOUND)
             .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Destination not found'));
+        }
+      }
+
+      let servicesToCreate: any[] = [];
+
+      if (services && Array.isArray(services) && services.length > 0) {
+        servicesToCreate = services.map((service: any) => ({
+          vendorServiceId: service.vendorServiceId,
+          quantity: service.quantity ?? 1,
+          notes: service.notes ?? null,
+        }));
+      } else if (selectedVendors && typeof selectedVendors === 'object') {
+        for (const categoryKey of Object.keys(selectedVendors)) {
+          const vendorServices = selectedVendors[categoryKey];
+          if (Array.isArray(vendorServices)) {
+            vendorServices.forEach((svc: any) => {
+              if (svc.vendorServiceId) {
+                servicesToCreate.push({
+                  vendorServiceId: svc.vendorServiceId,
+                  quantity: svc.quantity ?? 1,
+                  notes: svc.notes ?? null,
+                });
+              }
+            });
+          }
         }
       }
 
@@ -48,13 +84,9 @@ export class WeddingPlanController {
                 }
               : undefined,
           services:
-            services && Array.isArray(services)
+            servicesToCreate.length > 0
               ? {
-                  create: services.map((service: any) => ({
-                    vendorServiceId: service.vendorServiceId,
-                    quantity: service.quantity ?? 1,
-                    notes: service.notes ?? null,
-                  })),
+                  create: servicesToCreate,
                 }
               : undefined,
         },
@@ -79,6 +111,49 @@ export class WeddingPlanController {
         },
       });
 
+      let weddingDate: Date | null = null;
+      if (weddingPlan.events && weddingPlan.events.length > 0) {
+        const sortedEvents = weddingPlan.events
+          .filter((e) => !!e.date)
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        weddingDate = sortedEvents[0]?.date ? new Date(sortedEvents[0].date) : null;
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true, phone: true },
+      });
+
+      // ===== create a linked Lead for this wedding plan =====
+      try {
+        await prisma.lead.create({
+          data: {
+            createdById: userId,
+            weddingPlanId: weddingPlan.id,
+            status: 'INQUIRY',
+            leadSource: 'WEBSITE',
+            weddingDate,
+            partner1Name: user?.name ?? 'Unknown',
+            partner2Name: null,
+            primaryContact: user?.name ?? 'Unknown',
+            phoneNumber: user?.phone ?? 'Unknown',
+            email: user?.email ?? 'unknown@example.com',
+            whatsappNumber: user?.phone ?? req.body.whatsappNumber ?? null,
+            whatsappNumberSameAsPhoneNumber: !!(
+              req.body.whatsappNumber && req.body.whatsappNumber === (req.body.phoneNumber ?? null)
+            ),
+            budgetMin: totalBudget ? BigInt(totalBudget) : BigInt(0),
+            budgetMax: totalBudget ? BigInt(totalBudget) : BigInt(0),
+            guestCountMin: req.body.guestCountMin ?? null,
+            guestCountMax: req.body.guestCountMax ?? req.body.guestCount ?? null,
+
+            preferredLocations: destination?.name ? [destination.name] : [],
+            initialNotes: req.body.initialNotes ?? null,
+          },
+        });
+      } catch (leadErr) {
+        logger.error('Failed to create linked lead for wedding plan:', leadErr);
+      }
       logger.info(`Wedding plan created: ${weddingPlan.id}`);
       const serializedPlan = JSON.parse(
         JSON.stringify(weddingPlan, (_, value) =>

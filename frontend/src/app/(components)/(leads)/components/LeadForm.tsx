@@ -419,8 +419,8 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
               <FormItem>
                 <FormLabel className="text-white">Wedding Date</FormLabel>
                 <FormControl className="">
-                  <Input
-                    className="text-white"
+                  <input
+                    className="text-white border border-white rounded-sm h-10 p-3"
                     type="date"
                     min={new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]}
                     {...field}
@@ -434,7 +434,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
                       form.setValue('flexibleDates', checked === true)
                     }
                   />
-                  <span className="text-sm text-white text-muted-foreground">Flexible Dates</span>
+                  <span className="text-sm  text-muted-foreground">Flexible Dates</span>
                 </label>
                 <FormMessage />
               </FormItem>

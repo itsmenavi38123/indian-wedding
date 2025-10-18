@@ -31,12 +31,17 @@ import { LEAD_STATUS_VALUES, LeadStatus } from '@/types/lead/Lead';
 import { API_QUERY_KEYS } from '@/services/apiBaseUrl';
 import { toast } from 'sonner';
 import { AssignedVendorTeams } from '../components/AssignedVendorTeams';
+import { RootState } from '@/store/store';
+import { RoleType } from '@/components/common/Header/Header';
+import { useSelector } from 'react-redux';
 
 export default function LeadDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const leadId = params?.id as string;
   const queryClient = useQueryClient();
+  const auth = useSelector((state: RootState) => state.auth.user);
+  const role = auth?.role as RoleType | null;
 
   const { data: lead, isLoading, isFetching } = useGetLead(leadId);
   const { isPending: updateLoading, mutate: updateStatusMutate } = useMutation({
@@ -220,7 +225,21 @@ export default function LeadDetailsPage() {
             </CardContent>
           </Card>
           {/* Teams */}
-
+          {/* Activity Timeline */}
+          {role === 'USER'
+            && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Add note */}
+                  <form className="mb-4 flex gap-2">
+                  </form>
+                  <Separator className="mb-4" />
+                </CardContent>
+              </Card>
+            )}
           <Card>
             <CardHeader>
               <div className="flex justify-between">
