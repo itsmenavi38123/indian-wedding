@@ -314,7 +314,13 @@ export class LeadController {
               services: {
                 include: {
                   vendorService: {
-                    include: { vendor: true },
+                    include: {
+                      vendor: true,
+                      media: {
+                        where: { type: 'IMAGE' },
+                      },
+                      thumbnail: true,
+                    },
                   },
                 },
               },
@@ -326,6 +332,29 @@ export class LeadController {
       if (!lead) {
         throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
       }
+      const BASE_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+
+      const normalizeUrl = (url: string | null | undefined) => {
+        if (!url) return null;
+
+        if (url.startsWith('http')) return url;
+
+        if (url.startsWith('/uploads')) return `${BASE_URL}${url}`;
+
+        return `${BASE_URL}/uploads/${url}`;
+      };
+
+      lead.weddingPlan?.services?.forEach((service) => {
+        const vs = service.vendorService as any;
+        if (vs) {
+          const thumbnailUrl = normalizeUrl(vs.thumbnail?.url);
+          const mediaUrls = vs.media?.map((m: any) => normalizeUrl(m.url)) || [];
+
+          vs.thumbnailUrl = thumbnailUrl;
+          vs.mediaUrls = mediaUrls;
+        }
+      });
+
       lead = sanitizeData(lead);
       res.status(statusCodes.OK).json(new ApiResponse(statusCodes.OK, lead));
     } catch (error: any) {
@@ -470,22 +499,220 @@ export class LeadController {
     }
   }
 
+  // public async updateLead(req: Request, res: Response) {
+  //   try {
+  //     const { id } = req.params;
+  //     const lead = await prisma.lead.findUnique({ where: { id } });
+  //     if (!lead) {
+  //       return res
+  //         .status(statusCodes.NOT_FOUND)
+  //         .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Lead not found'));
+  //     }
+
+  //     const { title, description } = await getTitleDescription(lead);
+  //     const data = req.body;
+  //     const { teamIdsByVendor, serviceTypes, createdById, createdBy, weddingPlan, ...rest } = data;
+  //     let updatedLead;
+  //     if (!teamIdsByVendor || Object.keys(teamIdsByVendor).length === 0) {
+  //       // Update lead only if no teamIdsByVendor provided
+  //       updatedLead = await prisma.lead.update({
+  //         where: { id },
+  //         data: {
+  //           ...rest,
+  //           title,
+  //           description,
+  //           weddingDate: data.weddingDate ? new Date(data.weddingDate) : null,
+  //           serviceTypes: serviceTypes || null,
+  //         },
+  //       });
+  //     } else {
+  //       // Update handled inside createOrUpdateVendorCardsForLead
+  //       createOrUpdateVendorCardsForLead(lead, { teamIdsByVendor }).catch((error) => {
+  //         logger.error('Failed to create/update vendor cards for updated lead:', error);
+  //       });
+  //       updatedLead = await prisma.lead.update({
+  //         where: { id },
+  //         data: {
+  //           ...rest,
+  //           title,
+  //           description,
+  //           weddingDate: data.weddingDate ? new Date(data.weddingDate) : null,
+  //           serviceTypes: serviceTypes ? serviceTypes : serviceTypes || null,
+  //         },
+  //       });
+  //     }
+  //     updatedLead = sanitizeData(updatedLead);
+  //     res
+  //       .status(statusCodes.OK)
+  //       .json(new ApiResponse(statusCodes.OK, updatedLead, successMessages.LEAD_UPDATED));
+  //   } catch (error) {
+  //     logger.error('Error updating lead:', error);
+  //     res
+  //       .status(statusCodes.INTERNAL_SERVER_ERROR)
+  //       .json(
+  //         new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, errorMessages.LEAD_UPDATE_FAILED)
+  //       );
+  //   }
+  // }
   public async updateLead(req: Request, res: Response) {
     try {
       const { id } = req.params;
+
       const lead = await prisma.lead.findUnique({ where: { id } });
       if (!lead) {
         return res
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Lead not found'));
       }
+      const userId = (req as any).userId || req.body.createdById || lead.createdById; // ✅ added
 
       const { title, description } = await getTitleDescription(lead);
       const data = req.body;
-      const { teamIdsByVendor, serviceTypes, createdById, createdBy, ...rest } = data;
+      const { teamIdsByVendor, serviceTypes, createdById, createdBy, guestCount, budget, weddingPlan, ...rest } = data;
+
       let updatedLead;
+
+      // ✅ Case 1: No teamIdsByVendor
       if (!teamIdsByVendor || Object.keys(teamIdsByVendor).length === 0) {
-        // Update lead only if no teamIdsByVendor provided
+        // ✅ Case 1A: No wedding plan
+        if (!weddingPlan) {
+          updatedLead = await prisma.lead.update({
+            where: { id },
+            data: {
+              ...rest,
+              guestCountMin: guestCount?.[0],
+              guestCountMax: guestCount?.[1],
+              budgetMin: budget?.[0],
+              budgetMax: budget?.[1],
+              title,
+              description,
+              weddingDate: data.weddingDate ? new Date(data.weddingDate) : null,
+              serviceTypes: serviceTypes || null,
+            },
+            include: {
+              weddingPlan: {
+                include: {
+                  destination: true,
+                  events: true,
+                  services: {
+                    include: {
+                      vendorService: {
+                        include: {
+                          vendor: true,
+                          media: { where: { type: 'IMAGE' } },
+                          thumbnail: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // ✅ Case 1B: Wedding plan present
+        // ✅ Case 1B: Wedding plan present
+        else {
+          updatedLead = await prisma.lead.update({
+            where: { id },
+            data: {
+              ...rest,
+              title,
+              description,
+              weddingDate: data.weddingDate ? new Date(data.weddingDate) : null,
+              serviceTypes: serviceTypes || null,
+
+              weddingPlan: {
+                upsert: {
+                  create: {
+                    user: { connect: { id: userId } },
+
+                    events: {
+                      create: weddingPlan.events?.map((e: any) => ({
+                        name: e.name,
+                        date: new Date(e.date),
+                        startTime: e.startTime,
+                        endTime: e.endTime,
+                        user: { connect: { id: userId } },
+                      })),
+                    },
+
+                    services: {
+                      create: weddingPlan.services?.map((s: any) => {
+                        if (!s.vendorServiceId) {
+                          throw new Error(`vendorServiceId is missing for service: ${s.title}`);
+                        }
+                        return {
+                          quantity: s.quantity ?? 1,
+                          notes: s.notes ?? null,
+                          vendorService: { connect: { id: s.vendorServiceId } },
+                        };
+                      }),
+                    },
+                  },
+
+                  update: {
+                    user: { connect: { id: userId } },
+
+                    events: {
+                      upsert: weddingPlan.events?.map((e: any) => ({
+                        where: { id: e.id || '' },
+                        update: {
+                          name: e.name,
+                          date: new Date(e.date),
+                          startTime: e.startTime,
+                          endTime: e.endTime,
+                          user: { connect: { id: userId } },
+                        },
+                        create: {
+                          name: e.name,
+                          date: new Date(e.date),
+                          startTime: e.startTime,
+                          endTime: e.endTime,
+                          user: { connect: { id: userId } },
+                        },
+                      })),
+                    },
+                    services: {
+                      upsert:
+                        weddingPlan.services?.map((s: any) => {
+                          const serviceData: any = {
+                            quantity: s.quantity ?? 1,
+                            notes: s.notes ?? null,
+                          };
+
+                          // ✅ only add vendorService relation if provided
+                          if (s.vendorServiceId) {
+                            serviceData.vendorService = { connect: { id: s.vendorServiceId } };
+                          }
+
+                          return {
+                            where: { id: s.id || '' },
+                            update: { ...serviceData },
+                            create: { ...serviceData },
+                          };
+                        }) ?? [],
+                    },
+                  },
+                },
+              },
+            },
+            include: {
+              weddingPlan: {
+                include: { events: true, services: true },
+              },
+            },
+          });
+        }
+      }
+
+      // ✅ Case 2: teamIdsByVendor provided
+      else {
+        createOrUpdateVendorCardsForLead(lead, { teamIdsByVendor }).catch((error) => {
+          logger.error('Failed to create/update vendor cards for updated lead:', error);
+        });
+
         updatedLead = await prisma.lead.update({
           where: { id },
           data: {
@@ -496,22 +723,8 @@ export class LeadController {
             serviceTypes: serviceTypes || null,
           },
         });
-      } else {
-        // Update handled inside createOrUpdateVendorCardsForLead
-        createOrUpdateVendorCardsForLead(lead, { teamIdsByVendor }).catch((error) => {
-          logger.error('Failed to create/update vendor cards for updated lead:', error);
-        });
-        updatedLead = await prisma.lead.update({
-          where: { id },
-          data: {
-            ...rest,
-            title,
-            description,
-            weddingDate: data.weddingDate ? new Date(data.weddingDate) : null,
-            serviceTypes: serviceTypes ? serviceTypes : serviceTypes || null,
-          },
-        });
       }
+
       updatedLead = sanitizeData(updatedLead);
       res
         .status(statusCodes.OK)

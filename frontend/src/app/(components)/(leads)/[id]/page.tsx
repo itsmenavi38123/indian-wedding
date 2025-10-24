@@ -18,6 +18,7 @@ import {
   MapPin,
   ChevronDown,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import {
@@ -34,6 +35,8 @@ import { AssignedVendorTeams } from '../components/AssignedVendorTeams';
 import { RootState } from '@/store/store';
 import { RoleType } from '@/components/common/Header/Header';
 import { useSelector } from 'react-redux';
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key } from 'react';
+import { getImageUrl } from '../../(gallerycomponents)/components/steps/Services';
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -170,7 +173,6 @@ export default function LeadDetailsPage() {
                   ₹{d.budgetMin.toLocaleString()} - ₹{d.budgetMax.toLocaleString()}
                 </span>
               </div>
-
               {/* Guest Count */}
               <div>
                 Guests: {d.guestCountMin} - {d.guestCountMax}
@@ -188,6 +190,237 @@ export default function LeadDetailsPage() {
             </CardContent>
           </Card>
 
+          {/* Events */}
+          {role === 'USER' && 'ADMIN' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Separator className="mb-4" />
+                {d.weddingPlan?.events?.length ? (
+                  <div className="space-y-4">
+                    {d.weddingPlan.events.map((event: any) => (
+                      <div
+                        key={event.id}
+                        className="flex items-center justify-between border rounded-lg p-3"
+                      >
+                        <div>
+                          <p className="font-semibold flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-white" /> {event.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(event.date), 'PPP')} &middot; {event.startTime} -{' '}
+                            {event.endTime}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No events found for this wedding plan.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Services */}
+          {role === 'USER' && 'ADMIN' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Services</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Separator className="mb-4" />
+
+                {d.weddingPlan?.services?.length ? (
+                  <div className="space-y-4">
+                    {d.weddingPlan.services.map((service: any) => {
+                      const vs = service.vendorService;
+                      const vendor = vs?.vendor;
+                      return (
+                        <div
+                          key={service.id}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3 gap-2"
+                        >
+                          <div>
+                            <p className="font-semibold flex items-center gap-2">
+                              {vs?.category || 'Service'}{' '}
+                            </p>
+
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {vs?.title} — {vs?.description || 'No description'}
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Vendor:</span> {vendor?.name || 'N/A'} (
+                              {vendor?.email || 'No email'})
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Location:</span>{' '}
+                              {vs?.city || vs?.state || vs?.country || 'N/A'}
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Notes:</span>{' '}
+                              {service.notes || 'No notes'}
+                            </p>
+                          </div>
+
+                          {/* Right side - Price */}
+                          <div className="text-right sm:text-left">
+                            <p className="font-semibold text-white">
+                              $ {vs?.price?.toLocaleString() || '—'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No services found for this wedding plan.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommended Vendors */}
+          {(role === 'USER' || role === 'ADMIN') && (
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Recommended Vendors</CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                {(() => {
+                  const services = d.weddingPlan?.services || [];
+                  const vendorsMap = new Map();
+
+                  services.forEach((service: any) => {
+                    const vs = service.vendorService;
+                    const vendor = vs?.vendor;
+                    if (!vendor) return;
+
+                    console.log(vs, '🧩 full vendorService object');
+
+                    const thumbnailUrl = vs.thumbnailUrl || vs.mediaUrls?.[0] || '';
+
+                    console.log(thumbnailUrl, 'thumbnailUrl');
+
+                    if (!vendorsMap.has(vendor.id)) {
+                      vendorsMap.set(vendor.id, {
+                        id: vendor.id,
+                        name: vendor.name,
+                        email: vendor.email,
+                        contactNo: vendor.contactNo,
+                        countryCode: vendor.countryCode,
+                        services: [
+                          {
+                            category: vs?.category || 'Service',
+                            title: vs?.title,
+                            thumbnailUrl,
+                          },
+                        ],
+                      });
+                    } else {
+                      const existing = vendorsMap.get(vendor.id);
+                      existing.services.push({
+                        category: vs?.category || 'Service',
+                        title: vs?.title,
+                        thumbnailUrl,
+                      });
+                      vendorsMap.set(vendor.id, existing);
+                    }
+                  });
+
+                  const vendors = Array.from(vendorsMap.values());
+
+                  if (!vendors.length) {
+                    return (
+                      <p className="text-center text-muted-foreground">
+                        No recommended vendors yet.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="grid gap-4">
+                      {vendors.map((vendor) => (
+                        <div key={vendor.id} className="border rounded-lg p-4 flex flex-col gap-3">
+                          {/* Vendor Info */}
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                            <div>
+                              <p className="font-semibold text-white">{vendor.name}</p>
+                              <p className="text-sm text-muted-foreground">{vendor.email}</p>
+
+                              <div className="flex items-center gap-2 mt-1">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">
+                                  {vendor.countryCode} {vendor.contactNo}
+                                </span>
+                              </div>
+                              <p className="text-sm mt-1">
+                                <span className="font-medium">Services:</span>{' '}
+                                {vendor.services
+                                  .map((s: { category: string }) => s.category)
+                                  .join(', ')}
+                              </p>
+                            </div>
+                            {/* Contact Action */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(`mailto:${vendor.email}`, '_blank')}
+                              className="text-black mt-3 sm:mt-0"
+                            >
+                              Contact Vendor
+                            </Button>
+                          </div>
+                          {/* Service Thumbnails */}
+                          {vendor.services.some(
+                            (s: { thumbnailUrl: string | null }) => s.thumbnailUrl
+                          ) && (
+                            <div className="flex flex-wrap gap-3 mt-2">
+                              {vendor.services.map(
+                                (
+                                  service: {
+                                    thumbnailUrl?: string | null;
+                                    title?: string;
+                                    category?: string;
+                                  },
+                                  idx: number
+                                ) =>
+                                  service.thumbnailUrl && (
+                                    <div key={idx} className="relative">
+                                      <img
+                                        src={service.thumbnailUrl}
+                                        alt={service.title || 'Service Image'}
+                                        className="w-32 h-24 object-cover rounded-lg border"
+                                      />
+                                      <p className="text-xs text-center mt-1 text-muted-foreground truncate w-32">
+                                        {service.category}
+                                      </p>
+                                    </div>
+                                  )
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          )}
           {/* Activity Timeline */}
           <Card>
             <CardHeader>
@@ -224,22 +457,8 @@ export default function LeadDetailsPage() {
               )} */}
             </CardContent>
           </Card>
-          {/* Teams */}
-          {/* Activity Timeline */}
-          {role === 'USER'
-            && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Events</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {/* Add note */}
-                  <form className="mb-4 flex gap-2">
-                  </form>
-                  <Separator className="mb-4" />
-                </CardContent>
-              </Card>
-            )}
+
+          {/* Vendors */}
           <Card>
             <CardHeader>
               <div className="flex justify-between">
