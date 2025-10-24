@@ -48,6 +48,27 @@ const EditPage = ({ params }: EditLeadPageProps) => {
     initialNotes: lead.data.initialNotes || '',
     serviceTypes: lead.data.serviceTypes || '',
     createdById: lead.data.createdById || undefined,
+    weddingPlan: {
+      events:
+        lead.data.weddingPlan?.events?.map((event: any) => ({
+          id: event.id,
+          name: event.name,
+          // show date in yyyy-mm-dd format (HTML date input compatible)
+          date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
+          startTime: event.startTime || '',
+          endTime: event.endTime || '',
+        })) || [],
+      services:
+        lead.data.weddingPlan?.services?.map((service: any) => ({
+          id: service.id,
+          category: service.vendorService?.category || '',
+          title: service.vendorService?.title || '',
+          description: service.vendorService?.description || '',
+          price: service.vendorService?.price || 0,
+          vendorName: service.vendorService?.vendor?.name || '',
+          thumbnailUrl: service.vendorService?.thumbnailUrl || '',
+        })) || [],
+    },
   };
 
   return (
