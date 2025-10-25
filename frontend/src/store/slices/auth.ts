@@ -5,6 +5,7 @@ interface LeadState {
   loading: boolean;
   user: any;
   adminLoginEmail: string | null;
+  teamMemberLoginEmail: string | null;
   vendorLoginEmail: string | null;
   userLoginEmail: string | null;
 }
@@ -13,6 +14,7 @@ const initialState: LeadState = {
   loading: false,
   user: null,
   adminLoginEmail: null,
+  teamMemberLoginEmail: null,
   vendorLoginEmail: null,
   userLoginEmail: null,
 };
@@ -36,6 +38,9 @@ const authSlice = createSlice({
     setUserLoginEmail: (state, action: PayloadAction<string>) => {
       state.userLoginEmail = action.payload;
     },
+    setTeamMemberLoginEmail: (state, action: PayloadAction<string>) => {
+      state.teamMemberLoginEmail = action.payload;
+    },
     logout: (state) => {
       state.user = null;
     },
@@ -46,6 +51,7 @@ export const {
   setLoading,
   setUser,
   setAdminLoginEmail,
+  setTeamMemberLoginEmail,
   setVendorLoginEmail,
   setUserLoginEmail,
   logout,

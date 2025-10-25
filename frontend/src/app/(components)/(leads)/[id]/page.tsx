@@ -457,8 +457,20 @@ export default function LeadDetailsPage() {
               )} */}
             </CardContent>
           </Card>
-
-          {/* Vendors */}
+          {/* Teams */}
+          {/* Activity Timeline */}
+          {role === 'USER' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Add note */}
+                <form className="mb-4 flex gap-2"></form>
+                <Separator className="mb-4" />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <div className="flex justify-between">

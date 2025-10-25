@@ -10,6 +10,7 @@ export interface AuthenticatedRequest extends Request {
   userRole?: UserRole;
   userEmail?: string;
   userName?: string;
+  adminId?: string;
 }
 
 export const authenticate =
@@ -39,12 +40,14 @@ export const authenticate =
       req.userEmail = decoded.email;
       req.userName = decoded.name;
       let userExists = false;
+      console.log('decoded: ', decoded);
 
       if (decoded.role === 'ADMIN') {
         userExists = !!(await prisma.admin.findUnique({
           where: { id: decoded.id },
           select: { id: true },
         }));
+        req.adminId = decoded.id;
       } else if (decoded.role === 'VENDOR') {
         userExists = !!(await prisma.vendor.findUnique({
           where: { id: decoded.id },
@@ -55,7 +58,14 @@ export const authenticate =
           where: { id: decoded.id },
           select: { id: true },
         }));
+      } else if (decoded.role === UserRole.TEAM) {
+        userExists = !!(await prisma.teamMember.findUnique({
+          where: { id: decoded.id },
+          select: { id: true },
+        }));
       }
+      console.log(userExists);
+
       if (!userExists) {
         throw new ApiError(403, 'User not found');
       }

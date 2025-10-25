@@ -74,6 +74,28 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      window.location.pathname.startsWith('/team-member')
+    ) {
+      if (window.location.pathname.startsWith('/team-member/login')) {
+        return Promise.reject(error);
+      }
+      originalRequest._retry = true;
+      try {
+        await axios.post(
+          `${API_URL}/auth/team-member/refresh-token`,
+          {},
+          { withCredentials: true }
+        );
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        window.location.href = '/team-member/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

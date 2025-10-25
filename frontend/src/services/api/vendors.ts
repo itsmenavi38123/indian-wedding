@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_QUERY_KEYS, API_URLS } from '../apiBaseUrl';
 import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
@@ -347,3 +347,53 @@ export function useUpdateTeamWithMembers() {
     },
   });
 }
+
+
+export interface VendorHomePageParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  serviceType?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
+
+const fetchVendors = async ({ pageParam = 1, filters }: { pageParam?: number; filters?: VendorHomePageParams }) => {
+  try {
+    const response = await axiosInstance.get(API_URLS.vendor.getHomePageVendors, {
+      params: {
+        page: pageParam,
+        limit: filters?.limit || 10,
+        search: filters?.search || '',
+        serviceType: filters?.serviceType,
+        minPrice: filters?.minPrice,
+        maxPrice: filters?.maxPrice,
+      },
+    });
+    return response.data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      toast.error(error?.response?.data?.message || 'Failed to fetch vendors.');
+    } else {
+      toast.error('Failed to fetch vendors.');
+    }
+    throw error;
+  }
+};
+
+
+export const useInfiniteVendorHomePage = (filters: VendorHomePageParams = {}) => {
+  return useInfiniteQuery({
+    queryKey: [API_QUERY_KEYS.vendor.getVendorsHomePage, filters],
+    queryFn: ({ pageParam = 1 }) => fetchVendors({ pageParam, filters }),
+    getNextPageParam: (lastPage) => {
+      const { pagination } = lastPage;
+      if (pagination.page * pagination.limit < pagination.total) {
+        return pagination.page + 1;
+      }
+      return undefined; // no more pages
+    },
+    keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
+  });
+};
