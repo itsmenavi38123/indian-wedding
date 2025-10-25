@@ -2,7 +2,7 @@ import e, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import optGenerator from 'otp-generator';
 import prisma from '@/config/prisma';
-import { UserRole } from '@prisma/client';
+import { TokenOwnerType, UserRole } from '@prisma/client';
 import { AuthenticatedRequest } from '@/middlewares/authMiddleware';
 
 import { logger } from '@/logger';
@@ -846,7 +846,6 @@ export class AuthController {
           .status(statusCodes.NOT_FOUND)
           .json(new ApiResponse(statusCodes.NOT_FOUND, null, errorMessages.VENDOR_NOT_FOUND));
       }
-      console.log(userId, 'userId');
       const existing = await prisma.vendor.findUnique({
         where: { id: userId },
         select: {
@@ -1186,6 +1185,458 @@ export class AuthController {
         .status(statusCodes.INTERNAL_SERVER_ERROR)
         .send(
           new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, errorMessages.USER_UPDATE_FAILED)
+        );
+    }
+  }
+
+  public async teamLogin(req: Request, res: Response) {
+    try {
+      const { email, password, rememberMe } = req.body;
+
+      const member = await prisma.teamMember.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          roleLogin: true,
+          isActive: true,
+          vendorId: true,
+          password: true,
+        },
+      });
+
+      if (!member) {
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(new ApiResponse(statusCodes.UNAUTHORIZED, null, errorMessages.INVALID_CREDENTIALS));
+      }
+
+      if (!member.isActive) {
+        return res
+          .status(statusCodes.FORBIDDEN)
+          .json(new ApiResponse(statusCodes.FORBIDDEN, null, 'Account is inactive'));
+      }
+
+      const isMatch = await bcrypt.compare(password, member?.password ?? '');
+      if (!isMatch) {
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(new ApiResponse(statusCodes.UNAUTHORIZED, null, errorMessages.INVALID_CREDENTIALS));
+      }
+
+      const payload = {
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        role: member.roleLogin,
+      };
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(member.id, rememberMe);
+
+      await prisma.teamMember.update({
+        where: { id: member.id },
+        data: { refreshToken },
+      });
+
+      res.cookie(CONST_KEYS.ACCESS_TOKEN, accessToken, cookiesOption(24 * 60 * 60 * 1000));
+      res.cookie(
+        CONST_KEYS.REFRESH_TOKEN,
+        refreshToken,
+        cookiesOption(rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000)
+      );
+
+      // Exclude password from response
+      const { password: _password, ...memberWithoutPassword } = member;
+
+      res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { member: memberWithoutPassword, accessToken, refreshToken },
+            'Login successful'
+          )
+        );
+    } catch (error) {
+      console.error('Error logging in team member:', error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, 'Login failed'));
+    }
+  }
+
+  public async refreshTokenTeamMember(req: Request, res: Response) {
+    try {
+      const refreshToken = req.cookies[CONST_KEYS.REFRESH_TOKEN];
+      if (!refreshToken) {
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(
+            new ApiResponse(statusCodes.UNAUTHORIZED, null, errorMessages.INVALID_REFRESH_TOKEN)
+          );
+      }
+
+      let decoded: any;
+      try {
+        decoded = verifyRefreshToken(refreshToken);
+      } catch (err) {
+        res.cookie(CONST_KEYS.ACCESS_TOKEN, '', cookiesOption(0));
+        res.cookie(CONST_KEYS.REFRESH_TOKEN, '', cookiesOption(0));
+
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(
+            new ApiResponse(statusCodes.UNAUTHORIZED, null, errorMessages.INVALID_REFRESH_TOKEN)
+          );
+      }
+
+      const member = await prisma.teamMember.findUnique({ where: { id: decoded.userId } });
+
+      if (
+        !member ||
+        !member.isActive ||
+        !member.refreshToken ||
+        member.refreshToken !== refreshToken
+      ) {
+        if (member?.refreshToken) {
+          await prisma.teamMember.update({
+            where: { id: member.id },
+            data: { refreshToken: null },
+          });
+        }
+
+        res.cookie(CONST_KEYS.ACCESS_TOKEN, '', cookiesOption(0));
+        res.cookie(CONST_KEYS.REFRESH_TOKEN, '', cookiesOption(0));
+
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(new ApiResponse(statusCodes.UNAUTHORIZED, null, errorMessages.USER_NOT_FOUND));
+      }
+
+      const payload = {
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        roleLogin: member.roleLogin,
+      };
+      const newAccessToken = generateAccessToken(payload);
+
+      res.cookie(CONST_KEYS.ACCESS_TOKEN, newAccessToken, cookiesOption(24 * 60 * 60 * 1000));
+
+      res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            {},
+            successMessages.ACCESS_TOKEN_REFRESHED || 'Access token refreshed'
+          )
+        );
+    } catch (error) {
+      console.error('❌ Error refreshing token for team member:', error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, 'Refresh token failed'));
+    }
+  }
+
+  public async currentTeamMember(req: AuthenticatedRequest, res: Response) {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Team member not found'));
+      }
+
+      const existing = await prisma.teamMember.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          roleLogin: true,
+          isActive: true,
+          vendorId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!existing) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Team member not found'));
+      }
+
+      if (!existing.isActive) {
+        return res
+          .status(statusCodes.FORBIDDEN)
+          .json(new ApiResponse(statusCodes.FORBIDDEN, null, 'Team member is inactive'));
+      }
+
+      res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { data: existing },
+            'Current team member details retrieved successfully'
+          )
+        );
+    } catch (error) {
+      console.error('❌ Error fetching team member:', error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to fetch team member')
+        );
+    }
+  }
+
+  public async sendResetEmailTeamMember(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+
+      const member = await prisma.teamMember.findUnique({ where: { email } });
+      if (!member) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(
+            new ApiResponse(
+              statusCodes.NOT_FOUND,
+              null,
+              errorMessages.TEAM_MEMBER_NOT_FOUND || 'Team member not found'
+            )
+          );
+      }
+
+      const otp = optGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+        lowerCaseAlphabets: false,
+        digits: true,
+      });
+
+      await prisma.passwordResetToken.create({
+        data: {
+          type: TokenOwnerType.TEAM,
+          teamMemberId: member.id,
+          otp,
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        },
+      });
+
+      await enqueuePushEmail({ to: email, otp });
+
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { otp },
+            successMessages.RESET_EMAIL_SENT || 'Reset OTP sent successfully'
+          )
+        );
+    } catch (error) {
+      logger.error('❌ Error sending team member reset email:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            errorMessages.EMAIL_SEND_FAILED || 'Failed to send reset email'
+          )
+        );
+    }
+  }
+
+  public async verifyOtpTeamMember(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+
+      const member = await prisma.teamMember.findUnique({ where: { email } });
+      if (!member) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(
+            new ApiResponse(
+              statusCodes.NOT_FOUND,
+              null,
+              errorMessages.TEAM_MEMBER_NOT_FOUND || 'Team member not found'
+            )
+          );
+      }
+
+      const resetToken = await prisma.passwordResetToken.findFirst({
+        where: {
+          teamMemberId: member.id,
+          otp,
+          used: false,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (!resetToken) {
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(
+            new ApiResponse(
+              statusCodes.BAD_REQUEST,
+              null,
+              errorMessages.INVALID_OR_EXPIRED_OTP || 'Invalid or expired OTP'
+            )
+          );
+      }
+
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { tokenId: resetToken.id },
+            successMessages.OTP_VERIFIED || 'OTP verified successfully'
+          )
+        );
+    } catch (error) {
+      logger.error('❌ Error verifying team member OTP:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            errorMessages.OTP_VERIFY_FAILED || 'Failed to verify OTP'
+          )
+        );
+    }
+  }
+
+  public async resetPasswordTeamMember(req: Request, res: Response) {
+    try {
+      const { tokenId, newPassword } = req.body;
+
+      const resetToken = await prisma.passwordResetToken.findUnique({
+        where: { id: tokenId },
+        include: { teamMember: true },
+      });
+
+      if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
+        return res
+          .status(statusCodes.UNAUTHORIZED)
+          .json(
+            new ApiResponse(
+              statusCodes.UNAUTHORIZED,
+              null,
+              errorMessages.INVALID_OR_EXPIRED_OTP || 'Invalid or expired OTP'
+            )
+          );
+      }
+
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+
+      await prisma.$transaction(async (tx) => {
+        if (resetToken.type === TokenOwnerType.TEAM && resetToken.teamMemberId) {
+          await tx.teamMember.update({
+            where: { id: resetToken.teamMemberId },
+            data: { password: passwordHash },
+          });
+        }
+
+        await tx.passwordResetToken.update({
+          where: { id: resetToken.id },
+          data: { used: true },
+        });
+      });
+
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            null,
+            successMessages.PASSWORD_RESET_SUCCESS || 'Password reset successfully'
+          )
+        );
+    } catch (error) {
+      logger.error('❌ Error resetting team member password:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            errorMessages.PASSWORD_RESET_FAILED || 'Failed to reset password'
+          )
+        );
+    }
+  }
+
+  public async lastTimeOtpSendTeamMember(req: Request, res: Response) {
+    try {
+      const { email } = req.query;
+      if (!email) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(
+            new ApiResponse(
+              statusCodes.NOT_FOUND,
+              null,
+              errorMessages.TEAM_MEMBER_NOT_FOUND || 'Team Member not found'
+            )
+          );
+      }
+
+      const teamMember = await prisma.teamMember.findUnique({
+        where: { email: email as string },
+      });
+
+      if (!teamMember) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(
+            new ApiResponse(
+              statusCodes.NOT_FOUND,
+              null,
+              errorMessages.TEAM_MEMBER_NOT_FOUND || 'Team Member not found'
+            )
+          );
+      }
+
+      const resetToken = await prisma.passwordResetToken.findFirst({
+        where: {
+          teamMemberId: teamMember.id,
+          used: false,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          createdAt: true,
+        },
+      });
+
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { sendTime: resetToken?.createdAt },
+            successMessages.RESET_EMAIL_SENT || 'Reset email send time fetched successfully'
+          )
+        );
+    } catch (error) {
+      logger.error('❌ Error finding reset email otp for team member:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            errorMessages.EMAIL_SEND_FAILED || 'Failed to fetch OTP send time'
+          )
         );
     }
   }

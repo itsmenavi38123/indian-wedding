@@ -110,5 +110,47 @@ export function authRoute(): Router {
     controller.updateUser.bind(controller)
   );
 
+  router.post(
+    '/team-member/login',
+    validate(vendorLoginSchema),
+    controller.teamLogin.bind(controller)
+  );
+
+  router.post(
+    '/team-member/logout',
+    authenticate([UserRole.TEAM]),
+    controller.logout.bind(controller)
+  );
+  router.post('/team-member/refresh-token', controller.refreshTokenTeamMember.bind(controller));
+
+  router.get(
+    '/team-member/me',
+    authenticate([UserRole.TEAM]),
+    controller.currentTeamMember.bind(controller)
+  );
+
+  router.post(
+    '/team-member/send-reset-email',
+    validate(emailValidatorSchema),
+    controller.sendResetEmailTeamMember.bind(controller)
+  );
+
+  router.post(
+    '/team-member/verify-otp',
+    validate(verifyOtpSchema),
+    controller.verifyOtpTeamMember.bind(controller)
+  );
+
+  router.post(
+    '/team-member/reset-password',
+    validate(resetPasswordSchema),
+    controller.resetPasswordTeamMember.bind(controller)
+  );
+
+  router.get(
+    '/team-member/last-time-otp-sent',
+    controller.lastTimeOtpSendTeamMember.bind(controller)
+  );
+
   return router;
 }

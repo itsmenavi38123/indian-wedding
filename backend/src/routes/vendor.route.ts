@@ -27,6 +27,10 @@ export function vendorRoute(): Router {
     vendorController.updateVendor.bind(vendorController)
   );
 
+  vendorRouter.get(
+    '/home',
+    vendorController.getHomeVendors.bind(vendorController)
+  )
   vendorRouter.get('/list', authenticate(), vendorController.getVendors.bind(vendorController));
   vendorRouter.get('/events', authenticate(), vendorController.getEvents.bind(vendorController));
 

@@ -26,6 +26,31 @@ export const API_URLS = {
     currentUser: '/auth/user/me',
     userLogout: '/auth/user/logout',
   },
+  teamMemberAuth: {
+    teamMemberLogin: '/auth/team-member/login',
+    currentTeamMember: '/auth/team-member/me',
+    teamMemberLogout: '/auth/team-member/logout',
+    teamMemberForgotPassword: '/auth/team-member/send-reset-email',
+    teamMemberVerifyOtp: '/auth/team-member/verify-otp',
+    teamMemberLastTimeOptSent: '/auth/team-member/last-time-otp-sent',
+    teamMemberResetPassword: '/auth/team-member/reset-password',
+  },
+  admin: {
+    deleteById: (id: string) => `/admin/team/${id}`,
+    getTeams: '/admin/get/teams',
+    createTeams: '/admin/teams',
+    getSingleTeam: (teamId: string) => `/admin/get/team/${teamId}`,
+    updateTeamWithMembers: (teamId: string) => `/admin/team/${teamId}/members`,
+
+    create: '/admin/create',
+    getVendors: '/admin/list',
+    getSingleVendor: (id: string) => `/admin/${id}`,
+    updateVendorById: (id: string) => `/admin/update/${id}`,
+    updateVendorStatus: (id: string) => `/admin/update-status/vendor-id/${id}`,
+    bulkUpdateVendorStatus: '/admin/bulk-update-status',
+    exportVendorsWithIdsCsv: '/admin/export-vendor-with-ids/csv',
+    event: '/admin/events',
+  },
   lead: {
     create: '/lead/create',
     getLeads: '/lead/get-all',
@@ -52,6 +77,7 @@ export const API_URLS = {
     getSingleTeam: (teamId: string) => `/vendor/get/team/${teamId}`,
     deleteById: (id: string) => `/vendor/team/${id}`,
     updateTeamWithMembers: (teamId: string) => `/vendor/team/${teamId}/members`,
+    getHomePageVendors: '/vendor/home'
   },
   vendorService: {
     create: '/vendor/service/create',
@@ -111,6 +137,29 @@ export const API_QUERY_KEYS = {
     resetPassword: 'resetPassword',
     currentAdmin: 'currentAdmin',
     adminForgotPassword: 'adminForgotPassword',
+
+    currentlyTeamMember: 'currentlyTeamMember',
+  },
+  admin: {
+    getTeams: 'getAdminTeams',
+    getSingleTeam: 'getSingleAdminTeam',
+
+    createVendor: 'createVendorAdmin',
+    getVendors: 'getVendorsAdmin',
+    getSingleVendor: 'getSingleVendorAdmin',
+    updateVendorById: 'updateVendorByIdAdmin',
+    updateVendorStatus: 'updateVendorStatusAdmin',
+    bulkUpdateVendorStatus: 'bulkUpdateVendorStatusAdmin',
+    exportVendorsWithIdsCsv: 'exportVendorsWithIdsCsvAdmin',
+    validateUser: 'validateUserAdmin',
+    vendorLogin: 'vendorLoginAdmin',
+    sendResetEmail: 'sendResetEmailAdmin',
+    verifyOtp: 'verifyOtpAdmin',
+    resetPassword: 'resetPasswordAdmin',
+    currentVendor: 'currentVendorAdmin',
+    vendorForgotPassword: 'vendorForgotPasswordAdmin',
+    deleteById: 'deleteAdminTeamById',
+    updateTeamWithMembers: 'updateTeamWithMembersAdmin',
   },
   lead: {
     createLead: 'createLead',
@@ -144,6 +193,7 @@ export const API_QUERY_KEYS = {
     getSingleTeam: 'getSingleTeam',
     deleteById: 'deleteVendorTeamById',
     updateTeamWithMembers: 'updateTeamWithMembers',
+    getVendorsHomePage: 'getVendorsHomePage',
   },
   vendorService: {
     createVendorService: 'createVendorService',
