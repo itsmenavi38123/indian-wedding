@@ -18,6 +18,7 @@ import {
   MapPin,
   ChevronDown,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import {
@@ -31,12 +32,22 @@ import { LEAD_STATUS_VALUES, LeadStatus } from '@/types/lead/Lead';
 import { API_QUERY_KEYS } from '@/services/apiBaseUrl';
 import { toast } from 'sonner';
 import { AssignedVendorTeams } from '../components/AssignedVendorTeams';
+import { RootState } from '@/store/store';
+import { RoleType } from '@/components/common/Header/Header';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useUpdateWeddingPlanServiceStatus } from '@/services/api/weddingPlan';
+import Image from 'next/image';
 
 export default function LeadDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const leadId = params?.id as string;
   const queryClient = useQueryClient();
+  const auth = useSelector((state: RootState) => state.auth.user);
+  const role = auth?.role as RoleType | null;
+  const [rejectingService, setRejectingService] = useState<any | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const { data: lead, isLoading, isFetching } = useGetLead(leadId);
   const { isPending: updateLoading, mutate: updateStatusMutate } = useMutation({
@@ -48,6 +59,8 @@ export default function LeadDetailsPage() {
       toast.error('Failed to update lead status. Please try again later.');
     },
   });
+
+  const { mutate: updateServiceStatus } = useUpdateWeddingPlanServiceStatus(leadId);
 
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (!lead) return <p className="p-4">Lead not found</p>;
@@ -165,7 +178,6 @@ export default function LeadDetailsPage() {
                   ₹{d.budgetMin.toLocaleString()} - ₹{d.budgetMax.toLocaleString()}
                 </span>
               </div>
-
               {/* Guest Count */}
               <div>
                 Guests: {d.guestCountMin} - {d.guestCountMax}
@@ -183,6 +195,282 @@ export default function LeadDetailsPage() {
             </CardContent>
           </Card>
 
+          {/* Events */}
+          {role === 'USER' && 'ADMIN' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Separator className="mb-4" />
+                {d.weddingPlan?.events?.length ? (
+                  <div className="space-y-4">
+                    {d.weddingPlan.events.map((event: any) => (
+                      <div
+                        key={event.id}
+                        className="flex items-center justify-between border rounded-lg p-3"
+                      >
+                        <div>
+                          <p className="font-semibold flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-white" /> {event.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(event.date), 'PPP')} &middot; {event.startTime} -{' '}
+                            {event.endTime}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No events found for this wedding plan.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Services */}
+          {role === 'USER' && 'ADMIN' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Services</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Separator className="mb-4" />
+
+                {d.weddingPlan?.services?.length ? (
+                  <div className="space-y-4">
+                    {d.weddingPlan.services.map((service: any) => {
+                      const vs = service.vendorService;
+                      const vendor = vs?.vendor;
+                      return (
+                        <div
+                          key={service.id}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3 gap-2"
+                        >
+                          <div>
+                            <p className="font-semibold flex items-center gap-2">
+                              {vs?.category || 'Service'}{' '}
+                            </p>
+
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {vs?.title} — {vs?.description || 'No description'}
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Vendor:</span> {vendor?.name || 'N/A'} (
+                              {vendor?.email || 'No email'})
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Location:</span>{' '}
+                              {vs?.city || vs?.state || vs?.country || 'N/A'}
+                            </p>
+
+                            <p className="text-sm mt-1">
+                              <span className="font-medium">Notes:</span>{' '}
+                              {service.notes || 'No notes'}
+                            </p>
+                          </div>
+
+                          {/* Right side - Price */}
+                          <div className="text-right sm:text-left">
+                            <p className="font-semibold text-white">
+                              $ {vs?.price?.toLocaleString() || '—'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No services found for this wedding plan.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommended Vendors */}
+          {(role === 'USER' || role === 'ADMIN') && (
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Recommended Vendors</CardTitle>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                {(() => {
+                  const services = d.weddingPlan?.services || [];
+                  const vendorsMap = new Map();
+
+                  services.forEach((service: any) => {
+                    const vs = service.vendorService;
+                    const vendor = vs?.vendor;
+                    if (!vendor) return;
+
+                    console.log(vs, '🧩 full vendorService object');
+
+                    const thumbnailUrl = vs.thumbnailUrl || vs.mediaUrls?.[0] || '';
+
+                    console.log(thumbnailUrl, 'thumbnailUrl');
+
+                    if (!vendorsMap.has(vendor.id)) {
+                      vendorsMap.set(vendor.id, {
+                        id: vendor.id,
+                        name: vendor.name,
+                        email: vendor.email,
+                        contactNo: vendor.contactNo,
+                        countryCode: vendor.countryCode,
+                        services: [
+                          {
+                            id: service.id,
+                            category: vs?.category || 'Service',
+                            title: vs?.title,
+                            thumbnailUrl,
+                            status: service.status || 'PENDING',
+                          },
+                        ],
+                      });
+                    } else {
+                      const existing = vendorsMap.get(vendor.id);
+                      existing.services.push({
+                        id: service.id,
+                        category: vs?.category || 'Service',
+                        title: vs?.title,
+                        thumbnailUrl,
+                        status: service.status || 'PENDING',
+                      });
+                      vendorsMap.set(vendor.id, existing);
+                    }
+                  });
+
+                  const vendors = Array.from(vendorsMap.values());
+
+                  if (!vendors.length) {
+                    return (
+                      <p className="text-center text-muted-foreground">
+                        No recommended vendors yet.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="grid gap-4">
+                      {vendors.map((vendor) => (
+                        <div key={vendor.id} className="border rounded-lg p-4 flex flex-col gap-3">
+                          {/* Vendor Info */}
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                            <div>
+                              <p className="font-semibold text-white">{vendor.name}</p>
+                              <p className="text-sm text-muted-foreground">{vendor.email}</p>
+
+                              <div className="flex items-center gap-2 mt-1">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">
+                                  {vendor.countryCode} {vendor.contactNo}
+                                </span>
+                              </div>
+                              <p className="text-sm mt-1">
+                                <span className="font-medium">Services:</span>{' '}
+                                {vendor.services
+                                  .map((s: { category: string }) => s.category)
+                                  .join(', ')}
+                              </p>
+                            </div>
+                            {/* Contact Action */}
+                            <div className="flex flex-col sm:flex-row gap-2 mt-3 sm:mt-0">
+                              {vendor.services.map((service: any) => (
+                                <div key={service.id} className="flex space-x-3">
+                                  {!service.status || service.status === 'PENDING' ? (
+                                    <>
+                                      {role === 'ADMIN' && (
+                                        <>
+                                          <Button
+                                            variant="default"
+                                            onClick={() =>
+                                              updateServiceStatus({
+                                                serviceId: service.id,
+                                                status: 'ACCEPTED',
+                                              })
+                                            }
+                                          >
+                                            Accept
+                                          </Button>
+                                          <Button
+                                            variant="destructive"
+                                            onClick={() => setRejectingService(service)}
+                                          >
+                                            Reject
+                                          </Button>
+                                        </>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <Button
+                                      variant={
+                                        service.status === 'ACCEPTED' ? 'default' : 'destructive'
+                                      }
+                                      disabled
+                                    >
+                                      {service.status === 'ACCEPTED' ? 'Accepted' : 'Rejected'}
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`mailto:${vendor.email}`, '_blank')}
+                                className="text-black mt-3 sm:mt-0"
+                              >
+                                Contact Vendor
+                              </Button>
+                            </div>
+                          </div>
+                          {/* Service Thumbnails */}
+                          {vendor.services.some(
+                            (s: { thumbnailUrl: string | null }) => s.thumbnailUrl
+                          ) && (
+                            <div className="flex flex-wrap gap-3 mt-2">
+                              {vendor.services.map(
+                                (
+                                  service: {
+                                    thumbnailUrl?: string | null;
+                                    title?: string;
+                                    category?: string;
+                                  },
+                                  idx: number
+                                ) =>
+                                  service.thumbnailUrl && (
+                                    <div key={idx} className="relative">
+                                      <Image
+                                        src={service.thumbnailUrl}
+                                        alt={service.title || 'Service Image'}
+                                        className="w-32 h-24 object-cover rounded-lg border"
+                                      />
+                                      <p className="text-xs text-center mt-1 text-muted-foreground truncate w-32">
+                                        {service.category}
+                                      </p>
+                                    </div>
+                                  )
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          )}
           {/* Activity Timeline */}
           <Card>
             <CardHeader>
@@ -220,7 +508,19 @@ export default function LeadDetailsPage() {
             </CardContent>
           </Card>
           {/* Teams */}
-
+          {/* Activity Timeline */}
+          {role === 'USER' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Add note */}
+                <form className="mb-4 flex gap-2"></form>
+                <Separator className="mb-4" />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <div className="flex justify-between">
@@ -318,6 +618,43 @@ export default function LeadDetailsPage() {
           </Card>
         </div>
       </div>
+      {rejectingService && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-80">
+            <h3 className="font-semibold text-lg mb-2">Reason for Rejection</h3>
+            <Textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter reason..."
+            />
+            <div className="flex justify-end mt-4 gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRejectingService(null);
+                  setRejectReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  updateServiceStatus({
+                    serviceId: rejectingService.id,
+                    status: 'REJECTED',
+                    reason: rejectReason,
+                  });
+                  setRejectingService(null);
+                  setRejectReason('');
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

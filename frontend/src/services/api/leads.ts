@@ -27,6 +27,24 @@ export interface CreateLeadPayload {
   createdById?: string;
   saveStatus?: SaveStatus;
   serviceTypes?: string;
+
+  weddingPlan?: {
+    events?: {
+      id?: string;
+      name: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+    }[];
+    services?: {
+      id?: string;
+      category: string;
+      title: string;
+      description?: string;
+      price?: number;
+      vendorName?: string;
+    }[];
+  };
 }
 
 interface UpdateLeadStatusPayload {

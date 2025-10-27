@@ -19,7 +19,7 @@ import Events from './components/steps/Events';
 import { useCreateWeddingPlan } from '@/services/api/weddingPlan';
 import Image from 'next/image';
 import { useGetCurrentUser } from '@/services/api/userAuth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 // Types
 type WizardStep =
@@ -51,71 +51,18 @@ interface WizardData {
     startTime: string;
     endTime: string;
   }[];
+  selectedServices: Record<string, any[]>;
   photographerPreference: 'local' | 'travel' | 'either';
   selectedCategories: string[];
 }
 
-const samplePhotos = [
-  {
-    id: '1',
-    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-    vendor: 'Raj Photography',
-    type: 'photographer',
-  },
-  {
-    id: '2',
-    url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
-    vendor: 'Luxury Venues',
-    type: 'venue',
-  },
-  {
-    id: '3',
-    url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
-    vendor: 'Elegant Decor',
-    type: 'decorator',
-  },
-  {
-    id: '4',
-    url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
-    vendor: 'Wedding Bells Photo',
-    type: 'photographer',
-  },
-  {
-    id: '5',
-    url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
-    vendor: 'Dream Venues',
-    type: 'venue',
-  },
-  {
-    id: '6',
-    url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
-    vendor: 'Floral Dreams',
-    type: 'decorator',
-  },
-  {
-    id: '7',
-    url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
-    vendor: 'Capture Moments',
-    type: 'photographer',
-  },
-  {
-    id: '8',
-    url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
-    vendor: 'Royal Palaces',
-    type: 'venue',
-  },
-];
-
 export default function GalleryPage() {
-  const [currentStep, setCurrentStep] = useState<WizardStep>('budget');
-
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
   const allServices = useAppSelector((state: RootState) => state.planning.services);
   const { mutate: createWeddingPlan } = useCreateWeddingPlan();
   const router = useRouter();
   const { data: currentUser } = useGetCurrentUser();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     dispatch(fetchDestinationsFromServices({}))
@@ -128,23 +75,48 @@ export default function GalleryPage() {
       });
   }, [dispatch]);
 
-  const [wizardData, setWizardData] = useState<WizardData>({
-    budget: null,
-    destination: null,
-    destinationId: null,
-    weddingDate: { startDate: '', endDate: '' },
-    guestCount: null,
-    category: null,
-    likedPhotos: [],
-    selectedVendors: {
-      photographer: null,
-      venue: null,
-      decorator: null,
-    },
-    events: [],
-    photographerPreference: 'either',
-    selectedCategories: [],
+  const [wizardData, setWizardData] = useState<WizardData>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pendingWeddingPlan');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          console.warn('Failed to parse saved wizard data');
+        }
+      }
+    }
+    return {
+      budget: null,
+      destination: null,
+      destinationId: null,
+      weddingDate: { startDate: '', endDate: '' },
+      guestCount: null,
+      category: null,
+      likedPhotos: [],
+      selectedVendors: {
+        photographer: null,
+        venue: null,
+        decorator: null,
+      },
+      events: [],
+      photographerPreference: 'either',
+      selectedCategories: [],
+      selectedServices: {},
+    };
   });
+
+  const [currentStep, setCurrentStep] = useState<WizardStep>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('currentStep') as WizardStep) || 'budget';
+    }
+    return 'budget';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pendingWeddingPlan', JSON.stringify(wizardData));
+    localStorage.setItem('currentStep', currentStep);
+  }, [wizardData, currentStep]);
 
   const steps: { id: WizardStep; title: string; icon: any }[] = [
     { id: 'budget', title: 'Budget', icon: Calendar },
@@ -157,7 +129,6 @@ export default function GalleryPage() {
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
-  // const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const nextStep = () => {
     const nextIndex = currentStepIndex + 1;
@@ -181,16 +152,8 @@ export default function GalleryPage() {
   //       : [...prev.likedPhotos, photoId],
   //   }));
   // };
-
-  const selectedServiceEntries = Object.entries(wizardData.selectedVendors)
-    .filter(([_, serviceId]) => !!serviceId)
-    .map(([category, serviceId]) => ({
-      serviceId: serviceId as string,
-      notes: `${category} service`,
-    }));
-
   const selectedVendorsPayload = Object.entries(wizardData.selectedVendors || {})
-    .filter(([_, vendorId]) => !!vendorId)
+    .filter(([vendorId]) => !!vendorId)
     .reduce(
       (acc, [categoryKey, vendorId]) => {
         const category = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1).toLowerCase();
@@ -212,28 +175,25 @@ export default function GalleryPage() {
     }));
   }, []);
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('pendingWeddingPlan');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setWizardData(parsed);
-        localStorage.removeItem('pendingWeddingPlan');
-      } catch (error) {
-        console.error('Failed to restore saved wizard data:', error);
-      }
-    }
-  }, []);
-
   const handleSubmit = () => {
     if (!currentUser) {
       localStorage.setItem('pendingWeddingPlan', JSON.stringify(wizardData));
-      router.push('/user/login');
+      router.push(`/user/login?redirect=/gallery`);
       return;
     }
     if (!wizardData.destination || !wizardData.budget) {
       return alert('Please complete all steps before submitting.');
     }
+
+    const services = Object.entries(wizardData.selectedVendors || {})
+      .filter(([id]) => typeof id === 'string' && id.trim() !== '')
+      .map(([category, vendorServiceId]) => ({
+        vendorServiceId: vendorServiceId ?? '',
+        quantity: 1,
+        notes: `${category} service`,
+      }));
+
+    console.log('wizardData.selectedVendors:', wizardData.selectedVendors);
 
     const payload = {
       destinationId: wizardData.destinationId,
@@ -253,7 +213,7 @@ export default function GalleryPage() {
         startTime: ev.startTime,
         endTime: ev.endTime,
       })),
-      services: selectedServiceEntries,
+      services,
     };
 
     console.log('Sending payload:', payload);
@@ -406,6 +366,7 @@ export default function GalleryPage() {
               onPreferenceSelect={(pref) =>
                 setWizardData({ ...wizardData, photographerPreference: pref })
               }
+              weddingDate={wizardData.weddingDate}
               events={wizardData.events || []}
               onEventsChange={(newEvents) => setWizardData({ ...wizardData, events: newEvents })}
               onDateChange={(range) => setWizardData((prev) => ({ ...prev, weddingDate: range }))}
@@ -419,7 +380,14 @@ export default function GalleryPage() {
               selectedCategories={wizardData.selectedCategories}
               selectedVendors={wizardData.selectedVendors}
               destination={wizardData.destination}
+              selectedServices={wizardData.selectedServices}
               onVendorSelect={handleVendorSelect}
+              onUpdateServices={(updated) => {
+                setWizardData((prev) => ({
+                  ...prev,
+                  selectedServices: updated,
+                }));
+              }}
             />
           )}
 
@@ -524,7 +492,7 @@ export default function GalleryPage() {
               onClick={handleSubmit}
               className="flex items-center gap-2 px-8 py-3 rounded-lg bg-gradient-to-r from-rose-500 to-amber-500 text-white font-semibold hover:shadow-lg transition-all"
             >
-              Create My Wedding
+              {currentUser ? 'Create My Wedding' : 'Login to continue'}
               <Check size={20} />
             </button>
           ) : (

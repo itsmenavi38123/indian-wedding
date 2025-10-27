@@ -490,23 +490,34 @@ export class VendorServiceController {
 }
 
 // ================= HELPERS =================
+
 async function transformServiceFull(serviceId: string) {
   const service = await prisma.vendorService.findUnique({
     where: { id: serviceId },
     include: {
-      media: {
-        where: { type: MediaType.IMAGE }, // Only get IMAGE type for gallery
-      },
+      media: { where: { type: MediaType.IMAGE } },
       thumbnail: true,
     },
   });
 
   if (!service) return null;
 
+  const BASE_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+
+  const makeFullUrl = (path: string | null) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    // ensure no double slashes
+    return `${BASE_URL}/${path.replace(/^\/+/, '')}`;
+  };
+
+  const thumbnailUrl = makeFullUrl(service.thumbnail?.url || null);
+  const mediaUrls = service.media?.map((m) => makeFullUrl(m.url)) || [];
+
   return {
     ...service,
-    thumbnail: service.thumbnail || null,
-    media: service.media || [],
+    thumbnailUrl,
+    mediaUrls,
   };
 }
 

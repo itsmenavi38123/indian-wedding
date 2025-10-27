@@ -38,7 +38,7 @@ export default function LeadPage() {
   const queryClient = useQueryClient();
   const auth = useSelector((state: RootState) => state.auth.user);
   const role = auth?.role as RoleType | null;
-  const columns = getColumns(role);
+  const columns = getColumns(role, queryClient);
   const { sorting, pagination, statusFilter, search } = useSelector(
     (state: RootState) => state.lead
   );

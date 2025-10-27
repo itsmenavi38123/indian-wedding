@@ -10,7 +10,6 @@ export interface CreateWeddingPlanPayload {
   guestCount?: number;
   selectedVendors?: {
     photographer?: string;
-    venue?: string;
     planner?: string;
   };
   events?: {
@@ -19,7 +18,8 @@ export interface CreateWeddingPlanPayload {
     location?: string;
   }[];
   services?: {
-    serviceId: string;
+    vendorServiceId: string;
+    quantity?: number;
     notes?: string;
   }[];
 }

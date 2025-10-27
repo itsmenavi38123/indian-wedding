@@ -14,10 +14,10 @@ import fs from 'fs';
 import path from 'path';
 import { AuthenticatedRequest } from '@/middlewares/authMiddleware';
 import { LeadStatus } from '@prisma/client';
+import { generateRandomPassword } from '@/utils/generatePassword';
 
 export class VendorController {
   public async createVendor(req: Request, res: Response) {
-    console.log(req.body);
     try {
       if (req.body.minimumAmount) req.body.minimumAmount = Number(req.body.minimumAmount);
       if (req.body.maximumAmount) req.body.maximumAmount = Number(req.body.maximumAmount);
@@ -65,15 +65,13 @@ export class VendorController {
         : Object.values(req.files || {}).flat();
 
       const vendorDir = path.join(__dirname, `../../uploads/vendor_${vendor.id}`);
-      if (!fs.existsSync(vendorDir)) {
-        fs.mkdirSync(vendorDir, { recursive: true });
-      }
+      if (!fs.existsSync(vendorDir)) fs.mkdirSync(vendorDir, { recursive: true });
 
       for (const file of uploadedFiles) {
         const newPath = path.join(vendorDir, file.filename);
         try {
-          fs.renameSync(file.path, newPath); // 🔥 move file
-          file.path = newPath; // update path
+          fs.renameSync(file.path, newPath);
+          file.path = newPath;
         } catch (err) {
           console.error('Failed moving file:', file.filename, err);
         }
@@ -105,23 +103,49 @@ export class VendorController {
 
           let avatarValue: string | null = null;
           const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
-          if (avatarFile) {
+          if (avatarFile)
             avatarValue = `${SERVER_URL}/uploads/vendor_${vendor.id}/${avatarFile.filename}`;
+
+          // Check if member already exists by email
+          let teamMember = await prisma.teamMember.findUnique({ where: { email: member.email } });
+
+          if (teamMember) {
+            // Update existing member's info if needed
+            await prisma.teamMember.update({
+              where: { id: teamMember.id },
+              data: {
+                name: member.name,
+                role: member.role || '',
+                phone: member.phone ?? undefined,
+                avatar: avatarValue ?? teamMember.avatar,
+                vendorId: vendor.id, // associate with this vendor if not set
+              },
+            });
+          } else {
+            const password = generateRandomPassword();
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            // Create new member
+            teamMember = await prisma.teamMember.create({
+              data: {
+                name: member.name,
+                role: member.role || '',
+                email: member.email,
+                phone: member.phone ?? undefined,
+                avatar: avatarValue,
+                password: passwordHash,
+                vendorId: vendor.id,
+              },
+            });
           }
 
-          const teamMember = await prisma.teamMember.create({
-            data: {
-              name: member.name,
-              role: member.role || '',
-              email: member.email,
-              phone: member.phone ?? undefined,
-              avatar: avatarValue,
-              vendorId: vendor.id,
+          // Link member to the team
+          await prisma.teamMemberOnTeam.upsert({
+            where: {
+              teamId_teamMemberId: { teamId: createdTeam.id, teamMemberId: teamMember.id },
             },
-          });
-
-          await prisma.teamMemberOnTeam.create({
-            data: { teamId: createdTeam.id, teamMemberId: teamMember.id },
+            update: {},
+            create: { teamId: createdTeam.id, teamMemberId: teamMember.id },
           });
         }
       }
@@ -164,7 +188,7 @@ export class VendorController {
       const existingVendor = await prisma.vendor.findUnique({ where: { id } });
       if (!existingVendor) return res.status(404).json({ message: 'Vendor not found' });
 
-      // Convert isActive string to boolean if needed
+      // Convert isActive string to boolean
       if (typeof vendorData.isActive === 'string') {
         vendorData.isActive = vendorData.isActive.toLowerCase() === 'true';
       }
@@ -190,16 +214,18 @@ export class VendorController {
       const teamsToDelete = existingTeams.filter((team) => !newTeamIds.includes(team.id));
       const avatarsToDelete: string[] = [];
 
-      // Delete removed teams and their members
+      // Delete removed teams and their members if no other links exist
       for (const team of teamsToDelete) {
         for (const tm of team.teamMembers) {
-          if (tm.teamMember.avatar) avatarsToDelete.push(tm.teamMember.avatar);
-          await prisma.teamMember.delete({ where: { id: tm.teamMember.id } });
+          const otherLinks = await prisma.teamMemberOnTeam.count({
+            where: { teamMemberId: tm.teamMember.id },
+          });
+          if (otherLinks <= 1 && tm.teamMember.avatar) {
+            // avatarsToDelete.push(tm.teamMember.avatar);
+            // await prisma.teamMember.delete({ where: { id: tm.teamMember.id } });
+          }
         }
-        await prisma.cardTeam.deleteMany({
-          where: { teamId: team.id },
-        });
-
+        await prisma.cardTeam.deleteMany({ where: { teamId: team.id } });
         await prisma.team.delete({ where: { id: team.id } });
       }
 
@@ -208,7 +234,7 @@ export class VendorController {
         ? req.files
         : Object.values(req.files || {}).flat();
 
-      // Process teams
+      // Process each team
       for (let tIndex = 0; tIndex < teams.length; tIndex++) {
         const team = teams[tIndex];
 
@@ -235,56 +261,54 @@ export class VendorController {
 
         const processedMemberIds = new Set<string>();
         const usedEmails = new Set<string>();
-        const members = team.members || [];
 
+        const members = team.members || [];
         for (let mIndex = 0; mIndex < members.length; mIndex++) {
           const member = members[mIndex];
+
           if (!member.email || usedEmails.has(member.email)) continue;
           usedEmails.add(member.email);
 
-          // Uploaded file
+          // Uploaded avatar
           const avatarFile = uploadedFiles.find(
             (f) => f.fieldname === `teams[${tIndex}][members][${mIndex}][avatarFile]`
           );
 
-          // Existing DB member
-          let teamMember =
-            member.id && member.id !== 'temp'
-              ? await prisma.teamMember.findUnique({ where: { id: member.id } })
-              : null;
+          // Check existing member by email
+          let teamMember = await prisma.teamMember.findUnique({ where: { email: member.email } });
 
-          // ---------- AVATAR LOGIC ----------
           let avatarValue: string | null = null;
           const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
+
           if (avatarFile) {
-            // ✅ New upload → replace avatar
             if (teamMember?.avatar) avatarsToDelete.push(teamMember.avatar);
             avatarValue = `${SERVER_URL}/uploads/vendor_${id}/${avatarFile.filename}`;
           } else if (
             typeof member.existingAvatar === 'string' &&
             member.existingAvatar.startsWith('/uploads')
           ) {
-            // ⚡ Keep existing avatar
             avatarValue = teamMember?.avatar || member.existingAvatar;
           } else {
-            // ❌ Delete avatar if exists
             if (teamMember?.avatar) avatarsToDelete.push(teamMember.avatar);
             avatarValue = null;
           }
 
-          // Upsert member
           if (teamMember) {
-            await prisma.teamMember.update({
+            // Update existing member
+            teamMember = await prisma.teamMember.update({
               where: { id: teamMember.id },
               data: {
                 name: member.name,
                 role: member.role || '',
-                email: member.email,
                 phone: member.phone ?? undefined,
                 avatar: avatarValue,
               },
             });
           } else {
+            const password = generateRandomPassword();
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            // Create new member
             teamMember = await prisma.teamMember.create({
               data: {
                 name: member.name,
@@ -293,13 +317,14 @@ export class VendorController {
                 phone: member.phone ?? undefined,
                 avatar: avatarValue,
                 vendorId: id,
+                password: passwordHash,
               },
             });
           }
 
           processedMemberIds.add(teamMember.id);
 
-          // Link member to team
+          // Link member to team (upsert)
           await prisma.teamMemberOnTeam.upsert({
             where: { teamId_teamMemberId: { teamId: updatedTeam.id, teamMemberId: teamMember.id } },
             update: {},
@@ -307,7 +332,7 @@ export class VendorController {
           });
         }
 
-        // Remove members no longer in team
+        // Remove members no longer in the team
         for (const currentMember of currentTeamMembers) {
           if (!processedMemberIds.has(currentMember.teamMember.id)) {
             await prisma.teamMemberOnTeam.delete({
@@ -318,6 +343,7 @@ export class VendorController {
                 },
               },
             });
+
             const otherLinks = await prisma.teamMemberOnTeam.count({
               where: { teamMemberId: currentMember.teamMember.id },
             });
@@ -329,19 +355,16 @@ export class VendorController {
         }
       }
 
-      // Delete old avatars from disk safely
+      // Delete old avatars safely
       for (const path of avatarsToDelete) {
         try {
           const count = await prisma.teamMember.count({ where: { avatar: path } });
-          console.log(path, 'pathpathpathpathpathpathpath>path', count);
-          if (count === 0) {
-            deleteFile(path);
-          } else {
-          }
+          if (count === 0) deleteFile(path);
         } catch (err) {
           console.warn('Failed to delete avatar', path, err);
         }
       }
+
       const { password: _p, ...vendorWithoutPassword } = vendor;
       return res
         .status(200)
@@ -404,6 +427,97 @@ export class VendorController {
       });
     } catch (error) {
       logger.error('Error fetching vendors:', error);
+      return res.status(500).json({
+        message: 'Failed to fetch vendors',
+        error,
+      });
+    }
+  }
+
+  public async getHomeVendors(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || '';
+      const serviceType = (req.query.serviceType as string) || '';
+      const minPrice = parseFloat(req.query.minPrice as string) || 0;
+      const maxPriceQuery = req.query.maxPrice as string;
+      const maxPrice = maxPriceQuery ? parseFloat(maxPriceQuery) : undefined;
+
+      const skip = (page - 1) * limit;
+
+      const where: any = {
+        isActive: true,
+      };
+
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { contactNo: { contains: search, mode: 'insensitive' } },
+          { serviceTypes: { contains: search, mode: 'insensitive' } },
+        ];
+      }
+
+      if (serviceType) {
+        where.serviceTypes = { contains: serviceType, mode: 'insensitive' };
+      }
+
+      const priceFilter: any = {};
+      if (!isNaN(minPrice)) priceFilter.gte = minPrice;
+      if (maxPrice !== undefined && !isNaN(maxPrice)) priceFilter.lte = maxPrice;
+
+      const [vendors, total] = await Promise.all([
+        prisma.vendor.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            contactNo: true,
+            countryCode: true,
+            serviceTypes: true,
+            minimumAmount: true,
+            maximumAmount: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
+            vendorServices: {
+              where: Object.keys(priceFilter).length ? { price: priceFilter } : {},
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                category: true,
+                price: true,
+                country: true,
+                state: true,
+                city: true,
+                name: true,
+                latitude: true,
+                longitude: true,
+                thumbnail: {
+                  select: {
+                    id: true,
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+        prisma.vendor.count({ where }),
+      ]);
+
+      return res.status(200).json({
+        data: vendors,
+        pagination: { total, page, limit },
+      });
+    } catch (error) {
+      logger.error('Error fetching home vendors:', error);
       return res.status(500).json({
         message: 'Failed to fetch vendors',
         error,

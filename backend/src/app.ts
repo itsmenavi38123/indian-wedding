@@ -25,5 +25,7 @@ export function createApp(): Application {
   });
 
   app.use('/api/v1', routes);
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
   return app;
 }

@@ -12,5 +12,11 @@ export function weddingPlanRoute(): Router {
     weddingPlanController.createWeddingPlan.bind(weddingPlanController)
   );
 
+  router.patch(
+    '/service/:id/status',
+    authenticate(),
+    weddingPlanController.updateWeddingPlanServiceStatus.bind(weddingPlanController)
+  );
+
   return router;
 }

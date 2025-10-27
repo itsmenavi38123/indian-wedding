@@ -148,11 +148,6 @@ export const fetchDestinationsByBudget = createAsyncThunk(
     const queryParams = new URLSearchParams();
     if (params.budgetMin) queryParams.append('budgetMin', params.budgetMin.toString());
     if (params.budgetMax) queryParams.append('budgetMax', params.budgetMax.toString());
-    console.log(
-      'Fetching:',
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/destinations?${queryParams.toString()}`
-    );
-
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/destinations?${queryParams.toString()}`
     );

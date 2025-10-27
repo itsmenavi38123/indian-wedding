@@ -35,7 +35,7 @@ type LoginFormProps<TSchema extends ZodTypeAny> = {
   isPending: boolean;
   error: any;
   forgotPasswordPath: string;
-  signUpPath: string; // ✅ dynamic signup link
+  signUpPath?: string; // ✅ dynamic signup link
 };
 
 export function LoginForm<TSchema extends ZodTypeAny>({
@@ -157,13 +157,17 @@ export function LoginForm<TSchema extends ZodTypeAny>({
           </form>
         </Form>
 
-        {/* Sign Up Link (dynamic) */}
-        <div className="text-center mt-4 text-[14px] text-black">
-          Create an account?{' '}
-          <Link href={signUpPath} className="text-gold hover:underline ">
-            Sign up
-          </Link>
-        </div>
+        {signUpPath && (
+          <>
+            {/* Sign Up Link (dynamic) */}
+            <div className="text-center mt-4 text-[14px] text-black">
+              Create an account?{' '}
+              <Link href={signUpPath} className="text-gold hover:underline ">
+                Sign up
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
