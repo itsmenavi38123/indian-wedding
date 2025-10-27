@@ -33,56 +33,58 @@ import {
 } from '@/components/ui/dialog';
 import { useDeleteAdminTeam, useGetAdminTeams } from '@/services/api/admin';
 
-const getTeamColumns = (onDelete: (id: string) => void, role: any): ColumnDef<any>[] => [
-  {
-    accessorKey: 'name',
-    header: 'Team Name',
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
-  },
-  {
-    id: 'teamMembers',
-    header: 'Team Members',
-    cell: ({ row }) => {
-      const members = row.original.teamMembers || [];
-      return `${members.length} member${members.length !== 1 ? 's' : ''}`;
+const getTeamColumns = (onDelete: (id: string) => void, role: any): ColumnDef<any>[] => {
+  console.log(role);
+  return [
+    {
+      accessorKey: 'name',
+      header: 'Team Name',
     },
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Created At',
-    enableSorting: true,
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => {
-      const teamId = row.original.id;
-      const route = 'admin';
-      return (
-        <div className="flex gap-2">
-          <Link href={`/${route}/team/${teamId}`}>
-            <Button variant="ghost" size="icon">
-              <Eye className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href={`/${route}/team/edit/${teamId}`}>
-            <Button variant="ghost" size="icon">
-              <Edit className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Button variant="destructive" size="icon" onClick={() => onDelete(teamId)}>
-            <Trash className="h-4 w-4" />
-          </Button>
-        </div>
-      );
+    {
+      accessorKey: 'description',
+      header: 'Description',
     },
-  },
-];
-
+    {
+      id: 'teamMembers',
+      header: 'Team Members',
+      cell: ({ row }) => {
+        const members = row.original.teamMembers || [];
+        return `${members.length} member${members.length !== 1 ? 's' : ''}`;
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Created At',
+      enableSorting: true,
+      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const teamId = row.original.id;
+        const route = 'admin';
+        return (
+          <div className="flex gap-2">
+            <Link href={`/${route}/team/${teamId}`}>
+              <Button variant="ghost" size="icon">
+                <Eye className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href={`/${route}/team/edit/${teamId}`}>
+              <Button variant="ghost" size="icon">
+                <Edit className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Button variant="destructive" size="icon" onClick={() => onDelete(teamId)}>
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+};
 export default function AdminTeamPage() {
   const dispatch = useDispatch<AppDispatch>();
   const queryClient = useQueryClient();

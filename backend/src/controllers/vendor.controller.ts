@@ -525,7 +525,6 @@ export class VendorController {
     }
   }
 
-
   public async getEvents(req: AuthenticatedRequest, res: Response) {
     try {
       const vendorId = req.userId;

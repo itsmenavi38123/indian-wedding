@@ -77,7 +77,7 @@ export const API_URLS = {
     getSingleTeam: (teamId: string) => `/vendor/get/team/${teamId}`,
     deleteById: (id: string) => `/vendor/team/${id}`,
     updateTeamWithMembers: (teamId: string) => `/vendor/team/${teamId}/members`,
-    getHomePageVendors: '/vendor/home'
+    getHomePageVendors: '/vendor/home',
   },
   vendorService: {
     create: '/vendor/service/create',
@@ -124,6 +124,12 @@ export const API_URLS = {
   },
   weddingPlan: {
     create: '/wedding-plan/create',
+    updateServiceStatus: (serviceId: string) => `/wedding-plan/service/${serviceId}/status`,
+  },
+  notifications: {
+    getAll: '/notifications',
+    markAsRead: (id: string) => `/notifications/${id}/read`,
+    markAllAsRead: '/notifications/mark-all-read',
   },
 };
 
@@ -236,5 +242,11 @@ export const API_QUERY_KEYS = {
   },
   weddingPlan: {
     create: 'createWeddingPlan',
+    updateServiceStatus: 'updateServiceStatus',
+  },
+  notifications: {
+    getAll: 'getAll',
+    markAsRead: 'markAsRead',
+    markAllAsRead: 'markAllAsRead',
   },
 };

@@ -19,7 +19,7 @@ import Events from './components/steps/Events';
 import { useCreateWeddingPlan } from '@/services/api/weddingPlan';
 import Image from 'next/image';
 import { useGetCurrentUser } from '@/services/api/userAuth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 // Types
 type WizardStep =
@@ -56,57 +56,6 @@ interface WizardData {
   selectedCategories: string[];
 }
 
-const samplePhotos = [
-  {
-    id: '1',
-    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300',
-    vendor: 'Raj Photography',
-    type: 'photographer',
-  },
-  {
-    id: '2',
-    url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=300',
-    vendor: 'Luxury Venues',
-    type: 'venue',
-  },
-  {
-    id: '3',
-    url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300',
-    vendor: 'Elegant Decor',
-    type: 'decorator',
-  },
-  {
-    id: '4',
-    url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=300',
-    vendor: 'Wedding Bells Photo',
-    type: 'photographer',
-  },
-  {
-    id: '5',
-    url: 'https://images.unsplash.com/photo-1530023367847-a683933f4172?w=300',
-    vendor: 'Dream Venues',
-    type: 'venue',
-  },
-  {
-    id: '6',
-    url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300',
-    vendor: 'Floral Dreams',
-    type: 'decorator',
-  },
-  {
-    id: '7',
-    url: 'https://images.unsplash.com/photo-1592107761705-30a1bbc641e7?w=300',
-    vendor: 'Capture Moments',
-    type: 'photographer',
-  },
-  {
-    id: '8',
-    url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=300',
-    vendor: 'Royal Palaces',
-    type: 'venue',
-  },
-];
-
 export default function GalleryPage() {
   const dispatch = useAppDispatch();
   const destinations = useAppSelector((state: RootState) => state.planning.destinations);
@@ -114,7 +63,6 @@ export default function GalleryPage() {
   const { mutate: createWeddingPlan } = useCreateWeddingPlan();
   const router = useRouter();
   const { data: currentUser } = useGetCurrentUser();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     dispatch(fetchDestinationsFromServices({}))
@@ -204,16 +152,8 @@ export default function GalleryPage() {
   //       : [...prev.likedPhotos, photoId],
   //   }));
   // };
-
-  const selectedServiceEntries = Object.entries(wizardData.selectedVendors)
-    .filter(([_, serviceId]) => !!serviceId)
-    .map(([category, serviceId]) => ({
-      serviceId: serviceId as string,
-      notes: `${category} service`,
-    }));
-
   const selectedVendorsPayload = Object.entries(wizardData.selectedVendors || {})
-    .filter(([_, vendorId]) => !!vendorId)
+    .filter(([vendorId]) => !!vendorId)
     .reduce(
       (acc, [categoryKey, vendorId]) => {
         const category = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1).toLowerCase();
@@ -246,7 +186,7 @@ export default function GalleryPage() {
     }
 
     const services = Object.entries(wizardData.selectedVendors || {})
-      .filter(([_, id]) => typeof id === 'string' && id.trim() !== '')
+      .filter(([id]) => typeof id === 'string' && id.trim() !== '')
       .map(([category, vendorServiceId]) => ({
         vendorServiceId: vendorServiceId ?? '',
         quantity: 1,

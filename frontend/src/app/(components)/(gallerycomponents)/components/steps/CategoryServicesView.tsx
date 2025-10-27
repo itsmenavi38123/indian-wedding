@@ -6,8 +6,6 @@ import { setSelectedService } from '@/store/slices/planning';
 import { getImageUrl } from './Services';
 import Image from 'next/image';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
 interface CategoryServicesViewProps {
   category: string;
   selectedServices: any[];
@@ -110,7 +108,7 @@ export default function CategoryServicesView({
         ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
       onClick={() => handleToggle(service)}
     >
-      <img
+      <Image
         src={getImageUrl(service.media?.[0]?.url)}
         alt={service.title}
         className="w-full h-32 object-cover"

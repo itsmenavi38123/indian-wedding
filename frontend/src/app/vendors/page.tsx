@@ -32,23 +32,17 @@
 
 // export default VendorsPage;
 
-
 'use client';
 import React from 'react';
 import Image from 'next/image';
 import { useInfiniteVendorHomePage, VendorHomePageParams } from '@/services/api/vendors';
+import { InfiniteData } from '@tanstack/react-query';
 
 const VendorsPage = () => {
   const filters: VendorHomePageParams = { page: 1, limit: 5 };
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-  } = useInfiniteVendorHomePage(filters);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
+    useInfiniteVendorHomePage(filters);
 
   if (isLoading) {
     return (
@@ -65,8 +59,8 @@ const VendorsPage = () => {
       </div>
     );
   }
-
-  const vendors = data?.pages.flatMap((page: any) => page.data) || [];
+  const pagesData = data as InfiniteData<{ pagination: any; data: any[] }> | undefined;
+  const vendors = pagesData?.pages.flatMap((page) => page.data) || [];
 
   return (
     <div className="pt-24 min-h-screen bg-[#fef8f0] px-4">
@@ -75,16 +69,11 @@ const VendorsPage = () => {
       </h1>
 
       {vendors.length === 0 ? (
-        <div className="text-center text-lg text-gray-600 mt-16">
-          No vendors found.
-        </div>
+        <div className="text-center text-lg text-gray-600 mt-16">No vendors found.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {vendors.map((vendor: any) => (
-            <div
-              key={vendor.id}
-              className="bg-white rounded-lg shadow-md p-4 flex flex-col"
-            >
+            <div key={vendor.id} className="bg-white rounded-lg shadow-md p-4 flex flex-col">
               <h2 className="font-bold text-xl mb-1">{vendor.name}</h2>
               <p className="text-sm text-gray-600 mb-2">{vendor.serviceTypes}</p>
               <p className="text-sm text-gray-600 mb-2">
@@ -114,9 +103,7 @@ const VendorsPage = () => {
                       <div>
                         <p className="font-semibold">{service.title}</p>
                         <p className="text-sm text-gray-600">{service.category}</p>
-                        <p className="text-sm text-gray-800">
-                          Price: ${service.price}
-                        </p>
+                        <p className="text-sm text-gray-800">Price: ${service.price}</p>
                       </div>
                     </div>
                   ))}
@@ -146,4 +133,3 @@ const VendorsPage = () => {
 };
 
 export default VendorsPage;
-

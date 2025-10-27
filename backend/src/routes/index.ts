@@ -9,6 +9,7 @@ import { adminRouter } from './admin.route';
 import { vendorRoute } from './vendor.route';
 import { landingPageRoute } from './home.route';
 import { weddingPlanRoute } from './weddingPlan.route';
+import { notificationRoute } from './notification.route';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/vendor', vendorRoute());
 router.use('/admin', adminRouter());
 router.use('/home', landingPageRoute());
 router.use('/wedding-plan', weddingPlanRoute());
+router.use('/notifications', notificationRoute());
 
 export default router;

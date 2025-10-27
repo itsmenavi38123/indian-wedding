@@ -35,8 +35,9 @@ import { AssignedVendorTeams } from '../components/AssignedVendorTeams';
 import { RootState } from '@/store/store';
 import { RoleType } from '@/components/common/Header/Header';
 import { useSelector } from 'react-redux';
-import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, Key } from 'react';
-import { getImageUrl } from '../../(gallerycomponents)/components/steps/Services';
+import { useState } from 'react';
+import { useUpdateWeddingPlanServiceStatus } from '@/services/api/weddingPlan';
+import Image from 'next/image';
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -45,6 +46,8 @@ export default function LeadDetailsPage() {
   const queryClient = useQueryClient();
   const auth = useSelector((state: RootState) => state.auth.user);
   const role = auth?.role as RoleType | null;
+  const [rejectingService, setRejectingService] = useState<any | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const { data: lead, isLoading, isFetching } = useGetLead(leadId);
   const { isPending: updateLoading, mutate: updateStatusMutate } = useMutation({
@@ -56,6 +59,8 @@ export default function LeadDetailsPage() {
       toast.error('Failed to update lead status. Please try again later.');
     },
   });
+
+  const { mutate: updateServiceStatus } = useUpdateWeddingPlanServiceStatus(leadId);
 
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (!lead) return <p className="p-4">Lead not found</p>;
@@ -324,18 +329,22 @@ export default function LeadDetailsPage() {
                         countryCode: vendor.countryCode,
                         services: [
                           {
+                            id: service.id,
                             category: vs?.category || 'Service',
                             title: vs?.title,
                             thumbnailUrl,
+                            status: service.status || 'PENDING',
                           },
                         ],
                       });
                     } else {
                       const existing = vendorsMap.get(vendor.id);
                       existing.services.push({
+                        id: service.id,
                         category: vs?.category || 'Service',
                         title: vs?.title,
                         thumbnailUrl,
+                        status: service.status || 'PENDING',
                       });
                       vendorsMap.set(vendor.id, existing);
                     }
@@ -375,14 +384,55 @@ export default function LeadDetailsPage() {
                               </p>
                             </div>
                             {/* Contact Action */}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(`mailto:${vendor.email}`, '_blank')}
-                              className="text-black mt-3 sm:mt-0"
-                            >
-                              Contact Vendor
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-2 mt-3 sm:mt-0">
+                              {vendor.services.map((service: any) => (
+                                <div key={service.id} className="flex space-x-3">
+                                  {!service.status || service.status === 'PENDING' ? (
+                                    <>
+                                      {role === 'ADMIN' && (
+                                        <>
+                                          <Button
+                                            variant="default"
+                                            onClick={() =>
+                                              updateServiceStatus({
+                                                serviceId: service.id,
+                                                status: 'ACCEPTED',
+                                              })
+                                            }
+                                          >
+                                            Accept
+                                          </Button>
+                                          <Button
+                                            variant="destructive"
+                                            onClick={() => setRejectingService(service)}
+                                          >
+                                            Reject
+                                          </Button>
+                                        </>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <Button
+                                      variant={
+                                        service.status === 'ACCEPTED' ? 'default' : 'destructive'
+                                      }
+                                      disabled
+                                    >
+                                      {service.status === 'ACCEPTED' ? 'Accepted' : 'Rejected'}
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`mailto:${vendor.email}`, '_blank')}
+                                className="text-black mt-3 sm:mt-0"
+                              >
+                                Contact Vendor
+                              </Button>
+                            </div>
                           </div>
                           {/* Service Thumbnails */}
                           {vendor.services.some(
@@ -400,7 +450,7 @@ export default function LeadDetailsPage() {
                                 ) =>
                                   service.thumbnailUrl && (
                                     <div key={idx} className="relative">
-                                      <img
+                                      <Image
                                         src={service.thumbnailUrl}
                                         alt={service.title || 'Service Image'}
                                         className="w-32 h-24 object-cover rounded-lg border"
@@ -568,6 +618,43 @@ export default function LeadDetailsPage() {
           </Card>
         </div>
       </div>
+      {rejectingService && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-80">
+            <h3 className="font-semibold text-lg mb-2">Reason for Rejection</h3>
+            <Textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter reason..."
+            />
+            <div className="flex justify-end mt-4 gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRejectingService(null);
+                  setRejectReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  updateServiceStatus({
+                    serviceId: rejectingService.id,
+                    status: 'REJECTED',
+                    reason: rejectReason,
+                  });
+                  setRejectingService(null);
+                  setRejectReason('');
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
