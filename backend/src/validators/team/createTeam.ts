@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const createAdminTeamSchema = z.object({
+  adminId: z.string().uuid('Invalid vendorId').optional(),
+  name: z.string().min(1, 'Team name is required'),
+  description: z.string().optional(),
+});
+
 export const createTeamSchema = z.object({
   vendorId: z.string().uuid('Invalid vendorId'), // must be a UUID
   name: z.string().min(1, 'Team name is required'),
@@ -39,7 +45,7 @@ export const createVendorTeamsSchema = z.object({
         .array(
           z.object({
             name: z.string().min(1, 'Member name is required'),
-            email: z.string().email('Invalid email').optional(),
+            email: z.string().email('Invalid email'),
           })
         )
         .optional(),

@@ -18,9 +18,10 @@ interface LoginSelectModalProps {
 const LoginSelectModal: React.FC<LoginSelectModalProps> = ({ open, onOpenChange }) => {
   const router = useRouter();
 
-  const handleSelect = (type: 'vendor' | 'couple') => {
+  const handleSelect = (type: 'vendor' | 'couple' | 'team-member') => {
     onOpenChange(false);
     if (type === 'vendor') router.push('/vendor/login');
+    else if (type === 'team-member') router.push('/team-member/login');
     else router.push('/user/login');
   };
 
@@ -46,6 +47,12 @@ const LoginSelectModal: React.FC<LoginSelectModalProps> = ({ open, onOpenChange 
             onClick={() => handleSelect('couple')}
           >
             Couple
+          </Button>
+          <Button
+            className="bg-gold text-white text-lg py-4 rounded-lg shadow-md transition-all duration-300 hover:bg-white hover:text-gold hover:scale-105 hover:shadow-lg"
+            onClick={() => handleSelect('team-member')}
+          >
+            Team Member
           </Button>
         </div>
       </DialogContent>

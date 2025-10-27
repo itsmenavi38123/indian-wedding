@@ -32,6 +32,7 @@ import { userLogout } from '@/services/api/userAuth';
 import IndexHeader from './page';
 import Footer from '../Footer/Footer';
 import TopLayout from './top-layout';
+import { teamMemberLogout } from '@/services/api/teamMemberAuth';
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -67,7 +68,12 @@ const navItemsByRole = {
   USER: [
     { name: 'Home', href: '/user/dashboard', icon: LayoutDashboard },
     { name: 'Leads', href: '/user/leads', icon: Users },
+    { name: 'Proposals', href: '/admin/proposals', icon: FileText },
     { name: 'Settings', href: '/user/settings', icon: Settings },
+  ],
+  TEAM: [
+    { name: 'Home', href: '/team-member/dashboard', icon: LayoutDashboard },
+    { name: 'Settings', href: '/team-member/settings', icon: Settings },
   ],
 };
 
@@ -86,6 +92,7 @@ const Header = ({ children }: HeaderProps) => {
       if (role === 'ADMIN') return adminLogout();
       if (role === 'VENDOR') return vendorLogout();
       if (role === 'USER') return userLogout();
+      if (role === 'TEAM') return teamMemberLogout();
       return Promise.resolve();
     },
     onSuccess: () => {
@@ -94,6 +101,7 @@ const Header = ({ children }: HeaderProps) => {
       if (role === 'ADMIN') router.push('/admin/login');
       else if (role === 'VENDOR') router.push('/vendor/login');
       else if (role === 'USER') router.push('/user/login');
+      else if (role === 'TEAM') router.push('/team-member/login');
       else router.push('/');
     },
     onError: (err: any) => {

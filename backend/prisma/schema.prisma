@@ -12,6 +12,7 @@ enum UserRole {
   PLANNER
   USER
   VENDOR
+  TEAM
 }
 
 enum LeadStatus {
@@ -71,6 +72,11 @@ enum MediaType {
   THUMBNAIL
 }
 
+enum TeamType {
+  INTERNAL
+  EXTERNAL
+}
+
 model Admin {
   id           String   @id @default(uuid())
   name         String
@@ -85,6 +91,9 @@ model Admin {
 
   resetTokens  PasswordResetToken[]
   refreshToken String?
+
+  teams       Team[]       @relation("AdminTeams")
+  teamsMember TeamMember[] @relation("AdminTeamsMember")
 }
 
 model PasswordResetToken {
@@ -98,20 +107,23 @@ model PasswordResetToken {
   type TokenOwnerType
 
   // foreign keys (only one will be used depending on type)
-  adminId  String?
-  userId   String?
-  vendorId String?
+  adminId      String?
+  userId       String?
+  vendorId     String?
+  teamMemberId String?
 
   // relations
-  admin  Admin?  @relation(fields: [adminId], references: [id])
-  user   User?   @relation(fields: [userId], references: [id])
-  vendor Vendor? @relation(fields: [vendorId], references: [id])
+  admin      Admin?      @relation(fields: [adminId], references: [id])
+  user       User?       @relation(fields: [userId], references: [id])
+  vendor     Vendor?     @relation(fields: [vendorId], references: [id])
+  teamMember TeamMember? @relation(fields: [teamMemberId], references: [id])
 }
 
 enum TokenOwnerType {
   ADMIN
   USER
   VENDOR
+  TEAM
 }
 
 model User {
@@ -166,6 +178,9 @@ model Lead {
   // Assigned user
   createdById String?
   createdBy   User?   @relation("AssignedLeads", fields: [createdById], references: [id])
+
+  weddingPlanId String?      @unique
+  weddingPlan   WeddingPlan? @relation(fields: [weddingPlanId], references: [id])
 
   // Back-relations
   proposals    Proposal[]
@@ -347,7 +362,7 @@ model Vendor {
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @default(now())
   cards          Card[]
-  teams          Team[] // Vendor can have multiple teams
+  teams          Team[]
   teamMembers    TeamMember[]
   vendorServices VendorService[]
   resetTokens    PasswordResetToken[]
@@ -355,11 +370,16 @@ model Vendor {
 }
 
 model Team {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
-  vendorId    String
-  vendor      Vendor  @relation(fields: [vendorId], references: [id])
+  type        TeamType @default(EXTERNAL)
+
+  vendorId String?
+  vendor   Vendor? @relation(fields: [vendorId], references: [id])
+
+  adminId String?
+  admin   Admin?  @relation("AdminTeams", fields: [adminId], references: [id])
 
   cardTeams   CardTeam[]
   teamMembers TeamMemberOnTeam[]
@@ -370,15 +390,24 @@ model Team {
 model TeamMember {
   id        String             @id @default(uuid())
   name      String
-  role      String? // e.g., Photographer, Caterer
-  avatar    String? // URL or base64
-  email     String?
+  password  String?
+  roleLogin UserRole?          @default(TEAM)
+  isActive  Boolean            @default(true)
+  role      String?
+  avatar    String?
+  email     String             @unique
   phone     String?
-  vendorId  String
-  vendor    Vendor             @relation(fields: [vendorId], references: [id])
+  vendorId  String?
+  vendor    Vendor?            @relation(fields: [vendorId], references: [id])
+  adminId   String?
+  admin     Admin?             @relation("AdminTeamsMember", fields: [adminId], references: [id])
   teams     TeamMemberOnTeam[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
+
+  resetTokens PasswordResetToken[]
+
+  refreshToken String?
 }
 
 model TeamMemberOnTeam {
@@ -542,12 +571,13 @@ model WeddingPlan {
   destination   Destination? @relation(fields: [destinationId], references: [id])
   totalBudget   BigInt?
   guests        Int?
-  category      String[] @default([])   
+  category      String[]     @default([])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   services WeddingPlanService[]
   events   WeddingEvent[]
+  lead     Lead?
 }
 
 model WeddingPlanService {
@@ -558,17 +588,29 @@ model WeddingPlanService {
   vendorService   VendorService @relation(fields: [vendorServiceId], references: [id])
   quantity        Int?
   notes           String?
+    reason           String? 
+  status          String        @default("PENDING") // PENDING | ACCEPTED | REJECTED
 }
 
 model WeddingEvent {
   id            String      @id @default(uuid())
   weddingPlanId String
   weddingPlan   WeddingPlan @relation(fields: [weddingPlanId], references: [id])
-  userId        String
+  userId        String                           
   user          User        @relation(fields: [userId], references: [id])
   name          String
   date          DateTime // Store as ISO string from <input type="date">
   startTime     String
   endTime       String
   createdAt     DateTime    @default(now())
+}
+
+model Notification {
+  id            String    @id @default(cuid())
+  message       String
+  type          String // e.g., "lead_created"
+  recipientId   String? // target user/admin/vendor ID
+  recipientRole UserRole? // target role
+  isRead        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
 }

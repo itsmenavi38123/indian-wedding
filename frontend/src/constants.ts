@@ -20,3 +20,10 @@ export const excludeUserPath = [
   '/user/otp-verify',
   '/user/reset-password',
 ];
+
+export const excludeTeamMemberPath = [
+  '/team-member/login',
+  '/team-member/forgot-password',
+  '/team-member/otp-verify',
+  '/team-member/reset-password',
+];

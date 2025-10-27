@@ -8,10 +8,12 @@ import {
   createVendorTeamsSchema,
   updateTeamWithMembersSchema,
 } from '@/validators/team/createTeam';
-import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { PrismaClient, TeamType } from '@prisma/client';
 import { Request, Response } from 'express';
 import { AuthenticatedVendorRequest } from '@/middlewares/vendorAuthMiddleware';
 import { logger } from '@/logger';
+import { generateRandomPassword } from '@/utils/generatePassword';
 
 const prisma = new PrismaClient();
 
@@ -285,7 +287,7 @@ export class VendorTeamController {
       const { name, role, avatar, email, phone, teamIds = [] } = parsed.data;
 
       const member = await prisma.teamMember.create({
-        data: { name, role, avatar, email, phone, vendorId },
+        data: { name, role, avatar, email: email ?? '', phone, vendorId },
       });
 
       if (teamIds.length > 0) {
@@ -626,19 +628,39 @@ export class VendorTeamController {
           },
         });
       }
-      for (const member of members) {
-        const existing = existingMembers.find((em) => em.email === member.email);
+      for (const memberData of members) {
+        let member = await prisma.teamMember.findUnique({
+          where: { email: memberData.email },
+        });
 
-        if (existing) {
-          if (existing.name !== member.name) {
+        if (member) {
+          if (member.name !== memberData.name) {
             await prisma.teamMember.update({
-              where: { id: existing.id },
-              data: { name: member.name },
+              where: { id: member.id },
+              data: { name: memberData.name },
+            });
+          }
+
+          const alreadyLinked = await prisma.teamMemberOnTeam.findFirst({
+            where: { teamId, teamMemberId: member.id },
+          });
+
+          if (!alreadyLinked) {
+            await prisma.teamMemberOnTeam.create({
+              data: { teamId, teamMemberId: member.id },
             });
           }
         } else {
+          const password = generateRandomPassword();
+          const passwordHash = await bcrypt.hash(password, 10);
+
           const newMember = await prisma.teamMember.create({
-            data: { name: member.name, email: member.email, vendorId },
+            data: {
+              name: memberData.name,
+              email: memberData.email,
+              password: passwordHash,
+              vendorId,
+            },
           });
 
           await prisma.teamMemberOnTeam.create({
@@ -738,31 +760,87 @@ export class VendorTeamController {
             data: {
               name: teamData.name,
               description: teamData.description,
+              type: TeamType.EXTERNAL,
               vendor: {
                 connect: { id: vendorId },
               },
             },
           });
 
-          const createdMembers: any[] = [];
+          const membersInTeam: any[] = [];
 
           if (teamData.members && teamData.members.length > 0) {
             for (const memberData of teamData.members) {
-              const member = await prisma.teamMember.create({
-                data: { name: memberData.name, email: memberData.email, vendorId },
+              let member = await prisma.teamMember.findUnique({
+                where: { email: memberData.email },
+                select: {
+                  id: true,
+                  name: true,
+                  roleLogin: true,
+                  role: true,
+                  avatar: true,
+                  email: true,
+                  phone: true,
+                  isActive: true,
+                  createdAt: true,
+                  updatedAt: true,
+                  adminId: true,
+                },
               });
 
-              await prisma.teamMemberOnTeam.create({
-                data: { teamId: team.id, teamMemberId: member.id },
+              if (!member) {
+                const password = generateRandomPassword();
+                const passwordHash = await bcrypt.hash(password, 10);
+
+                member = await prisma.teamMember.create({
+                  data: {
+                    name: memberData.name,
+                    password: passwordHash,
+                    email: memberData.email,
+                    vendorId,
+                  },
+                  select: {
+                    id: true,
+                    name: true,
+                    roleLogin: true,
+                    role: true,
+                    avatar: true,
+                    email: true,
+                    phone: true,
+                    isActive: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    adminId: true,
+                  },
+                });
+              } else {
+                await prisma.teamMember.update({
+                  where: { id: member.id },
+                  data: {
+                    name: memberData.name || member.name,
+                  },
+                });
+              }
+
+              const existingLink = await prisma.teamMemberOnTeam.findFirst({
+                where: {
+                  teamId: team.id,
+                  teamMemberId: member.id,
+                },
               });
 
-              createdMembers.push(member);
+              if (!existingLink) {
+                await prisma.teamMemberOnTeam.create({
+                  data: { teamId: team.id, teamMemberId: member.id },
+                });
+              }
+
+              membersInTeam.push(member);
             }
           }
 
-          createdTeams.push({ ...team, members: createdMembers });
+          createdTeams.push({ ...team, members: membersInTeam });
         }
-
         return createdTeams;
       });
 
