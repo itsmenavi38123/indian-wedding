@@ -112,6 +112,8 @@ export default function CategoryServicesView({
         src={getImageUrl(service.media?.[0]?.url)}
         alt={service.title}
         className="w-full h-32 object-cover"
+        width={400}
+        height={300}
       />
       <div className="p-3 font-semibold text-gray-800">{service.title}</div>
       {isSelected && (

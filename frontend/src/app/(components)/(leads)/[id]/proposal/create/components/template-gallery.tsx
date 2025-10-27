@@ -96,6 +96,8 @@ export function TemplateGallery({ value, onChange }: Props) {
                     src={thumbnailFor(template.templateId) || '/placeholder.svg'}
                     alt={`${template.name} thumbnail`}
                     className="h-16 w-16 rounded object-cover"
+                    width={400}
+                    height={300}
                   />
                   <div className="min-w-0">
                     <p className="font-medium">{template.name}</p>
