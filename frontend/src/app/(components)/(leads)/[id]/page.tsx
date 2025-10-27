@@ -454,6 +454,8 @@ export default function LeadDetailsPage() {
                                         src={service.thumbnailUrl}
                                         alt={service.title || 'Service Image'}
                                         className="w-32 h-24 object-cover rounded-lg border"
+                                        width={400}
+                                        height={300}
                                       />
                                       <p className="text-xs text-center mt-1 text-muted-foreground truncate w-32">
                                         {service.category}
