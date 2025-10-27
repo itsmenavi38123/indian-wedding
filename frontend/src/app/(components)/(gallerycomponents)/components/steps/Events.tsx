@@ -48,7 +48,7 @@ export default function Events({
     if (dateRange.startDate || dateRange.endDate) {
       onDateChange?.(dateRange);
     }
-  }, [dateRange, onDateChange]);
+  }, [dateRange]);
 
   const formatDate = (dateStr: string) => {
     try {
