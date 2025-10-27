@@ -568,7 +568,16 @@ export class LeadController {
 
       const { title, description } = await getTitleDescription(lead);
       const data = req.body;
-      const { teamIdsByVendor, serviceTypes, createdById, createdBy, guestCount, budget, weddingPlan, ...rest } = data;
+      const {
+        teamIdsByVendor,
+        serviceTypes,
+        createdById,
+        createdBy,
+        guestCount,
+        budget,
+        weddingPlan,
+        ...rest
+      } = data;
 
       let updatedLead;
 

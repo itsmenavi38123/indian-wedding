@@ -68,6 +68,7 @@ const navItemsByRole = {
   USER: [
     { name: 'Home', href: '/user/dashboard', icon: LayoutDashboard },
     { name: 'Leads', href: '/user/leads', icon: Users },
+    { name: 'Proposals', href: '/admin/proposals', icon: FileText },
     { name: 'Settings', href: '/user/settings', icon: Settings },
   ],
   TEAM: [

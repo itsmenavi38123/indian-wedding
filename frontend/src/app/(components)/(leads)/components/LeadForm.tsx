@@ -205,7 +205,7 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
       console.log('API response weddingPlan.services:', defaultValues.weddingPlan?.services);
       //  const servicesWithVendorId = defaultValues.weddingPlan?.services?.map((s: any) => ({
       //   ...s,
-      //   vendorServiceId: s.vendorService?.id ?? s.vendorServiceId ?? '', 
+      //   vendorServiceId: s.vendorService?.id ?? s.vendorServiceId ?? '',
       // }));
 
       const servicesWithVendorId = defaultValues.weddingPlan?.services?.map((s: any) => ({
@@ -248,7 +248,6 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
       if (data.partner1Name === '' && data.partner2Name === '') {
         return;
       }
-
 
       const validServices = data.weddingPlan?.services?.filter(
         (service) => service.vendorServiceId
@@ -294,14 +293,16 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
 
   const onSubmit = (data: LeadFormValues) => {
     setSubmitClicked(true);
-    const normalizedServices = data.weddingPlan?.services?.map((s: any) => {
-      const vendorServiceId = s.vendorServiceId || s.vendorService?.id;
-      if (!vendorServiceId) return null; // skip invalid
-      return {
-        ...s,
-        vendorServiceId,
-      };
-    }).filter(Boolean);
+    const normalizedServices = data.weddingPlan?.services
+      ?.map((s: any) => {
+        const vendorServiceId = s.vendorServiceId || s.vendorService?.id;
+        if (!vendorServiceId) return null; // skip invalid
+        return {
+          ...s,
+          vendorServiceId,
+        };
+      })
+      .filter(Boolean);
     const payload: CreateLeadPayload = {
       ...data,
       guestCountMin: data.guestCount?.[0],
@@ -321,7 +322,6 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
 
     console.log('Payload sent to API:', payload);
   };
-
 
   console.log('WeddingPlan data:', form.watch('weddingPlan'));
 

@@ -54,7 +54,7 @@ export default function ServicesStep({
         dispatch(fetchServicesByCategory({ category }));
       });
     }
-  }, [selectedCategories, dispatch]);
+  }, [selectedCategories, dispatch, servicesByCategory]);
 
   useEffect(() => {
     setSelectedServices(selectedServicesProp || {});
@@ -132,7 +132,7 @@ export default function ServicesStep({
                       ${isSelected ? 'ring-4 ring-rose-500' : ''}`}
                       onClick={() => handleSelectService(category, service)}
                     >
-                      <img
+                      <Image
                         src={getImageUrl(service.media?.[0]?.url)}
                         alt={service.title}
                         className="w-full h-32 object-cover"

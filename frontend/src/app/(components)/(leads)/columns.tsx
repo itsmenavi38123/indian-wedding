@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { RoleType } from '@/components/common/Header/Header';
 import { updateLeadSaveStatus } from '@/services/api/leads';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 
 const statusColors: Record<Lead['status'], string> = {
   INQUIRY: 'bg-blue-500',
@@ -28,9 +28,7 @@ const saveStatusColors: Record<Lead['saveStatus'], string> = {
   DRAFT: 'bg-gray-500',
   ARCHIVED: 'bg-red-500',
 };
-
-export const getColumns = (role: RoleType | null): ColumnDef<Lead>[] => {
-  const queryClient = useQueryClient();
+export const getColumns = (role: RoleType | null, queryClient: QueryClient): ColumnDef<Lead>[] => {
   return [
     {
       id: 'select',
