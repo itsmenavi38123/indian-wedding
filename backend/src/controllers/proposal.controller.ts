@@ -28,9 +28,39 @@ export class ProposalController {
         discount,
         services,
         customLines,
+        budgetMin,
+        budgetMax,
+        guestCountMin,
+        guestCountMax,
+        preferredLocations,
+        events,
       } = req.body;
 
-      // Check if a draft already exists for this lead
+      const lead = await prisma.lead.findUnique({
+        where: { id: leadId },
+        include: {
+          weddingPlan: {
+            include: { events: true },
+          },
+        },
+      });
+
+      if (!lead) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, "Lead not found"));
+      }
+
+      let proposalEvents = events || [];
+      if ((!proposalEvents || proposalEvents.length === 0) && lead.weddingPlan?.events?.length) {
+        proposalEvents = lead.weddingPlan.events.map((e: any) => ({
+          name: e.name,
+          dateISO: e.date?.toISOString?.() || null,
+          startTime: e.startTime,
+          endTime: e.endTime,
+        }));
+      }
+
       const existingDraft = await prisma.proposal.findFirst({
         where: {
           leadId,
@@ -59,8 +89,15 @@ export class ProposalController {
             paymentTerms,
             taxesPercent,
             discount,
+            budgetMin,
+            budgetMax,
+            guestCountMin,
+            guestCountMax,
+            preferredLocations,
+            events: proposalEvents,
             updatedAt: new Date(),
           },
+
           include: {
             services: true,
             customLines: true,
@@ -83,6 +120,7 @@ export class ProposalController {
               name: service.name,
               description: service.description,
               price: service.price,
+              category: service.category || service.vendorService?.category || 'Other',
               quantity: service.quantity || 1,
               order: index,
             })),
@@ -130,16 +168,24 @@ export class ProposalController {
             taxesPercent,
             discount,
             status: ProposalStatus.DRAFT,
+            budgetMin,
+            budgetMax,
+            guestCountMin,
+            guestCountMax,
+            preferredLocations,
+            events: proposalEvents,
             services: {
               create:
                 services?.map((service: any, index: number) => ({
                   name: service.name,
                   description: service.description,
                   price: service.price,
+                  category: service.category || service.vendorService?.category || 'Other',
                   quantity: service.quantity || 1,
                   order: index,
                 })) || [],
             },
+
             customLines: {
               create:
                 customLines?.map((line: any) => ({
@@ -205,7 +251,6 @@ export class ProposalController {
   public async getDraft(req: Request, res: Response) {
     try {
       const { leadId } = req.params;
-
       const draft = await prisma.proposal.findFirst({
         where: {
           leadId,
@@ -215,6 +260,17 @@ export class ProposalController {
           services: {
             orderBy: {
               order: 'asc',
+            },
+            include: {
+              vendor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  contactNo: true,
+                  serviceTypes: true,
+                },
+              },
             },
           },
           customLines: true,
@@ -323,19 +379,27 @@ export class ProposalController {
         where: { id },
         include: {
           services: {
-            orderBy: {
-              order: 'asc',
+            orderBy: { order: 'asc' },
+            include: {
+              vendor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  contactNo: true,
+                  serviceTypes: true,
+                },
+              },
             },
           },
           customLines: true,
           versions: {
-            orderBy: {
-              createdAt: 'desc',
-            },
+            orderBy: { createdAt: 'desc' },
             take: 10,
           },
         },
       });
+
 
       if (!proposal) {
         return res
@@ -478,6 +542,65 @@ export class ProposalController {
         );
     }
   }
+
+  public async assignVendors(req: Request, res: Response) {
+    try {
+      const { proposalId } = req.params;
+      const { assignments } = req.body;
+
+      if (!assignments || !Array.isArray(assignments) || assignments.length === 0) {
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'No vendor assignments provided.'));
+      }
+
+      const proposal = await prisma.proposal.findUnique({
+        where: { id: proposalId },
+      });
+
+      if (!proposal) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Proposal not found.'));
+      }
+
+      const updates = await Promise.all(
+        assignments.map(async (item: { serviceId: string; vendorId: string }) => {
+          return prisma.proposalService.update({
+            where: { id: item.serviceId },
+            data: {
+              vendorId: item.vendorId,
+              status: 'ASSIGNED',
+              updatedAt: new Date(),
+            },
+            include: {
+              vendor: true,
+            },
+          });
+        })
+      );
+
+      return res.status(statusCodes.OK).json(
+        new ApiResponse(
+          statusCodes.OK,
+          updates,
+          successMessages.PROPOSAL_VENDORS_ASSIGNED || 'Vendors assigned successfully.'
+        )
+      );
+    } catch (error) {
+      logger.error('Error assigning vendors:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            'Failed to assign vendors. Please try again.'
+          )
+        );
+    }
+  }
+
 }
 
 export const proposalController = new ProposalController();

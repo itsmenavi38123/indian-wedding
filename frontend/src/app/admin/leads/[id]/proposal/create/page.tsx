@@ -9,7 +9,7 @@ import { PricingTable } from './components/pricing-table';
 import { VersionEntry, VersionHistoryModal } from './components/version-history';
 import { TemplateGallery } from './components/template-gallery';
 import { IntroSection } from './components/intro-section';
-import { useGetLead } from '@/services/api/leads';
+import { useGetAllVendorsForLead, useGetLead } from '@/services/api/leads';
 import { toast } from 'sonner';
 import { TermsSection } from './components/terms-section';
 import {
@@ -19,6 +19,10 @@ import {
   useSaveProposalVersion,
 } from '@/services/api/proposal';
 import { useGetAllTemplates } from '@/services/api/proposalTemplate';
+import { EventsSection } from './components/event-section';
+import { BudgetSection } from './components/budget-section';
+import { Button } from '@/components/ui/button';
+import VendorAssignmentView from '@/app/(components)/(leads)/components/VendorAssignmentView';
 
 type ProposalState = {
   templateId: string;
@@ -35,6 +39,17 @@ type ProposalState = {
   discount: number;
   paymentTerms: string;
   termsText: string;
+  budget?: [number, number];
+  stage?: string;
+  events?: {
+    id: string;
+    name: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    location?: string;
+  }[];
+  weddingPlanId?: string;
 };
 
 type Stored = {
@@ -53,6 +68,18 @@ export default function CreateProposalPage() {
   const lastSavedDataRef = useRef<string>('');
   const [versions, setVersions] = useState<VersionEntry[]>([]);
 
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [showVendorAssignModal, setShowVendorAssignModal] = useState(false);
+
+  const { data: availableVendors, isLoading: isVendorsLoading } = useGetAllVendorsForLead(
+    showVendorAssignModal ? leadId : undefined
+  );
+
+  const handleAssignVendor = (category: string) => {
+    setSelectedService(category);
+    setShowVendorAssignModal(true);
+  };
+
   // Calculate grand total for a given state
   const calculateGrandTotal = (state: ProposalState) => {
     const subtotal = state.services.reduce((sum, service) => sum + service.price, 0);
@@ -69,9 +96,33 @@ export default function CreateProposalPage() {
   const [templateInitialized, setTemplateInitialized] = useState(false);
 
   const { data: leadData, isLoading: isLoadingLead } = useGetLead(leadId);
+  const acceptedVendorsByCategory = leadData?.data?.weddingPlan?.services?.reduce(
+    (acc: any, s: any) => {
+      const vs = s.vendorService;
+      console.log(
+        'Vendor Service sample:',
+        leadData?.data?.weddingPlan?.services?.[0]?.vendorService
+      );
+
+      const vendor = vs?.vendor;
+
+      const category = vs?.category || 'Other';
+      if (!vendor) return acc;
+
+      if (!acc[category]) {
+        acc[category] = { category, vendors: [] };
+      }
+
+      if (s.status === 'ACCEPTED') {
+        acc[category].vendors.push(vendor);
+      }
+
+      return acc;
+    },
+    {}
+  );
 
   const [data, setData] = useState<Stored>(() => {
-    // Initialize with default values
     return {
       state: {
         templateId: 'classic',
@@ -88,13 +139,16 @@ export default function CreateProposalPage() {
         discount: 0,
         paymentTerms: '50% to book, 50% before event',
         termsText: '',
+        budget: undefined,
+        stage: '',
+        events: [],
+        weddingPlanId: '',
       },
       versions: [],
       lastSavedAt: undefined,
     };
   });
 
-  // Save version to backend
   const saveVersionToBackend = useCallback(
     async (snapshot: ProposalState, isManual: boolean = false) => {
       if (!proposalIdRef.current) return;
@@ -127,14 +181,13 @@ export default function CreateProposalPage() {
     },
     [saveVersionMutation]
   );
+  console.log('💡 Sample lead service:', leadData?.data?.weddingPlan?.services?.[0]);
 
-  // Initialize data from backend draft or lead data with default template
   useEffect(() => {
-    // If draft exists, load it
-    if (draftResponse?.data) {
+    if (draftResponse?.data && leadData?.data) {
       const draft = draftResponse.data;
       proposalIdRef.current = draft.id;
-
+      const lead = leadData?.data;
       const restoredState: ProposalState = {
         templateId: draft.template,
         templateName: draft.title.replace(' Proposal', ''),
@@ -150,18 +203,45 @@ export default function CreateProposalPage() {
           address: draft.clientAddress || '',
         },
         introHTML: draft.introHTML,
-        services: draft.services.map((s: any) => ({
-          id: s.id,
-          name: s.name,
-          description: s.description || '',
-          price: s.price,
-        })),
+        services: draft.services?.length
+          ? draft.services.map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              description: s.description || '',
+              price: s.price,
+              category: s.category || s.vendorService?.serviceType || 'Other',
+            }))
+          : lead?.weddingPlan?.services?.map((srv: any) => ({
+              id: srv.id,
+              name: srv.vendorService?.title || 'Unnamed Service',
+              description: srv.vendorService?.description || srv.notes || '',
+              price: srv.vendorService?.price || 0,
+              category: srv.vendorService?.serviceType || 'Other',
+            })) || [],
+
         taxesPercent: draft.taxesPercent,
         discount: draft.discount,
         paymentTerms: draft.paymentTerms,
         termsText: draft.termsText,
-      };
+        budget: draft.budget ?? [
+          lead?.budgetMin ?? lead?.weddingPlan?.totalBudget ?? 0,
+          lead?.budgetMax ?? lead?.weddingPlan?.totalBudget ?? 0,
+        ],
+        stage: draft.stage ?? lead?.stage ?? lead?.status ?? '',
 
+        events: draft.events?.length
+          ? draft.events
+          : lead?.weddingPlan?.events?.map((e: any) => ({
+              id: e.id,
+              name: e.name,
+              date: e.date ? e.date.split('T')[0] : '',
+              startTime: e.startTime || '',
+              endTime: e.endTime || '',
+              location: e.location || lead?.weddingPlan?.destination?.name || '',
+            })) || [],
+
+        weddingPlanId: lead?.weddingPlanId || '',
+      };
       // Load versions from draft if available
       const loadedVersions =
         draft.versions?.map((v: any) => ({
@@ -169,12 +249,12 @@ export default function CreateProposalPage() {
           timestamp: new Date(v.createdAt).getTime(),
           snapshot: v.snapshot,
         })) || [];
-
       setData({
         state: restoredState,
         versions: loadedVersions,
         lastSavedAt: new Date(draft.updatedAt).getTime(),
       });
+
       setVersions(loadedVersions);
       setLastBackendSave(new Date(draft.updatedAt));
       lastSavedDataRef.current = JSON.stringify(restoredState);
@@ -187,7 +267,7 @@ export default function CreateProposalPage() {
       const lead = leadData.data;
       const today = new Date().toISOString().slice(0, 10);
       const reference = `PRO-${new Date().getFullYear()}-${String(Date.now()).slice(-3)}`;
-
+      console.log(lead, 'Lead data');
       // Generate client name from lead data
       const clientName = lead.partner2Name
         ? `${lead.partner1Name} & ${lead.partner2Name}`
@@ -200,7 +280,6 @@ export default function CreateProposalPage() {
 
       // Find the classic template
       const classicTemplate = templates.find((t) => t.templateId === 'classic');
-
       if (classicTemplate) {
         const initialState: ProposalState = {
           templateId: classicTemplate.templateId,
@@ -217,19 +296,39 @@ export default function CreateProposalPage() {
             address: '',
           },
           introHTML: classicTemplate.introHTML || '',
-          services:
-            classicTemplate.defaultServices?.map((s: any) => ({
-              id: crypto.randomUUID(),
-              name: s.name,
-              description: s.description || '',
-              price: s.price,
-            })) || [],
+          services: lead.weddingPlan?.services?.length
+            ? lead.weddingPlan.services.map((srv: any) => ({
+                id: srv.id,
+                name: srv.vendorService?.title || 'Unnamed Service',
+                description: srv.vendorService?.description || srv.notes || '',
+                price: srv.vendorService?.price || 0,
+                category: srv.vendorService?.category || 'Other',
+              }))
+            : [],
+
           taxesPercent: 18,
           discount: 0,
           paymentTerms: '50% to book, 50% before event',
           termsText: classicTemplate.termsText || '',
+          budget: [
+            lead?.budgetMin ?? lead.weddingPlan?.totalBudget ?? 0,
+            lead?.budgetMax ?? lead.weddingPlan?.totalBudget ?? 0,
+          ],
+          stage: lead.stage || lead.status,
+          events:
+            lead?.weddingPlan?.events?.map((e: any) => ({
+              id: e.id,
+              name: e.name,
+              date: e.date ? e.date.split('T')[0] : '',
+              startTime: e.startTime || '',
+              endTime: e.endTime || '',
+              location: e.location || lead.weddingPlan?.destination?.name || '',
+            })) || [],
+          weddingPlanId: lead.weddingPlanId,
         };
         setData({ state: initialState, versions: [], lastSavedAt: undefined });
+        console.log('✅ Services added to proposal state:', initialState.services);
+
         setTemplateInitialized(true);
       }
     }
@@ -265,6 +364,7 @@ export default function CreateProposalPage() {
           description: service.description,
           price: service.price,
           quantity: 1,
+          category: service.category,
         })),
       };
 
@@ -328,6 +428,8 @@ export default function CreateProposalPage() {
 
   async function saveDraft(silent = false) {
     // Clear any pending auto-save
+    console.log('🛰 Sending services to backend:', data.state.services); // <— add this here
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
@@ -461,15 +563,7 @@ export default function CreateProposalPage() {
       title: `${template.name} Proposal`,
       introHTML: template.introHTML,
       termsText: template.termsText,
-      services:
-        template.templateId === 'scratch'
-          ? []
-          : template.defaultServices.map((s) => ({
-              id: crypto.randomUUID(),
-              name: s.name,
-              description: s.description || '',
-              price: s.price,
-            })),
+      services: data.state.services,
     });
   }
 
@@ -520,21 +614,21 @@ export default function CreateProposalPage() {
     <main className="mx-auto max-w-3xl px-4 py-4">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-balance">Create Proposal</h1>
-          <p className="text-sm text-gray-600">Lead ID: {leadId}</p>
+          <h1 className="text-xl font-semibold text-balance text-white">Create Proposal</h1>
+          <p className="text-sm text-white">Lead ID: {leadId}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setHistoryOpen(true)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+            className="rounded border border-gray-300 px-3 py-2 text-sm text-white hover:bg-gray-50"
           >
             Version History
           </button>
           <button
             type="button"
             onClick={() => saveDraft(false)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+            className="rounded border border-gray-300 px-3 py-2 text-sm text-white hover:bg-gray-50"
           >
             Save Draft
           </button>
@@ -558,7 +652,7 @@ export default function CreateProposalPage() {
         </div>
       </header>
 
-      <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
+      <div className="mt-2 flex items-center gap-4 text-xs text-white">
         <span>
           {lastBackendSave
             ? `Last saved to server: ${lastBackendSave.toLocaleString()}`
@@ -604,6 +698,137 @@ export default function CreateProposalPage() {
           services={data.state.services}
           onChange={(services) => patchState({ services })}
         />
+        <EventsSection
+          events={data.state.events || []}
+          onChange={(events) => patchState({ events })}
+        />
+
+        <BudgetSection
+          budget={data.state.budget ?? [500000, 2000000]}
+          onChange={(value) => patchState({ budget: value })}
+        />
+
+        {acceptedVendorsByCategory && Object.keys(acceptedVendorsByCategory).length > 0 && (
+          <section className="rounded-lg border border-gray-700 bg-gray-800 p-4 text-white">
+            <h2 className="text-lg font-semibold mb-3">Accepted Vendors by Service</h2>
+
+            <div className="space-y-5">
+              {Object.values(acceptedVendorsByCategory).map((entry: any) => (
+                <div
+                  key={entry.category}
+                  className="rounded-md border border-gray-600 bg-gray-900 p-3"
+                >
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium text-teal-400">{entry.category}</h3>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      // onClick={() =>
+                      //   router.push(`/admin/leads/${leadId}/vendor-assignment?service=${entry.category}`)
+                      // }
+
+                      onClick={() => {
+                        console.log('services available:', data.state.services);
+                        console.log('current entry category:', entry.category);
+
+                        const proposalId = proposalIdRef.current;
+                        console.log(
+                          'services available:',
+                          data.state.services.map((s) => ({
+                            id: s.id,
+                            name: s.name,
+                            category: s.category,
+                          }))
+                        );
+                        console.log('entry.category:', entry.category);
+                        const service = data.state.services.find(
+                          (s) =>
+                            (s.category || s.name || '').toLowerCase() ===
+                            (entry.category || '').toLowerCase()
+                        );
+
+                        if (!proposalId || !service) {
+                          console.error(
+                            'Missing proposalId or matching service for category:',
+                            entry.category
+                          );
+                          return;
+                        }
+
+                        router.push(
+                          `/admin/leads/${leadId}/vendor-assignment?proposalId=${proposalId}&serviceId=${service.id}&service=${encodeURIComponent(entry.category)}`
+                        );
+                      }}
+                    >
+                      Assign Vendors
+                    </Button>
+                  </div>
+
+                  {entry.vendors.length > 0 ? (
+                    <ul className="ml-4 list-disc text-sm text-gray-300 mt-2">
+                      {entry.vendors.map((v: any) => (
+                        <li key={v.id}>
+                          {v.name} ({v.email || 'No Email'})
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-400 text-sm mt-2">No vendor assigned yet.</p>
+                  )}
+                </div>
+              ))}
+
+              {draftResponse?.data?.services?.some((s: any) => s.vendorId) && (
+                <section className="rounded-lg border border-gray-700 bg-gray-800 p-4 text-white mt-6">
+                  <h2 className="text-lg font-semibold mb-3">Vendors Assigned by Admin</h2>
+
+                  <div className="space-y-5">
+                    {draftResponse.data.services
+                      .filter((s: any) => s.vendorId)
+                      .map((service: any) => (
+                        <div
+                          key={service.id}
+                          className="rounded-md border border-gray-600 bg-gray-900 p-3"
+                        >
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-medium text-teal-400">
+                              {service.category || service.name}
+                            </h3>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() =>
+                                router.push(
+                                  `/admin/leads/${leadId}/vendor-assignment?proposalId=${draftResponse.data.id}&serviceId=${service.id}&service=${encodeURIComponent(service.category || service.name)}`
+                                )
+                              }
+                            >
+                              Reassign Vendor
+                            </Button>
+                          </div>
+
+                          <div className="mt-2 text-sm text-gray-300">
+                            <p>
+                              <span className="font-medium">Name:</span>{' '}
+                              {service.vendor?.name || 'N/A'}
+                            </p>
+                            <p>
+                              <span className="font-medium">Email:</span>{' '}
+                              {service.vendor?.email || 'N/A'}
+                            </p>
+                            <p>
+                              <span className="font-medium">Contact:</span>{' '}
+                              {service.vendor?.contactNo || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          </section>
+        )}
 
         <PricingTable
           services={data.state.services}
@@ -620,7 +845,7 @@ export default function CreateProposalPage() {
         <button
           type="button"
           onClick={() => saveDraft(false)}
-          className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+          className="rounded border border-gray-300 px-4 py-2 text-sm text-white hover:bg-gray-50 hover:text-black"
         >
           Save Draft
         </button>
@@ -652,6 +877,14 @@ export default function CreateProposalPage() {
         //   setHistoryOpen(false);
         // }}
       />
+      {showVendorAssignModal && (
+        <VendorAssignmentView
+          selectedService={selectedService}
+          availableVendors={availableVendors}
+          isVendorsLoading={isVendorsLoading}
+          handleAssignVendor={handleAssignVendor}
+        />
+      )}
     </main>
   );
 }

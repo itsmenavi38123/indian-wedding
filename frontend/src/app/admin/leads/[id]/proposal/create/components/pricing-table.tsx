@@ -53,7 +53,7 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
   return (
     <section aria-labelledby="pricing-heading" className="w-full">
       <div className="flex items-center justify-between">
-        <h2 id="pricing-heading" className="text-lg font-semibold">
+        <h2 id="pricing-heading" className="text-lg font-semibold text-white">
           Pricing
         </h2>
         {/* Custom lines removed - only services are shown */}
@@ -77,13 +77,13 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
               return (
                 <tr key={l.id}>
                   <td className="border-b p-2">
-                    <div className="font-medium">{l.label}</div>
+                    <div className="font-medium text-white">{l.label}</div>
                   </td>
                   <td className="border-b p-2 text-right">
                     <input
                       value={l.unitPrice.toString()}
                       onChange={(e) => editService(l.id, { price: parseNumber(e.target.value) })}
-                      className="w-28 rounded border border-gray-300 px-2 py-1 text-right"
+                      className="w-28 rounded border border-gray-300 px-2 py-1 text-right text-white"
                       inputMode="decimal"
                       aria-label="Unit price"
                       onBlur={(e) => {
@@ -95,18 +95,18 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
                     <div className="text-xs text-gray-600">{formatINR(l.unitPrice)}</div>
                   </td>
                   <td className="border-b p-2 text-right">
-                    <div className="text-center">1</div>
+                    <div className="text-center text-white">1</div>
                   </td>
-                  <td className="border-b p-2 text-right">{formatINR(amt)}</td>
+                  <td className="border-b p-2 text-right text-white">{formatINR(amt)}</td>
                   <td className="border-b p-2 text-right">
-                    <div className="text-xs text-gray-500">Service</div>
+                    <div className="text-xs text-white">Service</div>
                   </td>
                 </tr>
               );
             })}
             {syncedLines.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-4 text-center text-gray-600">
+                <td colSpan={5} className="p-4 text-center text-gray-600 text-white">
                   No items yet. Add services or a custom line.
                 </td>
               </tr>
@@ -114,22 +114,22 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
           </tbody>
           <tfoot>
             <tr>
-              <td className="p-2 text-right font-medium" colSpan={3}>
+              <td className="p-2 text-right font-medium text-white" colSpan={3}>
                 Subtotal
               </td>
-              <td className="p-2 text-right" colSpan={2}>
+              <td className="p-2 text-right text-white" colSpan={2}>
                 {formatINR(amounts.subtotal)}
               </td>
             </tr>
             <tr>
-              <td className="p-2 text-right font-medium" colSpan={3}>
+              <td className="p-2 text-right font-medium text-white" colSpan={3}>
                 Discount
               </td>
               <td className="p-2 text-right" colSpan={2}>
                 <input
                   value={discount.toString()}
                   onChange={(e) => onChange({ discount: Math.max(0, parseNumber(e.target.value)) })}
-                  className="w-28 rounded border border-gray-300 px-2 py-1 text-right"
+                  className="w-28 rounded border border-gray-300 px-2 py-1 text-right text-white"
                   inputMode="decimal"
                   aria-label="Discount amount"
                 />
@@ -138,7 +138,7 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
             <tr>
               <td className="p-2 text-right font-medium" colSpan={3}>
                 <div className="flex items-center justify-end gap-2">
-                  <span>Taxes (GST</span>
+                  <span className="text-white">Taxes (GST</span>
                   <input
                     value={taxesPercent.toString()}
                     onChange={(e) =>
@@ -146,16 +146,16 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
                         taxesPercent: Math.min(100, Math.max(0, parseNumber(e.target.value))),
                       })
                     }
-                    className="w-16 rounded border border-gray-300 px-2 py-1 text-right"
+                    className="w-16 rounded border border-gray-300 px-2 py-1 text-right text-white"
                     inputMode="decimal"
                     aria-label="Tax percentage"
                   />
-                  <span>%)</span>
+                  <span className="text-white">%)</span>
                 </div>
               </td>
-              <td className="p-2 text-right" colSpan={2}>
+              <td className="p-2 text-right text-white" colSpan={2}>
                 {formatINR(amounts.tax)}
-                <div className="text-xs text-gray-600">on {formatINR(amounts.taxable)}</div>
+                <div className="text-xs text-white">on {formatINR(amounts.taxable)}</div>
               </td>
             </tr>
             <tr className="bg-amber-50">
@@ -167,14 +167,14 @@ export function PricingTable({ services, taxesPercent, discount, paymentTerms, o
               </td>
             </tr>
             <tr>
-              <td className="p-2 text-right font-medium" colSpan={3}>
+              <td className="p-2 text-right font-medium text-white" colSpan={3}>
                 Payment Terms
               </td>
-              <td className="p-2 text-right" colSpan={2}>
+              <td className="p-2 text-right text-white" colSpan={2}>
                 <select
                   value={paymentTerms}
                   onChange={(e) => onChange({ paymentTerms: e.target.value })}
-                  className="w-full rounded border border-gray-300 px-2 py-1"
+                  className="w-full rounded border border-gray-300 px-2 py-1 text-gray-500"
                   aria-label="Payment terms"
                 >
                   <option>50% to book, 50% before event</option>

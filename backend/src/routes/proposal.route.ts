@@ -39,6 +39,12 @@ export const proposalRoute = () => {
     proposalController.finalizeProposal.bind(proposalController)
   );
 
+  router.post(
+    '/assign-vendors/:proposalId',
+    authMiddleware,
+    proposalController.assignVendors.bind(proposalController)
+  );
+
   // Get all proposals
   router.get('/', authMiddleware, proposalController.getAllProposals.bind(proposalController));
 

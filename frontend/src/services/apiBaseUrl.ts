@@ -62,6 +62,9 @@ export const API_URLS = {
     updateLeadSaveStatus: (id: string) => `/lead/save-status/lead-id/${id}`,
     bulkUpdateLeadStatus: '/lead/bulk-update-status',
     exportLeadsWithIdsCsv: '/lead/export-lead-with-ids/csv',
+    getAllVendorsForLead: (id: string) => `/lead/get-all-vendors-for-lead/${id}`,
+
+    assignVendorsToLead: '/leads/assign-vendors',
   },
   vendor: {
     create: '/vendor/create',
@@ -105,6 +108,7 @@ export const API_URLS = {
     getDraft: (leadId: string) => `/proposals/draft/${leadId}`,
     saveVersion: (proposalId: string) => `/proposals/version/${proposalId}`,
     finalize: (proposalId: string) => `/proposals/finalize/${proposalId}`,
+    assignVendors: (proposalId: string) => `/proposals/assign-vendors/${proposalId}`,
   },
   proposalTemplate: {
     getAll: '/proposal-templates/templates',
@@ -176,6 +180,8 @@ export const API_QUERY_KEYS = {
     updateLeadById: 'updateLeadById',
     updateLeadStatus: 'updateLeadStatus',
     bulkUpdateLeadStatus: 'bulkUpdateLeadStatus',
+    getAllVendorsForLead: 'getAllVendorsForLead',
+    assignVendorsToLead: 'assignVendorsToLead',
   },
   event: {
     getAllEvents: 'getAllEvents',
@@ -230,6 +236,7 @@ export const API_QUERY_KEYS = {
     getDraft: 'getProposalDraft',
     saveVersion: 'saveProposalVersion',
     finalize: 'finalizeProposal',
+    assignVendors: 'assignVendors',
   },
 
   proposalTemplate: {

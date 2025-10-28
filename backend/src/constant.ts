@@ -204,6 +204,7 @@ export const successMessages = {
   PROPOSAL_FINALIZED: 'Proposal finalized successfully',
   PROPOSAL_FETCHED: 'Proposal fetched successfully',
   PROPOSALS_FETCHED: 'Proposals fetched successfully',
+  PROPOSAL_VENDORS_ASSIGNED: 'Vendors assigned successfully',
 
   //Vendor Team
   TEAM_CREATED: 'Team created successfully',
