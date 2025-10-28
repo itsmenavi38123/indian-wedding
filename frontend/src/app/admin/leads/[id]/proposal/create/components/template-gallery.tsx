@@ -71,7 +71,7 @@ export function TemplateGallery({ value, onChange }: Props) {
   return (
     <section aria-labelledby="template-heading" className="w-full">
       <div className="flex items-baseline justify-between">
-        <h2 id="template-heading" className="text-lg font-semibold text-balance">
+        <h2 id="template-heading" className="text-lg font-semibold text-balance text-white">
           Select a template
         </h2>
       </div>
@@ -96,6 +96,8 @@ export function TemplateGallery({ value, onChange }: Props) {
                     src={thumbnailFor(template.templateId) || '/placeholder.svg'}
                     alt={`${template.name} thumbnail`}
                     className="h-16 w-16 rounded object-cover"
+                    width={400}
+                    height={300}
                   />
                   <div className="min-w-0">
                     <p className="font-medium">{template.name}</p>

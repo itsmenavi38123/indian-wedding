@@ -26,7 +26,6 @@ const AssignVendorsPage = ({ params }: AssignVendorsLeadPageProps) => {
   const { id } = use(params);
   const router = useRouter();
   const { data: lead, isLoading } = useGetVendorsByLeadId(id);
-
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [selectedTeams, setSelectedTeams] = useState<Record<string, string[]>>({});
 

@@ -3,7 +3,7 @@ import axiosInstance from '../axiosInstance';
 import { toast } from 'sonner';
 import { LeadStatus, SaveStatus } from '@/types/lead/Lead';
 import { AxiosError } from 'axios';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { LeadBoardColumn, LeadFilters } from '@/app/admin/kanban/pages/type';
 
 export interface CreateLeadPayload {
@@ -326,3 +326,72 @@ export const useLeadsBoardData = (filters?: LeadFilters): UseQueryResult<any, Er
     queryFn: () => fetchLeadsBoardData(filters),
   });
 };
+
+const getAllVendorsForLead = async ({ queryKey }: { queryKey: any }) => {
+  const [, id, filters] = queryKey;
+
+  if (!id) {
+    toast.error('Lead ID is required to fetch vendors.');
+    throw new Error('Lead ID is required');
+  }
+
+  const query = new URLSearchParams(filters || {}).toString();
+
+  try {
+    const { data } = await axiosInstance.get(
+      `${API_URLS.lead.getAllVendorsForLead(id)}${query ? `?${query}` : ''}`
+    );
+    return data?.data?.eligibleVendors || data?.data?.allVendors || [];
+  } catch (error: any) {
+    console.error('Error fetching vendors for lead:', error);
+    toast.error(error?.response?.data?.message || 'Failed to fetch vendors. Please try again.');
+    throw error;
+  }
+};
+
+export function useGetAllVendorsForLead(id?: string, filters?: Record<string, any>) {
+  return useQuery({
+    queryKey: [API_QUERY_KEYS.lead.getAllVendorsForLead, id, filters],
+    queryFn: getAllVendorsForLead,
+    enabled: !!id,
+  });
+}
+
+interface AssignVendorsPayload {
+  leadId: string;
+  vendorIds: string[];
+}
+
+export const assignVendorsToLead = async (payload: AssignVendorsPayload) => {
+  if (!payload.leadId || !payload.vendorIds.length) {
+    toast.error('Lead ID and at least one vendor are required.');
+    throw new Error('Lead ID and vendor IDs required');
+  }
+
+  try {
+    const { data } = await axiosInstance.post(API_URLS.lead.assignVendorsToLead, payload);
+    toast.success('Vendors successfully assigned to lead!');
+    return data?.data;
+  } catch (error: AxiosError | any) {
+    console.error('Error assigning vendors:', error);
+    toast.error(error?.response?.data?.message || 'Failed to assign vendors.');
+    throw error;
+  }
+};
+
+export function useAssignVendorsToLead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: assignVendorsToLead,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [API_QUERY_KEYS.lead.getAllVendorsForLead, variables.leadId],
+      });
+      toast.success('Vendors assigned successfully!');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to assign vendors');
+    },
+  });
+}

@@ -142,29 +142,29 @@ export class LeadController {
           saveStatus: { not: 'ARCHIVED' },
           ...(search
             ? {
-                OR: [
-                  { partner1Name: { contains: search as string, mode: 'insensitive' } },
-                  { partner2Name: { contains: search as string, mode: 'insensitive' } },
-                ],
-              }
+              OR: [
+                { partner1Name: { contains: search as string, mode: 'insensitive' } },
+                { partner2Name: { contains: search as string, mode: 'insensitive' } },
+              ],
+            }
             : {}),
           ...(budgetMin ? { budgetMin: { gte: parseInt(budgetMin as string, 10) } } : {}),
           ...(budgetMax ? { budgetMax: { lte: parseInt(budgetMax as string, 10) } } : {}),
           ...(location
             ? {
-                OR: [
-                  { preferredLocations: { has: location as string } },
-                  { preferredLocations: { equals: [] } },
-                ],
-              }
+              OR: [
+                { preferredLocations: { has: location as string } },
+                { preferredLocations: { equals: [] } },
+              ],
+            }
             : {}),
           ...(weddingFrom || weddingTo
             ? {
-                weddingDate: {
-                  ...(weddingFrom ? { gte: weddingFrom } : {}),
-                  ...(weddingTo ? { lte: weddingTo } : {}),
-                },
-              }
+              weddingDate: {
+                ...(weddingFrom ? { gte: weddingFrom } : {}),
+                ...(weddingTo ? { lte: weddingTo } : {}),
+              },
+            }
             : {}),
         },
         include: { createdBy: true },
@@ -224,10 +224,10 @@ export class LeadController {
             },
             assignedUser: lead.createdBy
               ? {
-                  id: lead.createdBy.id,
-                  name: lead.createdBy.name,
-                  email: lead.createdBy.email,
-                }
+                id: lead.createdBy.id,
+                name: lead.createdBy.name,
+                email: lead.createdBy.email,
+              }
               : null,
             teamMembers: [],
             createdAt: lead.createdAt,
@@ -427,11 +427,34 @@ export class LeadController {
               },
             },
           },
+          weddingPlan: {
+            include: {
+              destination: true,
+              events: true,
+              services: {
+                include: {
+                  vendorService: {
+                    include: {
+                      vendor: true,
+                      thumbnail: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
-
       if (!lead) {
         throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
+      }
+
+      if (!lead.serviceTypes || lead.serviceTypes.trim() === '') {
+        const categories =
+          lead.weddingPlan?.services?.map((s) => s.vendorService?.category).filter(Boolean) || [];
+        if (categories.length > 0) {
+          lead.serviceTypes = [...new Set(categories)].join(', ');
+        }
       }
 
       const leadServiceTypes: string[] = lead.serviceTypes
@@ -747,7 +770,6 @@ export class LeadController {
         );
     }
   }
-
   public async updateLeadStatus(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
@@ -786,7 +808,6 @@ export class LeadController {
         );
     }
   }
-
   public async updateLeadSaveStatus(req: AuthenticatedRequest, res: Response) {
     const archived = req?.query?.archived === 'false' ? false : true;
     try {
@@ -824,7 +845,6 @@ export class LeadController {
         );
     }
   }
-
   public async bulkUpdateLeadStatus(req: AuthenticatedRequest, res: Response) {
     try {
       const { ids, status } = req.body;
@@ -868,7 +888,6 @@ export class LeadController {
         );
     }
   }
-
   public async exportLeadsWithIdsCsv(req: AuthenticatedRequest, res: Response) {
     try {
       const { ids } = req.body;
@@ -933,4 +952,440 @@ export class LeadController {
         .json({ message: 'Failed to export leads' });
     }
   }
+  public async assignVendorsToLead(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { leadId, vendorIds } = req.body;
+
+      if (!leadId || !Array.isArray(vendorIds) || vendorIds.length === 0) {
+        throw new ApiError(statusCodes.BAD_REQUEST, 'leadId and vendorIds are required');
+      }
+
+      const lead = await prisma.lead.findUnique({
+        where: { id: leadId },
+        include: {
+          createdBy: true,
+          proposals: true,
+          contracts: true,
+          payments: true,
+          cards: {
+            include: {
+              vendor: true,
+              cardTeams: {
+                include: {
+                  team: {
+                    include: {
+                      teamMembers: {
+                        include: { teamMember: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          weddingPlan: {
+            include: {
+              destination: true,
+              events: true,
+              services: {
+                include: {
+                  vendorService: {
+                    include: {
+                      vendor: true,
+                      media: {
+                        where: { type: 'IMAGE' },
+                      },
+                      thumbnail: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!lead) throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
+
+      let serviceTypes: string[] = [];
+      if (lead.serviceTypes && lead.serviceTypes.trim() !== '') {
+        serviceTypes = lead.serviceTypes.split(',').map((s) => s.trim().toLowerCase());
+      } else {
+        const categories =
+          lead.weddingPlan?.services?.map((s) => s.vendorService?.category).filter(Boolean) || [];
+        serviceTypes = [...new Set(categories)].map((s) => s.toLowerCase());
+      }
+
+      let selectedVendors = await prisma.vendor.findMany({
+        where: {
+          id: { in: vendorIds },
+          isActive: true,
+        },
+        include: { teams: true },
+      });
+
+      selectedVendors = selectedVendors.filter((vendor) => {
+        const vendorTypes = vendor.serviceTypes
+          ? vendor.serviceTypes.split(',').map((v) => v.trim().toLowerCase())
+          : [];
+        const matchesType = serviceTypes.some((t) => vendorTypes.includes(t));
+        const matchesBudget =
+          vendor.minimumAmount <= (lead.budgetMax ?? 0) &&
+          vendor.maximumAmount >= (lead.budgetMin ?? 0);
+        return matchesType && matchesBudget;
+      });
+
+      if (selectedVendors.length === 0) {
+        throw new ApiError(
+          statusCodes.BAD_REQUEST,
+          'No eligible vendors found for assignment based on lead criteria'
+        );
+      }
+
+      const vendorCardPromises = selectedVendors.map((vendor) =>
+        prisma.card.create({
+          data: {
+            originalLeadId: lead.id,
+            vendorId: vendor.id,
+          },
+        })
+      );
+      await Promise.all(vendorCardPromises);
+
+      let updatedLead = await prisma.lead.findUnique({
+        where: { id: lead.id },
+        include: {
+          createdBy: true,
+          proposals: true,
+          contracts: true,
+          payments: true,
+          cards: {
+            include: {
+              vendor: true,
+              cardTeams: {
+                include: {
+                  team: {
+                    include: {
+                      teamMembers: {
+                        include: { teamMember: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          weddingPlan: {
+            include: {
+              destination: true,
+              events: true,
+              services: {
+                include: {
+                  vendorService: {
+                    include: {
+                      vendor: true,
+                      media: {
+                        where: { type: 'IMAGE' },
+                      },
+                      thumbnail: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const BASE_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+      const normalizeUrl = (url: string | null | undefined) => {
+        if (!url) return null;
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('/uploads')) return `${BASE_URL}${url}`;
+        return `${BASE_URL}/uploads/${url}`;
+      };
+
+      updatedLead?.weddingPlan?.services?.forEach((service) => {
+        const vs = service.vendorService as any;
+        if (vs) {
+          const thumbnailUrl = normalizeUrl(vs.thumbnail?.url);
+          const mediaUrls = vs.media?.map((m: any) => normalizeUrl(m.url)) || [];
+          vs.thumbnailUrl = thumbnailUrl;
+          vs.mediaUrls = mediaUrls;
+        }
+      });
+
+      const response = {
+        ...sanitizeData(updatedLead),
+        assignedVendors: selectedVendors.map((v) => ({
+          id: v.id,
+          name: v.name,
+          email: v.email,
+          contactNo: v.contactNo,
+          serviceTypes: v.serviceTypes,
+          minimumAmount: v.minimumAmount,
+          maximumAmount: v.maximumAmount,
+          teams: v.teams.map((t) => ({ id: t.id, name: t.name })),
+        })),
+      };
+
+      res
+        .status(statusCodes.OK)
+        .json(new ApiResponse(statusCodes.OK, response, 'Vendors assigned successfully'));
+    } catch (error: any) {
+      logger.error(' Error assigning vendors to lead:', error);
+      res
+        .status(error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            error?.message ?? 'Failed to assign vendors to lead'
+          )
+        );
+    }
+  }
+  public async getAllVendorsForLeadFilters(req: Request, res: Response) {
+    const {
+      serviceType,
+      minBudget,
+      maxBudget,
+      location,
+      startDate,
+      endDate,
+    } = req.query;
+
+    try {
+      const { id } = req.params;
+
+      logger.info("📊 Vendor filters received:", {
+        serviceType,
+        minBudget,
+        maxBudget,
+        location,
+        startDate,
+        endDate,
+      });
+
+      const lead = await prisma.lead.findUnique({
+        where: { id },
+        include: {
+          createdBy: true,
+          proposals: true,
+          contracts: true,
+          payments: true,
+          cards: {
+            include: {
+              vendor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  contactNo: true,
+                  countryCode: true,
+                },
+              },
+              cardTeams: {
+                include: {
+                  team: {
+                    select: {
+                      id: true,
+                      name: true,
+                      description: true,
+                      teamMembers: {
+                        select: {
+                          teamMember: {
+                            select: {
+                              id: true,
+                              name: true,
+                              email: true,
+                              phone: true,
+                              role: true,
+                              avatar: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          weddingPlan: {
+            include: {
+              destination: true,
+              events: true,
+              services: {
+                include: {
+                  vendorService: {
+                    include: {
+                      vendor: true,
+                      media: {
+                        where: { type: "IMAGE" },
+                      },
+                      thumbnail: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!lead) {
+        throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
+      }
+
+      const BASE_URL = process.env.BACKEND_URL || "http://localhost:3001";
+      const normalizeUrl = (url: string | null | undefined) => {
+        if (!url) return null;
+        if (url.startsWith("http")) return url;
+        if (url.startsWith("/uploads")) return `${BASE_URL}${url}`;
+        return `${BASE_URL}/uploads/${url}`;
+      };
+
+      lead.weddingPlan?.services?.forEach((service) => {
+        const vs = service.vendorService as any;
+        if (vs) {
+          const thumbnailUrl = normalizeUrl(vs.thumbnail?.url);
+          const mediaUrls =
+            vs.media?.map((m: any) => normalizeUrl(m.url)) || [];
+          vs.thumbnailUrl = thumbnailUrl;
+          vs.mediaUrls = mediaUrls;
+        }
+      });
+
+      const normalizedServiceType = serviceType ? String(serviceType).trim() : null;
+
+      const vendors = await prisma.vendor.findMany({
+        where: {
+          isActive: true,
+
+          ...(normalizedServiceType && {
+            OR: [
+              {
+                serviceTypes: {
+                  contains: normalizedServiceType,
+                  mode: "insensitive",
+                },
+              },
+              {
+                vendorServices: {
+                  some: {
+                    OR: [
+                      {
+                        category: {
+                          contains: normalizedServiceType,
+                          mode: "insensitive",
+                        },
+                      },
+                      {
+                        name: {
+                          contains: normalizedServiceType,
+                          mode: "insensitive",
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          }),
+
+          ...(minBudget && {
+            minimumAmount: { gte: Number(minBudget) },
+          }),
+          ...(maxBudget && {
+            maximumAmount: { lte: Number(maxBudget) },
+          }),
+
+          ...(location && {
+            vendorServices: {
+              some: {
+                OR: [
+                  { city: { contains: String(location), mode: "insensitive" } },
+                  { state: { contains: String(location), mode: "insensitive" } },
+                  { country: { contains: String(location), mode: "insensitive" } },
+                ],
+              },
+            },
+          }),
+        },
+        include: {
+          teams: true,
+          vendorServices: {
+            include: {
+              media: { where: { type: "IMAGE" } },
+              thumbnail: true,
+            },
+          },
+        },
+      });
+
+      // 4️⃣ Normalize vendor media as well
+      const allVendors =
+        vendors.map((v) => {
+          const services =
+            v.vendorServices?.map((s) => ({
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              price: s.price,
+              description: s.description,
+              destination: s.destinationId,
+              media: s.media,
+              country: s.country,
+              city: s.city,
+              state: s.state,
+              thumbnailUrl: normalizeUrl(s.thumbnail?.url),
+              mediaUrls:
+                s.media?.map((m: any) => normalizeUrl(m.url)) || [],
+            })) || [];
+
+          return {
+            id: v.id,
+            name: v.name,
+            email: v.email,
+            contactNo: v.contactNo,
+            serviceTypes: v.serviceTypes,
+            minimumAmount: v.minimumAmount,
+            maximumAmount: v.maximumAmount,
+            teams: v.teams.map((t) => ({ id: t.id, name: t.name })),
+            services,
+          };
+        }) || [];
+
+      // 5️⃣ Sanitize lead data and send combined response
+      const sanitizedLead = sanitizeData(lead);
+
+      const response = {
+        ...sanitizedLead,
+        allVendors,
+      };
+
+      res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            response,
+            "Lead and all vendors fetched successfully"
+          )
+        );
+    } catch (error: any) {
+      logger.error("❌ Error fetching vendors for lead filter:", error);
+      res
+        .status(error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            error?.message ?? "Failed to fetch vendors for lead filter"
+          )
+        );
+    }
+  }
+
 }

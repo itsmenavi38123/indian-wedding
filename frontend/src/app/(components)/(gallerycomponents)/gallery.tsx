@@ -186,7 +186,7 @@ export default function GalleryPage() {
     }
 
     const services = Object.entries(wizardData.selectedVendors || {})
-      .filter(([_, vendorServiceId]) => !!vendorServiceId && vendorServiceId.trim() !== '')
+      .filter(([vendorServiceId]) => !!vendorServiceId && vendorServiceId.trim() !== '')
       .map(([category, vendorServiceId]) => ({
         vendorServiceId: vendorServiceId ?? '',
         quantity: 1,

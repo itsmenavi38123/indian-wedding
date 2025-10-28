@@ -53,5 +53,12 @@ export function leadsRoute(): Router {
     controller.exportLeadsWithIdsCsv.bind(controller)
   );
 
+  router.post('/assign-vendors', authenticate(), controller.assignVendorsToLead.bind(controller));
+
+  router.get(
+    '/get-all-vendors-for-lead/:id',
+    authenticate(),
+    controller.getAllVendorsForLeadFilters.bind(controller)
+  );
   return router;
 }

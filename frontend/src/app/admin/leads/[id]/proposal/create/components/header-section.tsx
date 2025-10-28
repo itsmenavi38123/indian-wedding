@@ -34,32 +34,32 @@ export function HeaderSection(props: Props) {
 
   return (
     <section aria-labelledby="header-heading" className="w-full">
-      <h2 id="header-heading" className="text-lg font-semibold text-balance">
+      <h2 id="header-heading" className="text-lg font-semibold text-balance text-white">
         Header
       </h2>
       <div className="mt-3 grid grid-cols-1 gap-3">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="grid gap-1">
-            <label htmlFor={ids.company} className="text-sm text-gray-700">
+            <label htmlFor={ids.company} className="text-sm text-white">
               Company name
             </label>
             <input
               id={ids.company}
               value={props.companyName}
               onChange={(e) => props.onChange({ companyName: e.target.value })}
-              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
               placeholder="Company Pvt Ltd"
             />
           </div>
           <div className="grid gap-1">
-            <label htmlFor={ids.logoUrl} className="text-sm text-gray-700">
+            <label htmlFor={ids.logoUrl} className="text-sm text-white">
               Logo URL (optional)
             </label>
             <input
               id={ids.logoUrl}
               value={props.logoUrl || ''}
               onChange={(e) => props.onChange({ logoUrl: e.target.value })}
-              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
               placeholder="https://example.com/logo.png"
             />
           </div>
@@ -67,19 +67,19 @@ export function HeaderSection(props: Props) {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="grid gap-1">
-            <label htmlFor={ids.title} className="text-sm text-gray-700">
+            <label htmlFor={ids.title} className="text-sm text-white">
               Proposal title
             </label>
             <input
               id={ids.title}
               value={props.title}
               onChange={(e) => props.onChange({ title: e.target.value })}
-              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
               placeholder="Wedding Photography Proposal"
             />
           </div>
           <div className="grid gap-1">
-            <label htmlFor={ids.date} className="text-sm text-gray-700">
+            <label htmlFor={ids.date} className="text-sm text-white">
               Date
             </label>
             <input
@@ -87,28 +87,28 @@ export function HeaderSection(props: Props) {
               type="date"
               value={props.dateISO}
               onChange={(e) => props.onChange({ dateISO: e.target.value })}
-              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
             />
           </div>
           <div className="grid gap-1">
-            <label htmlFor={ids.ref} className="text-sm text-gray-700">
+            <label htmlFor={ids.ref} className="text-sm text-white">
               Reference #
             </label>
             <input
               id={ids.ref}
               value={props.reference}
               onChange={(e) => props.onChange({ reference: e.target.value })}
-              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
               placeholder="PRO-2025-001"
             />
           </div>
         </div>
 
         <div className="grid gap-2">
-          <p className="text-sm font-medium">Client details</p>
+          <p className="text-sm font-medium text-white">Client details</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="grid gap-1">
-              <label htmlFor={ids.clientName} className="text-sm text-gray-700">
+              <label htmlFor={ids.clientName} className="text-sm text-white">
                 Name
               </label>
               <input
@@ -117,12 +117,12 @@ export function HeaderSection(props: Props) {
                 onChange={(e) =>
                   props.onChange({ client: { ...props.client, name: e.target.value } })
                 }
-                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
                 placeholder="A & B"
               />
             </div>
             <div className="grid gap-1">
-              <label htmlFor={ids.clientEmail} className="text-sm text-gray-700">
+              <label htmlFor={ids.clientEmail} className="text-sm text-white">
                 Email
               </label>
               <input
@@ -132,12 +132,12 @@ export function HeaderSection(props: Props) {
                 onChange={(e) =>
                   props.onChange({ client: { ...props.client, email: e.target.value } })
                 }
-                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
                 placeholder="client@example.com"
               />
             </div>
             <div className="grid gap-1">
-              <label htmlFor={ids.clientPhone} className="text-sm text-gray-700">
+              <label htmlFor={ids.clientPhone} className="text-sm text-white">
                 Phone
               </label>
               <input
@@ -146,12 +146,12 @@ export function HeaderSection(props: Props) {
                 onChange={(e) =>
                   props.onChange({ client: { ...props.client, phone: e.target.value } })
                 }
-                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
                 placeholder="+91 98765 43210"
               />
             </div>
             <div className="grid gap-1 sm:col-span-2">
-              <label htmlFor={ids.clientAddr} className="text-sm text-gray-700">
+              <label htmlFor={ids.clientAddr} className="text-sm text-white">
                 Address
               </label>
               <textarea
@@ -161,7 +161,7 @@ export function HeaderSection(props: Props) {
                 onChange={(e) =>
                   props.onChange({ client: { ...props.client, address: e.target.value } })
                 }
-                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                className="block w-full rounded border border-gray-300 px-3 py-2 text-sm text-white"
                 placeholder="Street, City, PIN"
               />
             </div>
