@@ -71,7 +71,7 @@ export function TemplateGallery({ value, onChange }: Props) {
   return (
     <section aria-labelledby="template-heading" className="w-full">
       <div className="flex items-baseline justify-between">
-        <h2 id="template-heading" className="text-lg font-semibold text-balance">
+        <h2 id="template-heading" className="text-lg font-semibold text-balance text-white">
           Select a template
         </h2>
       </div>

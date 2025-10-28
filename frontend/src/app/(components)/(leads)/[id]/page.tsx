@@ -196,7 +196,7 @@ export default function LeadDetailsPage() {
           </Card>
 
           {/* Events */}
-          {role === 'USER' && 'ADMIN' && (
+          {(role === 'USER' || role === 'ADMIN') && (
             <Card>
               <CardHeader>
                 <CardTitle>Events</CardTitle>
@@ -233,7 +233,7 @@ export default function LeadDetailsPage() {
           )}
 
           {/* Services */}
-          {role === 'USER' && 'ADMIN' && (
+          {(role === 'USER' || role === 'ADMIN') && (
             <Card>
               <CardHeader>
                 <CardTitle>Services</CardTitle>
@@ -386,43 +386,45 @@ export default function LeadDetailsPage() {
                             {/* Contact Action */}
                             <div className="flex flex-col sm:flex-row gap-2 mt-3 sm:mt-0">
                               {vendor.services.map((service: any) => (
-                                <div key={service.id} className="flex space-x-3">
-                                  {!service.status || service.status === 'PENDING' ? (
-                                    <>
-                                      {role === 'ADMIN' && (
-                                        <>
-                                          <Button
-                                            variant="default"
-                                            onClick={() =>
-                                              updateServiceStatus({
-                                                serviceId: service.id,
-                                                status: 'ACCEPTED',
-                                              })
-                                            }
-                                          >
-                                            Accept
-                                          </Button>
-                                          <Button
-                                            variant="destructive"
-                                            onClick={() => setRejectingService(service)}
-                                          >
-                                            Reject
-                                          </Button>
-                                        </>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <Button
-                                      variant={
-                                        service.status === 'ACCEPTED' ? 'default' : 'destructive'
-                                      }
-                                      disabled
-                                    >
-                                      {service.status === 'ACCEPTED' ? 'Accepted' : 'Rejected'}
-                                    </Button>
-                                  )}
-                                </div>
+                                <div key={service.id} className="flex space-x-3"></div>
                               ))}
+
+                              {/* ✅ Single Accept/Reject per vendor, same logic preserved */}
+                              {!vendor.services.every((s: any) => s.status !== 'PENDING') ? (
+                                <>
+                                  {role === 'ADMIN' && (
+                                    <>
+                                      <Button
+                                        variant="default"
+                                        onClick={() =>
+                                          vendor.services.forEach((s: any) =>
+                                            updateServiceStatus({
+                                              serviceId: s.id,
+                                              status: 'ACCEPTED',
+                                            })
+                                          )
+                                        }
+                                      >
+                                        Accept
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        onClick={() => setRejectingService(vendor.services[0])}
+                                      >
+                                        Reject
+                                      </Button>
+                                    </>
+                                  )}
+                                </>
+                              ) : vendor.services.every((s: any) => s.status === 'ACCEPTED') ? (
+                                <Button variant="default" disabled>
+                                  Accepted
+                                </Button>
+                              ) : (
+                                <Button variant="destructive" disabled>
+                                  Rejected
+                                </Button>
+                              )}
 
                               <Button
                                 variant="outline"

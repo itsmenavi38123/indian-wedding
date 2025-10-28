@@ -27,6 +27,7 @@ export type Service = {
   name: string;
   description: string;
   price: number;
+  category?: string;
 };
 
 type Props = {
@@ -209,7 +210,7 @@ export function ServicesSection({ services, onChange }: Props) {
   return (
     <section aria-labelledby="services-heading" className="w-full">
       <div className="flex items-center justify-between">
-        <h2 id="services-heading" className="text-lg font-semibold">
+        <h2 id="services-heading" className="text-lg font-semibold text-white">
           Services
         </h2>
         <button

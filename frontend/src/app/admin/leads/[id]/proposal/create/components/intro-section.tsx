@@ -104,7 +104,7 @@ export function IntroSection({ valueHTML, onChange, onInsertVar }: Props) {
   return (
     <section aria-labelledby="intro-heading" className="w-full">
       <div className="mb-3">
-        <h2 id="intro-heading" className="text-lg font-semibold mb-2">
+        <h2 id="intro-heading" className="text-lg font-semibold mb-2 text-white">
           Introduction
         </h2>
 
