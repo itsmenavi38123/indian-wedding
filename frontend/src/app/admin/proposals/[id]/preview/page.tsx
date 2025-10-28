@@ -291,6 +291,7 @@ export default function ProposalPreviewPage() {
         <div className="mx-auto" style={{ maxWidth: '850px' }}>
           {/* A4 Document */}
           <div
+            id="document"
             ref={documentRef}
             className="bg-white shadow-lg mx-auto"
             style={{
@@ -410,6 +411,58 @@ export default function ProposalPreviewPage() {
                   </table>
                 </div>
               </div>
+
+              {/* Events Section */}
+              {proposal.events && Array.isArray(proposal.events) && proposal.events.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Events</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                            Event Name
+                          </th>
+                          <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">
+                            Date
+                          </th>
+                          <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">
+                            Start Time
+                          </th>
+                          <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">
+                            End Time
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {proposal.events.map((event: any, index: number) => (
+                          <tr
+                            key={index}
+                            className="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                          >
+                            <td className="py-3 px-4 text-gray-900 font-medium">{event.name}</td>
+                            <td className="text-center py-3 px-4 text-gray-700">
+                              {event.dateISO
+                                ? new Date(event.dateISO).toLocaleDateString('en-IN', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })
+                                : '-'}
+                            </td>
+                            <td className="text-center py-3 px-4 text-gray-700">
+                              {event.startTime || '-'}
+                            </td>
+                            <td className="text-center py-3 px-4 text-gray-700">
+                              {event.endTime || '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {/* Pricing Summary */}
               <div className="mb-8">

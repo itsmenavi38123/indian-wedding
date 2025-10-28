@@ -568,7 +568,7 @@ export default function CreateProposalPage() {
         </div>
       </header>
 
-      <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
+      <div className="mt-2 flex items-center gap-4 text-xs text-white">
         <span>
           {lastBackendSave
             ? `Last saved to server: ${lastBackendSave.toLocaleString()}`

@@ -22,6 +22,14 @@ enum LeadStatus {
   COMPLETED
 }
 
+enum ProposalServiceStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
 enum LeadSource {
   WEBSITE
   INSTAGRAM
@@ -219,21 +227,36 @@ model Proposal {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-  services    ProposalService[]
-  customLines ProposalCustomLine[]
-  versions    ProposalVersion[]
+  budgetMin          BigInt?
+  budgetMax          BigInt?
+  guestCountMin      Int?
+  guestCountMax      Int?
+  preferredLocations Json?
+  events             Json?
+  services           ProposalService[]
+  customLines        ProposalCustomLine[]
+  versions           ProposalVersion[]
 }
 
 model ProposalService {
-  id          String   @id @default(uuid())
-  proposalId  String
-  proposal    Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  price       Float
-  quantity    Int      @default(1)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id              String         @id @default(uuid())
+  proposalId      String
+  proposal        Proposal       @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  price           Float
+  quantity        Int            @default(1)
+  order           Int            @default(0)
+  vendorId        String?
+  vendor          Vendor?        @relation(fields: [vendorId], references: [id])
+  category        String?
+  vendorServiceId String?
+  vendorService   VendorService? @relation(fields: [vendorServiceId], references: [id])
+
+  status ProposalServiceStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model ProposalCustomLine {
@@ -279,6 +302,7 @@ model ProposalTemplateService {
   order       Int              @default(0)
   createdAt   DateTime         @default(now())
 }
+
 
 model Contract {
   id        String   @id @default(uuid())
@@ -348,25 +372,26 @@ model WeddingPackageService {
 
 // Vendor models starting here >>>>>>>>>>>>>>>>>>>>>>>>>
 model Vendor {
-  id             String               @id @default(uuid())
-  name           String
-  email          String               @unique
-  password       String
-  contactNo      String
-  countryCode    String
-  serviceTypes   String
-  minimumAmount  Float                @default(0)
-  maximumAmount  Float                @default(0)
-  role           UserRole?            @default(VENDOR)
-  isActive       Boolean              @default(true)
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @default(now())
-  cards          Card[]
-  teams          Team[]
-  teamMembers    TeamMember[]
-  vendorServices VendorService[]
-  resetTokens    PasswordResetToken[]
-  refreshToken   String?
+  id              String               @id @default(uuid())
+  name            String
+  email           String               @unique
+  password        String
+  contactNo       String
+  countryCode     String
+  serviceTypes    String
+  minimumAmount   Float                @default(0)
+  maximumAmount   Float                @default(0)
+  role            UserRole?            @default(VENDOR)
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @default(now())
+  cards           Card[]
+  teams           Team[]
+  teamMembers     TeamMember[]
+  vendorServices  VendorService[]
+  resetTokens     PasswordResetToken[]
+  refreshToken    String?
+  ProposalService ProposalService[]
 }
 
 model Team {
@@ -458,6 +483,7 @@ model VendorService {
   destination   Destination? @relation(fields: [destinationId], references: [id])
 
   weddingPlanServices WeddingPlanService[]
+  ProposalService     ProposalService[]
 }
 
 model VendorServiceMedia {
@@ -588,7 +614,7 @@ model WeddingPlanService {
   vendorService   VendorService @relation(fields: [vendorServiceId], references: [id])
   quantity        Int?
   notes           String?
-    reason           String? 
+  reason          String?
   status          String        @default("PENDING") // PENDING | ACCEPTED | REJECTED
 }
 
@@ -596,7 +622,7 @@ model WeddingEvent {
   id            String      @id @default(uuid())
   weddingPlanId String
   weddingPlan   WeddingPlan @relation(fields: [weddingPlanId], references: [id])
-  userId        String                           
+  userId        String
   user          User        @relation(fields: [userId], references: [id])
   name          String
   date          DateTime // Store as ISO string from <input type="date">

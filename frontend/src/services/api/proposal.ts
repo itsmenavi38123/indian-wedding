@@ -42,6 +42,7 @@ export interface WeddingPackage {
 }
 
 export interface Proposal {
+  events: boolean;
   id: string;
   leadId: string;
   reference: string;
@@ -321,3 +322,23 @@ export const useGetWeddingPackageById = (packageId: string) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+export const assignVendorsToProposal = async (proposalId: string, assignments: any[]) => {
+  const { data } = await axiosInstance.post(API_URLS.proposal.assignVendors(proposalId), {
+    assignments,
+  });
+  return data;
+};
+
+export function useAssignVendorsToProposal() {
+  return useMutation({
+    mutationFn: ({ proposalId, assignments }: { proposalId: string; assignments: any[] }) =>
+      assignVendorsToProposal(proposalId, assignments),
+    onSuccess: () => {
+      toast.success('Vendors assigned successfully!');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Failed to assign vendors');
+    },
+  });
+}

@@ -11,7 +11,7 @@ export function TermsSection({ value, onChange }: Props) {
   const id = useId();
   return (
     <section aria-labelledby="terms-heading" className="w-full">
-      <h2 id="terms-heading" className="text-lg font-semibold">
+      <h2 id="terms-heading" className="text-lg font-semibold text-white">
         Terms & Conditions
       </h2>
       <div className="mt-2">
@@ -23,7 +23,7 @@ export function TermsSection({ value, onChange }: Props) {
           rows={6}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="block w-full rounded border border-gray-300 px-3 py-2 text-sm leading-relaxed"
+          className="block w-full rounded border border-gray-300 px-3 py-2 text-sm leading-relaxed text-white"
           placeholder="Add terms here..."
         />
       </div>
