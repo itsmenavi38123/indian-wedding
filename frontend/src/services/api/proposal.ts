@@ -214,7 +214,6 @@ export const useFinalizeProposal = () => {
   return useMutation({
     mutationFn: finalizeProposal,
     onSuccess: () => {
-      // Invalidate proposal queries
       queryClient.invalidateQueries({
         queryKey: [API_QUERY_KEYS.proposal.getDraft],
       });
@@ -342,3 +341,67 @@ export function useAssignVendorsToProposal() {
     },
   });
 }
+
+const getUserProposals = async (clientId: string): Promise<Proposal[]> => {
+  try {
+    const response = await axiosInstance.get(API_URLS.proposal.getUserProposals(clientId));
+    return response.data.data || [];
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error('Error fetching user proposals:', error.response?.data);
+      toast.error(error.response?.data?.errorMessage || 'Failed to fetch user proposals');
+    }
+    throw error;
+  }
+};
+
+export const useGetUserProposals = (clientId: string) => {
+  return useQuery({
+    queryKey: [API_QUERY_KEYS.proposal.getUserProposals, clientId],
+    queryFn: () => getUserProposals(clientId),
+    enabled: !!clientId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+const updateProposalStatus = async ({
+  proposalId,
+  viewerRole,
+  action,
+}: {
+  proposalId: string;
+  viewerRole: 'user' | 'admin';
+  action: 'view' | 'accept' | 'reject';
+}) => {
+  try {
+    const response = await axiosInstance.patch(API_URLS.proposal.updateStatus(proposalId), {
+      viewerRole,
+      action,
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error('Error updating proposal status:', error.response?.data);
+      toast.error(error.response?.data?.errorMessage || 'Failed to update proposal status');
+    }
+    throw error;
+  }
+};
+
+export const useUpdateProposalStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateProposalStatus,
+    onSuccess: (data) => {
+      if (data?.data?.updated) {
+        toast.success(`Proposal ${data?.data?.newStatus?.toLowerCase()} successfully!`);
+        queryClient.invalidateQueries({
+          queryKey: [API_QUERY_KEYS.proposal.getUserProposals],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [API_QUERY_KEYS.proposal.getById],
+        });
+      }
+    },
+  });
+};

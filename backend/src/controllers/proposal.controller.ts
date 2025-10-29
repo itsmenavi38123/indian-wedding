@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '@/config/prisma';
 import { ApiResponse } from '@/utils/ApiResponse';
-import { ApiError } from '@/utils/ApiError';
 import { logger } from '@/logger';
 import { statusCodes, errorMessages, successMessages } from '@/constant';
-import { ProposalStatus, PackageCategory } from '@prisma/client';
+import { ProposalStatus, UserRole } from '@prisma/client';
+import { notificationService } from '@/services/notification.service';
 
 export class ProposalController {
   public async saveDraft(req: Request, res: Response) {
@@ -48,7 +48,7 @@ export class ProposalController {
       if (!lead) {
         return res
           .status(statusCodes.NOT_FOUND)
-          .json(new ApiResponse(statusCodes.NOT_FOUND, null, "Lead not found"));
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Lead not found'));
       }
 
       let proposalEvents = events || [];
@@ -348,17 +348,55 @@ export class ProposalController {
           sentAt: new Date(),
         },
         include: {
+          lead: {
+            select: {
+              id: true,
+              createdById: true,
+              title: true,
+            },
+          },
           services: true,
           customLines: true,
         },
       });
 
-      res
+      try {
+        const proposalTitle = proposal.lead?.title ?? 'Unnamed Proposal';
+        const userId = proposal.lead?.createdById;
+
+        // 🔹 Notify USER (client)
+        if (userId) {
+          await notificationService.sendNotification({
+            message: `A new proposal has been sent to you.`,
+            type: 'proposal_sent',
+            recipientId: userId,
+            recipientRole: UserRole.USER,
+          });
+        }
+
+        // 🔹 Notify all ADMINS
+        const admins = await prisma.admin.findMany({
+          where: { role: UserRole.ADMIN },
+        });
+
+        for (const admin of admins) {
+          await notificationService.sendNotification({
+            message: `Your Proposal has been successfully sent to the client.`,
+            type: 'proposal_sent',
+            recipientId: admin.id,
+            recipientRole: UserRole.ADMIN,
+          });
+        }
+      } catch (notifError) {
+        logger.error('Error sending proposal notifications:', notifError);
+      }
+
+      return res
         .status(statusCodes.OK)
         .json(new ApiResponse(statusCodes.OK, proposal, successMessages.PROPOSAL_FINALIZED));
     } catch (error) {
       logger.error('Error finalizing proposal:', error);
-      res
+      return res
         .status(statusCodes.INTERNAL_SERVER_ERROR)
         .json(
           new ApiResponse(
@@ -369,7 +407,6 @@ export class ProposalController {
         );
     }
   }
-
   // Get proposal by ID
   public async getProposalById(req: Request, res: Response) {
     try {
@@ -400,7 +437,6 @@ export class ProposalController {
         },
       });
 
-
       if (!proposal) {
         return res
           .status(statusCodes.NOT_FOUND)
@@ -423,7 +459,6 @@ export class ProposalController {
         );
     }
   }
-
   // Get all proposals
   public async getAllProposals(req: Request, res: Response) {
     try {
@@ -470,7 +505,6 @@ export class ProposalController {
         );
     }
   }
-
   // Wedding Package Methods
   public async getAllPackages(req: Request, res: Response) {
     try {
@@ -580,13 +614,15 @@ export class ProposalController {
         })
       );
 
-      return res.status(statusCodes.OK).json(
-        new ApiResponse(
-          statusCodes.OK,
-          updates,
-          successMessages.PROPOSAL_VENDORS_ASSIGNED || 'Vendors assigned successfully.'
-        )
-      );
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            updates,
+            successMessages.PROPOSAL_VENDORS_ASSIGNED || 'Vendors assigned successfully.'
+          )
+        );
     } catch (error) {
       logger.error('Error assigning vendors:', error);
       return res
@@ -601,6 +637,185 @@ export class ProposalController {
     }
   }
 
+  public async getUserProposals(req: Request, res: Response) {
+    try {
+      const { clientId } = req.params;
+
+      if (!clientId) {
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'Client ID is required'));
+      }
+
+      const proposals = await prisma.proposal.findMany({
+        where: {
+          lead: {
+            createdById: clientId,
+          },
+          status: {
+            in: [
+              ProposalStatus.SENT,
+              ProposalStatus.VIEWED,
+              ProposalStatus.ACCEPTED,
+              ProposalStatus.REJECTED,
+            ],
+          },
+        },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              title: true,
+              partner1Name: true,
+              partner2Name: true,
+              weddingDate: true,
+            },
+          },
+          services: {
+            include: {
+              vendor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  contactNo: true,
+                  serviceTypes: true,
+                },
+              },
+            },
+          },
+          customLines: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return res
+        .status(statusCodes.OK)
+        .json(new ApiResponse(statusCodes.OK, proposals, 'Client proposals fetched successfully.'));
+    } catch (error) {
+      logger.error('Error fetching user proposals:', error);
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to fetch proposals.')
+        );
+    }
+  }
+
+  public async updateProposalStatus(req: Request, res: Response) {
+    try {
+      const { proposalId } = req.params;
+      const { action, viewerRole } = req.body;
+
+      const proposal = await prisma.proposal.findUnique({
+        where: { id: proposalId },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              title: true,
+              createdById: true,
+            },
+          },
+        },
+      });
+
+      if (!proposal) {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Proposal not found'));
+      }
+      let newStatus: ProposalStatus | null = null;
+
+      const now = new Date();
+
+      if (viewerRole === 'user') {
+        switch (action) {
+          case 'view':
+            if (proposal.status === 'SENT') newStatus = 'VIEWED';
+            break;
+
+          case 'accept':
+            if (['SENT', 'VIEWED'].includes(proposal.status)) newStatus = 'ACCEPTED';
+            break;
+
+          case 'reject':
+            if (['SENT', 'VIEWED'].includes(proposal.status)) newStatus = 'REJECTED';
+            break;
+
+          default:
+            return res
+              .status(statusCodes.BAD_REQUEST)
+              .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'Invalid action'));
+        }
+      }
+
+      if (!newStatus) {
+        return res
+          .status(statusCodes.OK)
+          .json(new ApiResponse(statusCodes.OK, { updated: false }, 'No status change required'));
+      }
+
+      await prisma.proposal.update({
+        where: { id: proposalId },
+
+        data: {
+          status: newStatus,
+          viewedAt: action === 'view' ? now : undefined,
+          acceptedAt: action === 'accept' ? now : undefined,
+          rejectedAt: action === 'reject' ? now : undefined,
+        },
+      });
+
+      try {
+        const userId = proposal.lead?.createdById;
+
+        const admins = await prisma.admin.findMany({ where: { role: UserRole.ADMIN } });
+        for (const admin of admins) {
+          await notificationService.sendNotification({
+            message: `Proposal was ${newStatus.toLowerCase()} by the client.`,
+            type: `proposal_${newStatus.toLowerCase()}`,
+            recipientId: admin.id,
+            recipientRole: UserRole.ADMIN,
+          });
+        }
+
+        if (userId) {
+          await notificationService.sendNotification({
+            message: `Your proposal has been marked as ${newStatus.toLowerCase()}.`,
+            type: `proposal_${newStatus.toLowerCase()}`,
+            recipientId: userId,
+            recipientRole: UserRole.USER,
+          });
+        }
+      } catch (notifError) {
+        logger.error('Failed to send proposal status notifications:', notifError);
+      }
+
+      return res
+        .status(statusCodes.OK)
+        .json(
+          new ApiResponse(
+            statusCodes.OK,
+            { updated: true, newStatus },
+            `Proposal marked as ${newStatus.toLowerCase()}`
+          )
+        );
+    } catch (error) {
+      logger.error('Error updating proposal status:', error);
+      res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiResponse(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            null,
+            'Failed to update proposal status'
+          )
+        );
+    }
+  }
 }
 
 export const proposalController = new ProposalController();
