@@ -51,6 +51,7 @@ export function useGetCurrentUser(enabled: boolean = true) {
 export const userLogout = async () => {
   try {
     const { data } = await axiosInstance.post(API_URLS.userAuth.userLogout);
+    localStorage.removeItem('user');
     return data;
   } catch (error: any) {
     console.error('Error:', error);

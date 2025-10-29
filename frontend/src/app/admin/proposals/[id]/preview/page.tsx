@@ -42,7 +42,6 @@ export default function ProposalPreviewPage() {
   const proposalId = params?.id || '';
   const documentRef = useRef<HTMLDivElement>(null);
 
-  // State for UI controls
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);

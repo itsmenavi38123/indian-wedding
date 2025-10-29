@@ -81,21 +81,21 @@ function SortableEventItem({
 
           <input
             type="date"
-            value={event.date}
+            value={event.date || ''}
             onChange={(e) => onEdit(event.id, { date: e.target.value })}
             className="col-span-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
 
           <input
             type="time"
-            value={event.startTime}
+            value={event.startTime || ''}
             onChange={(e) => onEdit(event.id, { startTime: e.target.value })}
             className="col-span-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />
 
           <input
             type="time"
-            value={event.endTime}
+            value={event.endTime || ''}
             onChange={(e) => onEdit(event.id, { endTime: e.target.value })}
             className="col-span-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
           />

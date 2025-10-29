@@ -49,6 +49,7 @@ const navItemsByRole = {
     { name: 'Leads', href: '/admin/leads', icon: Users },
     { name: 'Pipeline', href: '/admin/pipeline', icon: GitBranch },
     { name: 'Proposals', href: '/admin/proposals', icon: FileText },
+    { name: 'Contracts', href: '/admin/contracts', icon: FileText },
     { name: 'Projects', href: '/admin/projects', icon: Briefcase },
     { name: 'Vendors', href: '/admin/vendors', icon: Building2 },
     { name: 'Team', href: '/admin/team', icon: Users2 },
@@ -68,7 +69,7 @@ const navItemsByRole = {
   USER: [
     { name: 'Home', href: '/user/dashboard', icon: LayoutDashboard },
     { name: 'Leads', href: '/user/leads', icon: Users },
-    { name: 'Proposals', href: '/admin/proposals', icon: FileText },
+    { name: 'Proposals', href: '/user/proposals', icon: FileText },
     { name: 'Settings', href: '/user/settings', icon: Settings },
   ],
   TEAM: [

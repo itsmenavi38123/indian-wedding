@@ -142,29 +142,29 @@ export class LeadController {
           saveStatus: { not: 'ARCHIVED' },
           ...(search
             ? {
-              OR: [
-                { partner1Name: { contains: search as string, mode: 'insensitive' } },
-                { partner2Name: { contains: search as string, mode: 'insensitive' } },
-              ],
-            }
+                OR: [
+                  { partner1Name: { contains: search as string, mode: 'insensitive' } },
+                  { partner2Name: { contains: search as string, mode: 'insensitive' } },
+                ],
+              }
             : {}),
           ...(budgetMin ? { budgetMin: { gte: parseInt(budgetMin as string, 10) } } : {}),
           ...(budgetMax ? { budgetMax: { lte: parseInt(budgetMax as string, 10) } } : {}),
           ...(location
             ? {
-              OR: [
-                { preferredLocations: { has: location as string } },
-                { preferredLocations: { equals: [] } },
-              ],
-            }
+                OR: [
+                  { preferredLocations: { has: location as string } },
+                  { preferredLocations: { equals: [] } },
+                ],
+              }
             : {}),
           ...(weddingFrom || weddingTo
             ? {
-              weddingDate: {
-                ...(weddingFrom ? { gte: weddingFrom } : {}),
-                ...(weddingTo ? { lte: weddingTo } : {}),
-              },
-            }
+                weddingDate: {
+                  ...(weddingFrom ? { gte: weddingFrom } : {}),
+                  ...(weddingTo ? { lte: weddingTo } : {}),
+                },
+              }
             : {}),
         },
         include: { createdBy: true },
@@ -224,10 +224,10 @@ export class LeadController {
             },
             assignedUser: lead.createdBy
               ? {
-                id: lead.createdBy.id,
-                name: lead.createdBy.name,
-                email: lead.createdBy.email,
-              }
+                  id: lead.createdBy.id,
+                  name: lead.createdBy.name,
+                  email: lead.createdBy.email,
+                }
               : null,
             teamMembers: [],
             createdAt: lead.createdAt,
@@ -1146,19 +1146,12 @@ export class LeadController {
     }
   }
   public async getAllVendorsForLeadFilters(req: Request, res: Response) {
-    const {
-      serviceType,
-      minBudget,
-      maxBudget,
-      location,
-      startDate,
-      endDate,
-    } = req.query;
+    const { serviceType, minBudget, maxBudget, location, startDate, endDate } = req.query;
 
     try {
       const { id } = req.params;
 
-      logger.info("📊 Vendor filters received:", {
+      logger.info('📊 Vendor filters received:', {
         serviceType,
         minBudget,
         maxBudget,
@@ -1222,7 +1215,7 @@ export class LeadController {
                     include: {
                       vendor: true,
                       media: {
-                        where: { type: "IMAGE" },
+                        where: { type: 'IMAGE' },
                       },
                       thumbnail: true,
                     },
@@ -1238,11 +1231,11 @@ export class LeadController {
         throw new ApiError(statusCodes.NOT_FOUND, errorMessages.LEAD_NOT_FOUND);
       }
 
-      const BASE_URL = process.env.BACKEND_URL || "http://localhost:3001";
+      const BASE_URL = process.env.BACKEND_URL || 'http://localhost:3001';
       const normalizeUrl = (url: string | null | undefined) => {
         if (!url) return null;
-        if (url.startsWith("http")) return url;
-        if (url.startsWith("/uploads")) return `${BASE_URL}${url}`;
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('/uploads')) return `${BASE_URL}${url}`;
         return `${BASE_URL}/uploads/${url}`;
       };
 
@@ -1250,8 +1243,7 @@ export class LeadController {
         const vs = service.vendorService as any;
         if (vs) {
           const thumbnailUrl = normalizeUrl(vs.thumbnail?.url);
-          const mediaUrls =
-            vs.media?.map((m: any) => normalizeUrl(m.url)) || [];
+          const mediaUrls = vs.media?.map((m: any) => normalizeUrl(m.url)) || [];
           vs.thumbnailUrl = thumbnailUrl;
           vs.mediaUrls = mediaUrls;
         }
@@ -1268,7 +1260,7 @@ export class LeadController {
               {
                 serviceTypes: {
                   contains: normalizedServiceType,
-                  mode: "insensitive",
+                  mode: 'insensitive',
                 },
               },
               {
@@ -1278,13 +1270,13 @@ export class LeadController {
                       {
                         category: {
                           contains: normalizedServiceType,
-                          mode: "insensitive",
+                          mode: 'insensitive',
                         },
                       },
                       {
                         name: {
                           contains: normalizedServiceType,
-                          mode: "insensitive",
+                          mode: 'insensitive',
                         },
                       },
                     ],
@@ -1305,9 +1297,9 @@ export class LeadController {
             vendorServices: {
               some: {
                 OR: [
-                  { city: { contains: String(location), mode: "insensitive" } },
-                  { state: { contains: String(location), mode: "insensitive" } },
-                  { country: { contains: String(location), mode: "insensitive" } },
+                  { city: { contains: String(location), mode: 'insensitive' } },
+                  { state: { contains: String(location), mode: 'insensitive' } },
+                  { country: { contains: String(location), mode: 'insensitive' } },
                 ],
               },
             },
@@ -1317,7 +1309,7 @@ export class LeadController {
           teams: true,
           vendorServices: {
             include: {
-              media: { where: { type: "IMAGE" } },
+              media: { where: { type: 'IMAGE' } },
               thumbnail: true,
             },
           },
@@ -1340,8 +1332,7 @@ export class LeadController {
               city: s.city,
               state: s.state,
               thumbnailUrl: normalizeUrl(s.thumbnail?.url),
-              mediaUrls:
-                s.media?.map((m: any) => normalizeUrl(m.url)) || [],
+              mediaUrls: s.media?.map((m: any) => normalizeUrl(m.url)) || [],
             })) || [];
 
           return {
@@ -1368,24 +1359,19 @@ export class LeadController {
       res
         .status(statusCodes.OK)
         .json(
-          new ApiResponse(
-            statusCodes.OK,
-            response,
-            "Lead and all vendors fetched successfully"
-          )
+          new ApiResponse(statusCodes.OK, response, 'Lead and all vendors fetched successfully')
         );
     } catch (error: any) {
-      logger.error("❌ Error fetching vendors for lead filter:", error);
+      logger.error('❌ Error fetching vendors for lead filter:', error);
       res
         .status(error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR)
         .json(
           new ApiResponse(
             error?.statusCode ?? statusCodes.INTERNAL_SERVER_ERROR,
             null,
-            error?.message ?? "Failed to fetch vendors for lead filter"
+            error?.message ?? 'Failed to fetch vendors for lead filter'
           )
         );
     }
   }
-
 }
