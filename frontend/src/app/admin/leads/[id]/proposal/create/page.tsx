@@ -242,7 +242,7 @@ export default function CreateProposalPage() {
 
         weddingPlanId: lead?.weddingPlanId || '',
       };
-      // Load versions from draft if available
+
       const loadedVersions =
         draft.versions?.map((v: any) => ({
           id: v.id,
@@ -700,7 +700,10 @@ export default function CreateProposalPage() {
         />
         <EventsSection
           events={data.state.events || []}
-          onChange={(events) => patchState({ events })}
+          onChange={(updatedEvents) => {
+            const safeEvents = updatedEvents.map((e) => ({ ...e }));
+            patchState({ events: safeEvents });
+          }}
         />
 
         <BudgetSection

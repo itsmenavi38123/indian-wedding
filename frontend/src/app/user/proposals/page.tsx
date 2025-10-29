@@ -1,30 +1,47 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, FileText, Send, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
-import { useGetAllProposals } from '@/services/api/proposal';
+import { useGetUserProposals } from '@/services/api/proposal';
 import { formatINR } from '@/lib/format';
 
-export default function ProposalsPage() {
+export default function UserProposalsPage() {
   const router = useRouter();
+  const [clientId, setClientId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  // Fetch proposals with filters
-  const { data: proposals = [], isLoading } = useGetAllProposals(
-    useMemo(() => {
-      const params: any = {};
-      if (statusFilter !== 'ALL') params.status = statusFilter;
-      if (searchQuery) params.search = searchQuery;
-      return params;
-    }, [statusFilter, searchQuery])
-  );
+  const { data: proposals = [], isLoading, refetch } = useGetUserProposals(clientId || '');
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('🧠 LocalStorage user object:', user);
+    if (user?.id) {
+      setClientId(user.id);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('💡 Current clientId state:', clientId);
+    if (clientId) {
+      console.log('🚀 Fetching proposals for clientId:', clientId);
+      refetch();
+    }
+  }, [clientId, refetch]);
+
+  const filteredProposals = proposals.filter((p: any) => {
+    const matchesSearch =
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.reference.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       DRAFT: { icon: Clock, text: 'Draft', className: 'bg-gray-100 text-gray-700' },
-      SENT: { icon: Send, text: 'Sent', className: 'bg-blue-100 text-blue-700' },
+      SENT: { icon: Send, text: 'Received', className: 'bg-blue-100 text-blue-700' },
       VIEWED: { icon: Eye, text: 'Viewed', className: 'bg-yellow-100 text-yellow-700' },
       ACCEPTED: { icon: CheckCircle, text: 'Accepted', className: 'bg-green-100 text-green-700' },
       REJECTED: { icon: XCircle, text: 'Rejected', className: 'bg-red-100 text-red-700' },
@@ -50,14 +67,13 @@ export default function ProposalsPage() {
       day: 'numeric',
     });
   };
-  const hasAcceptedProposal = proposals.some((p: any) => p.status === 'ACCEPTED');
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Proposals</h1>
-        <p className="text-gray-600 mt-2">Manage and track all your wedding proposals</p>
+        <p className="text-gray-600 mt-2">View and track all proposals shared with you</p>
       </div>
 
       {/* Filters */}
@@ -67,7 +83,7 @@ export default function ProposalsPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by reference, title, or client name..."
+              placeholder="Search by title or reference..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
@@ -109,7 +125,7 @@ export default function ProposalsPage() {
                     Title
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Client
+                    Company
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -118,27 +134,22 @@ export default function ProposalsPage() {
                     Amount
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
+                    Date
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
-                  {hasAcceptedProposal && (
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contract
-                    </th>
-                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {proposals.length === 0 ? (
+                {filteredProposals.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                       No proposals found
                     </td>
                   </tr>
                 ) : (
-                  proposals.map((proposal: any) => (
+                  filteredProposals.map((proposal: any) => (
                     <tr key={proposal.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -152,7 +163,7 @@ export default function ProposalsPage() {
                         <p className="text-sm text-gray-900">{proposal.title}</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <p className="text-sm text-gray-900">{proposal.clientName}</p>
+                        <p className="text-sm text-gray-900">{proposal.companyName}</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(proposal.status)}
@@ -167,26 +178,13 @@ export default function ProposalsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
-                          onClick={() => router.push(`/admin/proposals/${proposal.id}/preview`)}
+                          onClick={() => router.push(`/user/proposals/${proposal.id}/preview`)}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
                         >
                           <Eye className="h-4 w-4" />
                           View
                         </button>
                       </td>
-                      {proposal.status === 'ACCEPTED' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <button
-                            onClick={() =>
-                              router.push(`/admin/contracts/create?proposalId=${proposal.id}`)
-                            }
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
-                          >
-                            <FileText className="h-4 w-4" />
-                            Create Contract
-                          </button>
-                        </td>
-                      )}
                     </tr>
                   ))
                 )}
@@ -200,30 +198,26 @@ export default function ProposalsPage() {
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <p className="text-sm text-gray-600">Total Proposals</p>
-          <p className="text-2xl font-bold text-gray-900">{proposals.length}</p>
+          <p className="text-2xl font-bold text-gray-900">{filteredProposals.length}</p>
         </div>
         <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <p className="text-sm text-gray-600">Draft</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {proposals.filter((p: any) => p.status === 'DRAFT').length}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <p className="text-sm text-gray-600">Sent</p>
+          <p className="text-sm text-gray-600">Received</p>
           <p className="text-2xl font-bold text-blue-600">
-            {proposals.filter((p: any) => p.status === 'SENT').length}
+            {filteredProposals.filter((p: any) => p.status === 'SENT').length}
           </p>
         </div>
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <p className="text-sm text-gray-600">Accepted</p>
           <p className="text-2xl font-bold text-green-600">
-            {proposals.filter((p: any) => p.status === 'ACCEPTED').length}
+            {filteredProposals.filter((p: any) => p.status === 'ACCEPTED').length}
           </p>
         </div>
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <p className="text-sm text-gray-600">Total Value</p>
           <p className="text-xl font-bold text-gray-900">
-            {formatINR(proposals.reduce((sum: number, p: any) => sum + (p.grandTotal || 0), 0))}
+            {formatINR(
+              filteredProposals.reduce((sum: number, p: any) => sum + (p.grandTotal || 0), 0)
+            )}
           </p>
         </div>
       </div>

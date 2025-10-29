@@ -45,6 +45,16 @@ const LoginPage = () => {
     mutationFn: async (data: UserLoginInput) => userLogin(data),
     onSuccess: (data: any) => {
       if (data?.statusCode) {
+        const user = data.data.user;
+        localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          })
+        );
         toast.success(data?.message ?? 'User logged in successfully.');
         dispatch(setUserLoginEmail(''));
         if (redirectTo && redirectTo !== '/user/dashboard') {
