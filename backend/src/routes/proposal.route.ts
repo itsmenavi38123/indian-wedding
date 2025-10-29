@@ -45,11 +45,18 @@ export const proposalRoute = () => {
     proposalController.assignVendors.bind(proposalController)
   );
 
+  router.get('/user/:clientId', proposalController.getUserProposals.bind(proposalController));
+
+  router.patch(
+    '/:proposalId/status',
+    proposalController.updateProposalStatus.bind(proposalController)
+  );
+
   // Get all proposals
   router.get('/', authMiddleware, proposalController.getAllProposals.bind(proposalController));
 
   // Get proposal by ID - MUST BE LAST as it catches all /:id patterns
-  router.get('/:id', authMiddleware, proposalController.getProposalById.bind(proposalController));
+  router.get('/:id', proposalController.getProposalById.bind(proposalController));
 
   return router;
 };

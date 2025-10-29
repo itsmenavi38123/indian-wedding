@@ -109,6 +109,8 @@ export const API_URLS = {
     saveVersion: (proposalId: string) => `/proposals/version/${proposalId}`,
     finalize: (proposalId: string) => `/proposals/finalize/${proposalId}`,
     assignVendors: (proposalId: string) => `/proposals/assign-vendors/${proposalId}`,
+    getUserProposals: (clientId: string) => `/proposals/user/${clientId}`,
+    updateStatus: (proposalId: string) => `/proposals/${proposalId}/status`,
   },
   proposalTemplate: {
     getAll: '/proposal-templates/templates',
@@ -237,6 +239,8 @@ export const API_QUERY_KEYS = {
     saveVersion: 'saveProposalVersion',
     finalize: 'finalizeProposal',
     assignVendors: 'assignVendors',
+    getUserProposals: 'getUserProposals',
+    updateStatus: 'updateStatus',
   },
 
   proposalTemplate: {
