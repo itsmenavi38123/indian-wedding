@@ -123,6 +123,8 @@ export class ProposalController {
               category: service.category || service.vendorService?.category || 'Other',
               quantity: service.quantity || 1,
               order: index,
+              vendorId: service.vendorId || service.vendor?.id || null,
+              vendorServiceId: service.vendorServiceId || null,
             })),
           });
         }
@@ -183,6 +185,8 @@ export class ProposalController {
                   category: service.category || service.vendorService?.category || 'Other',
                   quantity: service.quantity || 1,
                   order: index,
+                  vendorId: service.vendorId || service.vendor?.id || null,
+                  vendorServiceId: service.vendorServiceId || null,
                 })) || [],
             },
 
@@ -418,6 +422,20 @@ export class ProposalController {
           services: {
             orderBy: { order: 'asc' },
             include: {
+              // Include vendorService → vendor chain
+              vendorService: {
+                include: {
+                  vendor: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      contactNo: true,
+                      serviceTypes: true,
+                    },
+                  },
+                },
+              },
               vendor: {
                 select: {
                   id: true,
@@ -673,6 +691,19 @@ export class ProposalController {
           },
           services: {
             include: {
+              vendorService: {
+                include: {
+                  vendor: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      contactNo: true,
+                      serviceTypes: true,
+                    },
+                  },
+                },
+              },
               vendor: {
                 select: {
                   id: true,
@@ -768,6 +799,71 @@ export class ProposalController {
           rejectedAt: action === 'reject' ? now : undefined,
         },
       });
+
+      if (action === 'accept') {
+        await prisma.weddingPlanService.updateMany({
+          where: {
+            weddingPlan: {
+              lead: {
+                id: proposal.lead.id,
+              },
+            },
+            status: { in: ['PENDING', 'ASSIGNED'] },
+          },
+          data: {
+            status: 'ACCEPTED',
+          },
+        });
+
+        const acceptedVendorServices = await prisma.weddingPlanService.findMany({
+          where: {
+            weddingPlan: {
+              lead: {
+                id: proposal.lead.id,
+              },
+            },
+            status: 'ACCEPTED',
+          },
+          select: {
+            vendorServiceId: true,
+            notes: true,
+            vendorService: {
+              select: {
+                vendorId: true,
+              },
+            },
+          },
+        });
+
+        const acceptedVendorServiceIds = acceptedVendorServices
+          .map((v) => v.vendorServiceId)
+          .filter(Boolean);
+        console.log('Accepted Vendor Services:', acceptedVendorServiceIds);
+
+        if (acceptedVendorServiceIds.length > 0) {
+          await prisma.proposalService.updateMany({
+            where: {
+              proposalId,
+              vendorServiceId: { in: acceptedVendorServiceIds },
+            },
+            data: {
+              status: 'ASSIGNED',
+              updatedAt: new Date(),
+            },
+          });
+        } else {
+          await prisma.proposalService.updateMany({
+            where: {
+              proposalId,
+              status: 'PENDING',
+            },
+            data: {
+              status: 'ASSIGNED',
+              updatedAt: new Date(),
+            },
+          });
+        }
+      }
 
       try {
         const userId = proposal.lead?.createdById;

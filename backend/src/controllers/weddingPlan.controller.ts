@@ -5,7 +5,7 @@ import { statusCodes, successMessages, errorMessages } from '@/constant';
 import { logger } from '@/logger';
 import { AuthenticatedRequest } from '@/middlewares/authMiddleware';
 import { notificationService } from '@/services/notification.service';
-import { UserRole } from '@prisma/client';
+import { ProposalServiceStatus, UserRole } from '@prisma/client';
 
 export class WeddingPlanController {
   // ================= CREATE WEDDING PLAN =================
@@ -212,7 +212,7 @@ export class WeddingPlanController {
       const { id } = req.params;
       const { status, reason } = req.body;
 
-      if (!['PENDING', 'ACCEPTED', 'REJECTED'].includes(status)) {
+      if (!['PENDING', 'ACCEPTED', 'REJECTED', 'ASSIGNED'].includes(status)) {
         return res
           .status(statusCodes.BAD_REQUEST)
           .json(new ApiResponse(statusCodes.BAD_REQUEST, null, 'Invalid status value'));
@@ -234,9 +234,32 @@ export class WeddingPlanController {
               },
             },
           },
-          weddingPlan: true,
+          weddingPlan: { include: { lead: true } },
         },
       });
+
+      if (updatedService?.weddingPlan?.lead?.id && updatedService?.vendorServiceId) {
+        const relatedProposal = await prisma.proposal.findFirst({
+          where: { leadId: updatedService.weddingPlan.lead.id },
+          select: { id: true },
+        });
+        if (relatedProposal) {
+          await prisma.proposalService.updateMany({
+            where: {
+              proposalId: relatedProposal.id,
+              vendorServiceId: updatedService.vendorServiceId,
+            },
+            data: { status: status as ProposalServiceStatus },
+          });
+
+          console.log(
+            `🔁 Synced ProposalService (proposal: ${relatedProposal.id}) → ${updatedService.status}`
+          );
+        } else {
+          console.log('⚠️ No related proposal found to sync');
+        }
+      }
+
       const serializedService = JSON.parse(
         JSON.stringify(updatedService, (_, value) =>
           typeof value === 'bigint' ? value.toString() : value

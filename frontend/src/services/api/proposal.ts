@@ -405,3 +405,52 @@ export const useUpdateProposalStatus = () => {
     },
   });
 };
+
+const sendProposalEmail = async ({
+  proposalId,
+  to,
+  cc,
+  subject,
+  message,
+}: {
+  proposalId: string;
+  to: string;
+  cc?: string;
+  subject: string;
+  message: string;
+}) => {
+  try {
+    const response = await axiosInstance.post(API_URLS.proposal.sendEmail(proposalId), {
+      to,
+      cc,
+      subject,
+      message,
+    });
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error('Error sending proposal email:', error.response?.data);
+      toast.error(error.response?.data?.errorMessage || 'Failed to send proposal email');
+    }
+  }
+};
+
+export const useSendProposalEmail = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendProposalEmail,
+    onSuccess: () => {
+      toast.success('Proposal email sent successfully!');
+      queryClient.invalidateQueries({
+        queryKey: [API_QUERY_KEYS.proposal.getById],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [API_QUERY_KEYS.proposal.getAll],
+      });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to send email');
+    },
+  });
+};

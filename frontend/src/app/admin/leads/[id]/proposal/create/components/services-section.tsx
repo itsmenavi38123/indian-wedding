@@ -28,6 +28,14 @@ export type Service = {
   description: string;
   price: number;
   category?: string;
+  vendorId?: string;
+  vendor?: {
+    id: string;
+    name: string;
+    email?: string;
+    contactNo?: string;
+    companyName?: string;
+  } | null;
 };
 
 type Props = {

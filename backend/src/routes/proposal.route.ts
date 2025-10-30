@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { proposalController } from '@/controllers/proposal.controller';
 import { authenticate } from '@/middlewares/authMiddleware';
 import { UserRole } from '@prisma/client';
+import { sendProposalEmail } from '@/controllers/ProposalEmail.controller';
 
 export const proposalRoute = () => {
   const router = Router();
@@ -51,6 +52,8 @@ export const proposalRoute = () => {
     '/:proposalId/status',
     proposalController.updateProposalStatus.bind(proposalController)
   );
+
+  router.post('/:id/send-email', authMiddleware, sendProposalEmail);
 
   // Get all proposals
   router.get('/', authMiddleware, proposalController.getAllProposals.bind(proposalController));
