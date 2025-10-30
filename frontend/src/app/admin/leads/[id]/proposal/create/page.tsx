@@ -210,6 +210,8 @@ export default function CreateProposalPage() {
               description: s.description || '',
               price: s.price,
               category: s.category || s.vendorService?.serviceType || 'Other',
+              vendorId: s.vendorId || s.vendor?.id || s.vendorService?.vendor?.id,
+              vendor: s.vendor || s.vendorService?.vendor || null,
             }))
           : lead?.weddingPlan?.services?.map((srv: any) => ({
               id: srv.id,
@@ -217,6 +219,8 @@ export default function CreateProposalPage() {
               description: srv.vendorService?.description || srv.notes || '',
               price: srv.vendorService?.price || 0,
               category: srv.vendorService?.serviceType || 'Other',
+              vendorId: srv.vendorService?.vendor?.id,
+              vendor: srv.vendorService?.vendor || null,
             })) || [],
 
         taxesPercent: draft.taxesPercent,
@@ -303,6 +307,8 @@ export default function CreateProposalPage() {
                 description: srv.vendorService?.description || srv.notes || '',
                 price: srv.vendorService?.price || 0,
                 category: srv.vendorService?.category || 'Other',
+                vendorId: srv.vendorService?.vendor?.id,
+                vendor: srv.vendorService?.vendor,
               }))
             : [],
 
@@ -365,6 +371,7 @@ export default function CreateProposalPage() {
           price: service.price,
           quantity: 1,
           category: service.category,
+          vendorId: service.vendorId || service.vendor?.id || null,
         })),
       };
 
