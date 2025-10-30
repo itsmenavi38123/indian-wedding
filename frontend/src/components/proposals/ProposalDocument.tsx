@@ -18,14 +18,12 @@ export default function ProposalDocument({ proposal, zoomLevel = 100 }: any) {
     reference: proposal?.reference ?? '',
   };
 
-  // Totals
   const subtotal = proposal.services.reduce((sum: number, s: any) => sum + s.price * s.quantity, 0);
   const taxable = Math.max(0, subtotal - (proposal.discount || 0));
   const tax = taxable * ((proposal.taxesPercent || 0) / 100);
   const grandTotal = taxable + tax;
   const services = proposal?.services || [];
 
-  // Vendors
   const acceptedVendors = services.reduce((acc: any, s: any) => {
     const vendor = s.vendor;
     const category = s.category || s.name || 'Other';
