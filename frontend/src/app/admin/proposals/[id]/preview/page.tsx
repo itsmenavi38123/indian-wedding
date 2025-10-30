@@ -1,9 +1,8 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useGetProposalById } from '@/services/api/proposal';
-import { formatINR, applyTemplateVariables } from '@/lib/format';
-import { useMemo, useState, useRef } from 'react';
+import { useGetProposalById, useSendProposalEmail } from '@/services/api/proposal';
+import { useMemo, useState } from 'react';
 import {
   ArrowLeft,
   Download,
@@ -34,19 +33,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import Image from 'next/image';
+import ProposalDocument from '@/components/proposals/ProposalDocument';
 
 export default function ProposalPreviewPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const proposalId = params?.id || '';
-  const documentRef = useRef<HTMLDivElement>(null);
-
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
-
   // Email form state
   const [emailForm, setEmailForm] = useState({
     to: '',
@@ -58,16 +54,7 @@ export default function ProposalPreviewPage() {
 
   const { data: proposalResponse, isLoading, error } = useGetProposalById(proposalId);
   const proposal = proposalResponse;
-
-  const templateVars: Record<string, string> = useMemo(() => {
-    return {
-      couple_names: proposal?.clientName ?? '',
-      wedding_date: proposal?.dateISO ?? '',
-      client_name: proposal?.clientName ?? '',
-      company_name: proposal?.companyName ?? '',
-      reference: proposal?.reference ?? '',
-    };
-  }, [proposal]);
+  const sendProposalEmailMutation = useSendProposalEmail();
 
   // Initialize email form when proposal loads
   useMemo(() => {
@@ -99,23 +86,41 @@ export default function ProposalPreviewPage() {
         break;
     }
   };
+  // const handleSendEmail = async () => {
+  //   if (!emailForm.to) {
+  //     toast.error('Please enter recipient email');
+  //     return;
+  //   }
+  //   toast.success('Proposal sent successfully!');
+  //   setShowSendModal(false);
+  // };
 
-  // Handle send email
   const handleSendEmail = async () => {
-    // Validate email
     if (!emailForm.to) {
       toast.error('Please enter recipient email');
       return;
     }
 
-    // TODO: Implement actual email sending API
-    toast.success('Proposal sent successfully!');
-    setShowSendModal(false);
+    try {
+      await sendProposalEmailMutation.mutateAsync({
+        proposalId,
+        to: emailForm.to,
+        cc: emailForm.cc,
+        subject: emailForm.subject,
+        message: emailForm.message,
+      });
+
+      toast.success('Proposal sent successfully!');
+      setShowSendModal(false);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error('Failed to send proposal email');
+    }
   };
 
   // Handle share link
   const handleShareLink = () => {
-    const shareUrl = `${window.location.origin}/proposal/view/${proposalId}`;
+    const shareUrl = `${window.location.origin}/admin/proposals/${proposalId}/preview`;
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -178,15 +183,6 @@ export default function ProposalPreviewPage() {
       </main>
     );
   }
-
-  // Calculate totals
-  const subtotal = proposal.services.reduce(
-    (sum, service) => sum + service.price * service.quantity,
-    0
-  );
-  const taxable = Math.max(0, subtotal - proposal.discount);
-  const tax = taxable * (proposal.taxesPercent / 100);
-  const grandTotal = taxable + tax;
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
@@ -286,13 +282,13 @@ export default function ProposalPreviewPage() {
       </header>
 
       {/* Preview Container */}
-      <div className="flex-1 overflow-auto bg-gray-100 p-8">
+      {/* <div className={`${style.background} ${style.font}`}>
+
         <div className="mx-auto" style={{ maxWidth: '850px' }}>
-          {/* A4 Document */}
           <div
             id="document"
             ref={documentRef}
-            className="bg-white shadow-lg mx-auto"
+            className={`shadow-lg mx-auto ${style.background} ${style.font}`}
             style={{
               width: '210mm',
               minHeight: '297mm',
@@ -302,26 +298,26 @@ export default function ProposalPreviewPage() {
               transition: 'transform 0.2s ease-in-out',
             }}
           >
-            {/* Company Header */}
-            <div className="-mx-8 -mt-8 mb-8 px-8 py-6 bg-gradient-to-r from-teal-50 to-blue-50 border-b">
+            <div className={`p-6 ${style.header}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900">{proposal.companyName}</h2>
-                  <h3 className="text-xl text-gray-700 mt-2">{proposal.title}</h3>
+                  <h1 className="text-3xl font-bold">{proposal.companyName}</h1>
+                  <p className={`${style.accent}`}>{proposal.title}</p>
                 </div>
                 {proposal.logoUrl && (
                   <Image
                     src={proposal.logoUrl}
                     alt={`${proposal.companyName} logo`}
                     className="h-16 w-auto object-contain"
+                    width={400}
+                    height={300}
                   />
                 )}
               </div>
             </div>
+            <div className={`my-6 ${style.divider}`} />
 
-            {/* Proposal Details */}
             <div>
-              {/* Date and Client Info */}
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -339,7 +335,7 @@ export default function ProposalPreviewPage() {
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
                     Client Details
                   </h4>
-                  <p className="text-gray-900 font-medium">{proposal.clientName}</p>
+                  <p className={`${style.accent}`}>{proposal.clientName}</p>
                   {proposal.clientEmail && (
                     <p className="text-gray-600 text-sm">{proposal.clientEmail}</p>
                   )}
@@ -352,7 +348,6 @@ export default function ProposalPreviewPage() {
                 </div>
               </div>
 
-              {/* Introduction */}
               <div className="mb-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Introduction</h4>
                 <div
@@ -363,7 +358,6 @@ export default function ProposalPreviewPage() {
                 />
               </div>
 
-              {/* Services */}
               <div className="mb-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Services Included</h4>
                 <div className="overflow-x-auto">
@@ -411,7 +405,6 @@ export default function ProposalPreviewPage() {
                 </div>
               </div>
 
-              {/* Events Section */}
               {proposal.events && Array.isArray(proposal.events) && proposal.events.length > 0 && (
                 <div className="mb-10">
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">Events</h3>
@@ -443,10 +436,10 @@ export default function ProposalPreviewPage() {
                             <td className="text-center py-3 px-4 text-gray-700">
                               {event.dateISO
                                 ? new Date(event.dateISO).toLocaleDateString('en-IN', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric',
-                                  })
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
                                 : '-'}
                             </td>
                             <td className="text-center py-3 px-4 text-gray-700">
@@ -463,7 +456,54 @@ export default function ProposalPreviewPage() {
                 </div>
               )}
 
-              {/* Pricing Summary */}
+              {vendorsToShow.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Vendors</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                            Service / Category
+                          </th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                            Vendor Name
+                          </th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                            Email
+                          </th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                            Contact
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendorsToShow.map((item: { category: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; vendor: { name: any; email: any; contactNo: any; }; }, index: Key | null | undefined) => (
+                          <tr
+                            key={index}
+                            className="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                          >
+                            <td className="py-3 px-4 text-gray-900 font-medium">
+                              {item.category}
+                            </td>
+                            <td className="py-3 px-4 text-gray-700">
+                              {item.vendor?.name || '-'}
+                            </td>
+                            <td className="py-3 px-4 text-gray-700">
+                              {item.vendor?.email || '-'}
+                            </td>
+                            <td className="py-3 px-4 text-gray-700">
+                              {item.vendor?.contactNo || '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+
               <div className="mb-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Pricing Summary</h4>
                 <div className="bg-gray-50 rounded-lg p-6">
@@ -492,13 +532,11 @@ export default function ProposalPreviewPage() {
                 </div>
               </div>
 
-              {/* Payment Terms */}
               <div className="mb-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Payment Terms</h4>
                 <p className="text-gray-700">{proposal.paymentTerms}</p>
               </div>
 
-              {/* Terms & Conditions */}
               <div className="mb-8">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Terms & Conditions</h4>
                 <div className="bg-gray-50 rounded-lg p-6">
@@ -508,53 +546,54 @@ export default function ProposalPreviewPage() {
                 </div>
               </div>
 
-              {/* Status Timeline */}
               {(proposal.sentAt ||
                 proposal.viewedAt ||
                 proposal.acceptedAt ||
                 proposal.rejectedAt) && (
-                <div className="border-t pt-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Activity Timeline</h4>
-                  <div className="space-y-2">
-                    {proposal.sentAt && (
-                      <div className="flex items-center gap-3 text-sm">
-                        <Send className="h-4 w-4 text-blue-600" />
-                        <span className="text-gray-600">
-                          Sent on {new Date(proposal.sentAt).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
-                    {proposal.viewedAt && (
-                      <div className="flex items-center gap-3 text-sm">
-                        <Eye className="h-4 w-4 text-yellow-600" />
-                        <span className="text-gray-600">
-                          Viewed on {new Date(proposal.viewedAt).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
-                    {proposal.acceptedAt && (
-                      <div className="flex items-center gap-3 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-gray-600">
-                          Accepted on {new Date(proposal.acceptedAt).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
-                    {proposal.rejectedAt && (
-                      <div className="flex items-center gap-3 text-sm">
-                        <XCircle className="h-4 w-4 text-red-600" />
-                        <span className="text-gray-600">
-                          Rejected on {new Date(proposal.rejectedAt).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
+                  <div className="border-t pt-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Activity Timeline</h4>
+                    <div className="space-y-2">
+                      {proposal.sentAt && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <Send className="h-4 w-4 text-blue-600" />
+                          <span className="text-gray-600">
+                            Sent on {new Date(proposal.sentAt).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+                      {proposal.viewedAt && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <Eye className="h-4 w-4 text-yellow-600" />
+                          <span className="text-gray-600">
+                            Viewed on {new Date(proposal.viewedAt).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+                      {proposal.acceptedAt && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span className="text-gray-600">
+                            Accepted on {new Date(proposal.acceptedAt).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+                      {proposal.rejectedAt && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <XCircle className="h-4 w-4 text-red-600" />
+                          <span className="text-gray-600">
+                            Rejected on {new Date(proposal.rejectedAt).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      <ProposalDocument proposal={proposal} zoomLevel={zoomLevel} />
 
       {/* Send Email Modal */}
       <Dialog open={showSendModal} onOpenChange={setShowSendModal}>
@@ -630,7 +669,7 @@ export default function ProposalPreviewPage() {
             </Button>
             <Button onClick={handleSendEmail} className="bg-teal-600 hover:bg-teal-700">
               <Send className="w-4 h-4 mr-2" />
-              Send Email
+              {sendProposalEmailMutation.isPending ? 'Sending...' : 'Send Email'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -650,7 +689,7 @@ export default function ProposalPreviewPage() {
             <div className="flex gap-2">
               <Input
                 type="text"
-                value={`${window.location.origin}/proposal/view/${proposalId}`}
+                value={`${window.location.origin}/admin/proposals/${proposalId}/preview`}
                 readOnly
                 className="flex-1"
               />

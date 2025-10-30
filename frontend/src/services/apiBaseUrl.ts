@@ -111,6 +111,7 @@ export const API_URLS = {
     assignVendors: (proposalId: string) => `/proposals/assign-vendors/${proposalId}`,
     getUserProposals: (clientId: string) => `/proposals/user/${clientId}`,
     updateStatus: (proposalId: string) => `/proposals/${proposalId}/status`,
+    sendEmail: (proposalId: string) => `/proposals/${proposalId}/send-email`,
   },
   proposalTemplate: {
     getAll: '/proposal-templates/templates',
@@ -241,6 +242,7 @@ export const API_QUERY_KEYS = {
     assignVendors: 'assignVendors',
     getUserProposals: 'getUserProposals',
     updateStatus: 'updateStatus',
+    sendEmail: 'sendEmail',
   },
 
   proposalTemplate: {
