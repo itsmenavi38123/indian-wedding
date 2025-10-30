@@ -1,4 +1,7 @@
 class ApiResponse<T = any> {
+  static error(arg0: string): any {
+    throw new Error('Method not implemented.');
+  }
   statusCode: number;
   data: T | null;
   message: string;

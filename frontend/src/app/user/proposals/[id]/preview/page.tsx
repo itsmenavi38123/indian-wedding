@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { getTemplateStyle } from '@/utils/templateStyles';
 
 export default function UserProposalPreview() {
   const params = useParams<{ id: string }>();
@@ -29,6 +30,7 @@ export default function UserProposalPreview() {
 
   const { data: proposalResponse, isLoading, error } = useGetProposalById(proposalId);
   const proposal = proposalResponse;
+  const style = getTemplateStyle(proposal?.template);
 
   const { mutate: updateProposalStatus } = useUpdateProposalStatus();
 
@@ -120,9 +122,12 @@ export default function UserProposalPreview() {
   const taxable = Math.max(0, subtotal - proposal.discount);
   const tax = taxable * (proposal.taxesPercent / 100);
   const grandTotal = taxable + tax;
+  {
+    console.log('SERVICES:', proposal.services);
+  }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className={`${style.background} ${style.font}`}>
       {/* Header */}
       <header className="bg-white border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -202,7 +207,7 @@ export default function UserProposalPreview() {
           <div
             id="document"
             ref={documentRef}
-            className="bg-white shadow-lg mx-auto"
+            className={`${style.background} ${style.font}`}
             style={{
               width: '210mm',
               minHeight: '297mm',
@@ -213,11 +218,11 @@ export default function UserProposalPreview() {
             }}
           >
             {/* Header */}
-            <div className="-mx-8 -mt-8 mb-8 px-8 py-6 bg-gradient-to-r from-teal-50 to-blue-50 border-b">
+            <div className={`p-6 ${style.header}`}>
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-3xl font-bold text-gray-900">{proposal.companyName}</h2>
-                  <h3 className="text-xl text-gray-700 mt-2">{proposal.title}</h3>
+                  <p className={`${style.accent}`}>{proposal.title}</p>
                 </div>
                 {proposal.logoUrl && (
                   <Image
@@ -230,6 +235,7 @@ export default function UserProposalPreview() {
                 )}
               </div>
             </div>
+            <div className={`my-6 ${style.divider}`} />
 
             {/* Info */}
             <div className="grid grid-cols-2 gap-8 mb-8">
@@ -249,9 +255,15 @@ export default function UserProposalPreview() {
                 <h4 className="text-sm font-semibold text-gray-500 uppercase mb-2">
                   Client Details
                 </h4>
-                <p className="text-gray-900 font-medium">{proposal.clientName}</p>
+                <p className={`${style.accent}`}>{proposal.clientName}</p>
                 {proposal.clientEmail && (
                   <p className="text-gray-600 text-sm">{proposal.clientEmail}</p>
+                )}
+                {proposal.clientPhone && (
+                  <p className="text-gray-600 text-sm">{proposal.clientPhone}</p>
+                )}
+                {proposal.clientAddress && (
+                  <p className="text-gray-600 text-sm">{proposal.clientAddress}</p>
                 )}
               </div>
             </div>
@@ -326,6 +338,60 @@ export default function UserProposalPreview() {
                 </table>
               </div>
             )}
+
+            {/* Vendors */}
+            {proposal.services &&
+              proposal.services.length > 0 &&
+              (() => {
+                const acceptedVendors = proposal.services.reduce((acc: any[], s: any) => {
+                  const vendor = s.vendor || s.vendorService?.vendor;
+                  const category = s.category || s.name || 'Other';
+                  if (s.status === 'ACCEPTED' && vendor) {
+                    acc.push({ category, vendor });
+                  }
+                  return acc;
+                }, []);
+
+                const adminAssignedVendors = proposal.services.reduce((acc: any[], s: any) => {
+                  const vendor = s.vendor || s.vendorservice?.vendor;
+                  const category = s.category || s.name || 'Other';
+                  if (s.status === 'ASSIGNED' && vendor) {
+                    acc.push({ category, vendor });
+                  }
+                  return acc;
+                }, []);
+
+                const vendorsToShow =
+                  acceptedVendors.length > 0 ? acceptedVendors : adminAssignedVendors;
+
+                return vendorsToShow.length > 0 ? (
+                  <div className="mb-8">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Vendors Assigned</h4>
+                    <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-2 px-4 text-sm text-gray-700">
+                            Service / Category
+                          </th>
+                          <th className="text-left py-2 px-4 text-sm text-gray-700">Vendor Name</th>
+                          <th className="text-left py-2 px-4 text-sm text-gray-700">Email</th>
+                          <th className="text-left py-2 px-4 text-sm text-gray-700">Contact</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendorsToShow.map((v, i) => (
+                          <tr key={i} className="border-t border-gray-100 hover:bg-gray-50">
+                            <td className="py-2 px-4">{v.category}</td>
+                            <td className="py-2 px-4">{v.vendor?.name || '-'}</td>
+                            <td className="py-2 px-4">{v.vendor?.email || '-'}</td>
+                            <td className="py-2 px-4">{v.vendor?.contactNo || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null;
+              })()}
 
             {/* Totals */}
             <div className="bg-gray-50 rounded-lg p-6 mb-8">

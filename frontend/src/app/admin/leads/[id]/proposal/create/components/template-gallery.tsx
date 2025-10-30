@@ -19,9 +19,9 @@ function thumbnailFor(templateId: string) {
       return '/classic-elegant-proposal.png';
     case 'modern':
       return '/modern-minimal-proposal.png';
-    case 'traditional':
+    case 'royal':
       return '/traditional-indian-proposal.png';
-    case 'scratch':
+    case 'minimal':
       return '/blank-template.png';
     default:
       return '/custom-template.png';

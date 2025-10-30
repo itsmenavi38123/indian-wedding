@@ -3,6 +3,7 @@ import { logger } from '@/logger';
 
 interface EmailOptions {
   to: string;
+  cc?: string;
   subject: string;
   html: string;
   attachments?: Array<{
