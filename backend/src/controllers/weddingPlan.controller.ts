@@ -20,6 +20,7 @@ export class WeddingPlanController {
         events,
         services,
         selectedVendors,
+        theme,
       } = req.body;
 
       let destination: any = null;
@@ -73,6 +74,7 @@ export class WeddingPlanController {
           totalBudget: totalBudget ? BigInt(totalBudget) : null,
           guests: guestCount ?? null,
           category: category ?? [],
+          theme: theme ?? null,
           events:
             events && Array.isArray(events)
               ? {

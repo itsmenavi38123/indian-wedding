@@ -138,6 +138,11 @@ export const API_URLS = {
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/mark-all-read',
   },
+  contractTemplate: {
+    getAll: '/contract-templates',
+    getById: (id: string) => `/contract-templates/${id}`,
+    generatePdf: (id: string) => `/contract-templates/${id}/pdf`,
+  },
 };
 
 export const API_QUERY_KEYS = {
@@ -261,5 +266,10 @@ export const API_QUERY_KEYS = {
     getAll: 'getAll',
     markAsRead: 'markAsRead',
     markAllAsRead: 'markAllAsRead',
+  },
+  contractTemplate: {
+    getAll: 'contractTemplates.getAll',
+    getById: 'contractTemplates.getById',
+    generatePdf: 'contractTemplates.generatePdf',
   },
 };

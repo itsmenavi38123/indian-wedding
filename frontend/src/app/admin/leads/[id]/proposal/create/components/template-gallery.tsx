@@ -11,6 +11,7 @@ import Image from 'next/image';
 type Props = {
   value: string;
   onChange: (template: ProposalTemplate) => void;
+  templates?: ProposalTemplate[];
 };
 
 function thumbnailFor(templateId: string) {
@@ -19,18 +20,20 @@ function thumbnailFor(templateId: string) {
       return '/classic-elegant-proposal.png';
     case 'modern':
       return '/modern-minimal-proposal.png';
-    case 'royal':
+    case 'traditional':
       return '/traditional-indian-proposal.png';
-    case 'minimal':
+    case 'scratch':
       return '/blank-template.png';
     default:
       return '/custom-template.png';
   }
 }
 
-export function TemplateGallery({ value, onChange }: Props) {
-  const { data: templates = [], isLoading, error } = useGetAllTemplates();
+export function TemplateGallery({ value, onChange, templates }: Props) {
+  const { data: allTemplates = [], isLoading, error } = useGetAllTemplates();
   const seedMutation = useSeedTemplates();
+
+  const displayedTemplates = templates ?? allTemplates;
 
   if (isLoading) {
     return <div className="text-center py-4">Loading templates...</div>;
@@ -52,7 +55,7 @@ export function TemplateGallery({ value, onChange }: Props) {
     );
   }
 
-  if (templates.length === 0) {
+  if (displayedTemplates.length === 0) {
     return (
       <div className="text-center py-4">
         <p className="text-gray-600">No templates available</p>
@@ -72,11 +75,11 @@ export function TemplateGallery({ value, onChange }: Props) {
     <section aria-labelledby="template-heading" className="w-full">
       <div className="flex items-baseline justify-between">
         <h2 id="template-heading" className="text-lg font-semibold text-balance text-white">
-          Select a template
+          Selected Template
         </h2>
       </div>
       <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {templates.map((template) => {
+        {displayedTemplates.map((template) => {
           const selected = value === template.templateId;
           return (
             <li key={template.id}>
@@ -90,6 +93,7 @@ export function TemplateGallery({ value, onChange }: Props) {
                 )}
                 aria-pressed={selected}
                 aria-label={`Select ${template.name} template`}
+                disabled={displayedTemplates.length === 1}
               >
                 <div className="flex items-center gap-3">
                   <Image
