@@ -50,6 +50,7 @@ type ProposalState = {
     location?: string;
   }[];
   weddingPlanId?: string;
+  theme?: string;
 };
 
 type Stored = {
@@ -283,14 +284,77 @@ export default function CreateProposalPage() {
         : today;
 
       // Find the classic template
-      const classicTemplate = templates.find((t) => t.templateId === 'classic');
-      if (classicTemplate) {
+      // const classicTemplate = templates.find((t) => t.templateId === 'classic');
+      // if (classicTemplate) {
+      //   const initialState: ProposalState = {
+      //     templateId: classicTemplate.templateId,
+      //     templateName: classicTemplate.name,
+      //     companyName: 'Indian Weddings',
+      //     logoUrl: '',
+      //     title: `${classicTemplate.name} Proposal`,
+      //     dateISO: proposalDate,
+      //     reference,
+      //     client: {
+      //       name: clientName,
+      //       email: lead.email,
+      //       phone: lead.phoneNumber,
+      //       address: '',
+      //     },
+      //     introHTML: classicTemplate.introHTML || '',
+      //     services: lead.weddingPlan?.services?.length
+      //       ? lead.weddingPlan.services.map((srv: any) => ({
+      //         id: srv.id,
+      //         name: srv.vendorService?.title || 'Unnamed Service',
+      //         description: srv.vendorService?.description || srv.notes || '',
+      //         price: srv.vendorService?.price || 0,
+      //         category: srv.vendorService?.category || 'Other',
+      //         vendorId: srv.vendorService?.vendor?.id,
+      //         vendor: srv.vendorService?.vendor,
+      //       }))
+      //       : [],
+
+      //     taxesPercent: 18,
+      //     discount: 0,
+      //     paymentTerms: '50% to book, 50% before event',
+      //     termsText: classicTemplate.termsText || '',
+      //     budget: [
+      //       lead?.budgetMin ?? lead.weddingPlan?.totalBudget ?? 0,
+      //       lead?.budgetMax ?? lead.weddingPlan?.totalBudget ?? 0,
+      //     ],
+      //     stage: lead.stage || lead.status,
+      //     events:
+      //       lead?.weddingPlan?.events?.map((e: any) => ({
+      //         id: e.id,
+      //         name: e.name,
+      //         date: e.date ? e.date.split('T')[0] : '',
+      //         startTime: e.startTime || '',
+      //         endTime: e.endTime || '',
+      //         location: e.location || lead.weddingPlan?.destination?.name || '',
+      //       })) || [],
+      //     weddingPlanId: lead.weddingPlanId,
+      //   };
+      //   setData({ state: initialState, versions: [], lastSavedAt: undefined });
+      //   console.log('✅ Services added to proposal state:', initialState.services);
+
+      //   setTemplateInitialized(true);
+      // }
+
+      const theme = lead?.weddingPlan?.theme || '';
+      let themeTemplateId = 'classic';
+
+      if (theme.includes('Modern')) themeTemplateId = 'modern';
+      else if (theme.includes('Traditional')) themeTemplateId = 'traditional';
+      else if (theme.includes('Classic')) themeTemplateId = 'classic';
+
+      const selectedTemplate = templates.find((t) => t.templateId === themeTemplateId);
+
+      if (selectedTemplate) {
         const initialState: ProposalState = {
-          templateId: classicTemplate.templateId,
-          templateName: classicTemplate.name,
-          companyName: 'Indian Weddings', // Default company name
+          templateId: selectedTemplate.templateId,
+          templateName: selectedTemplate.name,
+          companyName: 'Indian Weddings',
           logoUrl: '',
-          title: `${classicTemplate.name} Proposal`,
+          title: `${selectedTemplate.name} Proposal`,
           dateISO: proposalDate,
           reference,
           client: {
@@ -299,7 +363,7 @@ export default function CreateProposalPage() {
             phone: lead.phoneNumber,
             address: '',
           },
-          introHTML: classicTemplate.introHTML || '',
+          introHTML: selectedTemplate.introHTML || '',
           services: lead.weddingPlan?.services?.length
             ? lead.weddingPlan.services.map((srv: any) => ({
                 id: srv.id,
@@ -311,11 +375,10 @@ export default function CreateProposalPage() {
                 vendor: srv.vendorService?.vendor,
               }))
             : [],
-
           taxesPercent: 18,
           discount: 0,
           paymentTerms: '50% to book, 50% before event',
-          termsText: classicTemplate.termsText || '',
+          termsText: selectedTemplate.termsText || '',
           budget: [
             lead?.budgetMin ?? lead.weddingPlan?.totalBudget ?? 0,
             lead?.budgetMax ?? lead.weddingPlan?.totalBudget ?? 0,
@@ -332,8 +395,9 @@ export default function CreateProposalPage() {
             })) || [],
           weddingPlanId: lead.weddingPlanId,
         };
+
         setData({ state: initialState, versions: [], lastSavedAt: undefined });
-        console.log('✅ Services added to proposal state:', initialState.services);
+        console.log('services added to proposal state:', initialState.services);
 
         setTemplateInitialized(true);
       }
@@ -674,7 +738,11 @@ export default function CreateProposalPage() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-6">
-        <TemplateGallery value={data.state.templateId} onChange={changeTemplate} />
+        <TemplateGallery
+          value={data.state.templateId}
+          onChange={changeTemplate}
+          templates={templates.filter((t) => t.templateId === data.state.templateId)}
+        />
 
         <HeaderSection
           companyName={data.state.companyName}

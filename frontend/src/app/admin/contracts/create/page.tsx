@@ -2,219 +2,133 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Calendar, FileText, MapPin, IndianRupee, Signature } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, FileText, Download } from 'lucide-react';
+import { useGenerateContractPdf } from '@/services/api/contractTemplate';
+import Image from 'next/image';
 
-export default function CreateContractTemplatePage() {
-  const [template, setTemplate] = useState({
-    contractTitle: 'Wedding Planning Contract',
-    partner1Name: '',
-    partner2Name: '',
-    weddingLocation: '',
-    budget: '',
-    events: '',
-    services: '',
-    advancePayment: '',
-    termsAndConditions: '',
-    signatureClient: '',
-    signatureCompany: '',
-    startDate: '',
-    endDate: '',
+const templates = [
+  {
+    id: 'wedding_standard_contract',
+    name: 'Classic Wedding Contract',
+    preview: '/images/contracts/classic.jpg',
+    description: 'Elegant and timeless contract for traditional weddings.',
+  },
+  {
+    id: 'modern_wedding_contract',
+    name: 'Modern Wedding Contract',
+    preview: '/images/contracts/modern.jpg',
+    description: 'Clean, minimal, and suitable for contemporary celebrations.',
+  },
+  {
+    id: 'destination_wedding_contract',
+    name: 'Destination Wedding Contract',
+    preview: '/images/contracts/destination.jpg',
+    description: 'Perfect for weddings abroad or at exotic venues.',
+  },
+  {
+    id: 'luxury_wedding_contract',
+    name: 'Luxury Wedding Contract',
+    preview: '/images/contracts/luxury.jpg',
+    description: 'Premium style for luxury planners and elite events.',
+  },
+];
+
+export default function ContractTemplateSelector() {
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('wedding_standard_contract');
+
+  const { data: pdfUrl, isLoading } = useGenerateContractPdf({
+    templateId: selectedTemplate,
   });
 
-  const patch = (key: string, value: string) => setTemplate((prev) => ({ ...prev, [key]: value }));
+  const handleDownload = () => {
+    if (!pdfUrl) return;
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = `${selectedTemplate}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
-      {/* Header */}
+    <div className="max-w-7xl mx-auto p-8 space-y-10">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Create Contract Template</h1>
-          <p className="text-sm text-muted-foreground">
-            Define contract details, partners, and terms.
+          <h1 className="text-3xl font-bold text-white">Choose Your Contract Template</h1>
+          <p className="text-gray-400 text-sm">
+            Select a style below to preview and download the generated PDF.
           </p>
         </div>
+        <Button
+          onClick={handleDownload}
+          disabled={!pdfUrl || isLoading}
+          className="bg-gold-600 hover:bg-gold-700 text-white flex items-center gap-2"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" /> Download PDF
+            </>
+          )}
+        </Button>
       </div>
 
-      {/* Contract Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-gold-500" /> Basic Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground">Contract Title</label>
-              <Input
-                value={template.contractTitle}
-                onChange={(e) => patch('contractTitle', e.target.value)}
-                placeholder="Enter title"
+      {/* Template Selection Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {templates.map((t) => (
+          <Card
+            key={t.id}
+            onClick={() => setSelectedTemplate(t.id)}
+            className={`cursor-pointer transition-all border-2 ${
+              selectedTemplate === t.id
+                ? 'border-gold-500 shadow-lg scale-105'
+                : 'border-transparent hover:border-gold-400 hover:scale-[1.02]'
+            } bg-gray-900 text-white`}
+          >
+            <div className="relative w-full h-40">
+              <Image
+                src={t.preview}
+                alt={t.name}
+                fill
+                className="object-cover rounded-t-lg opacity-90"
               />
             </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Budget (₹)</label>
-              <Input
-                value={template.budget}
-                onChange={(e) => patch('budget', e.target.value)}
-                type="number"
-                placeholder="e.g. 500000"
-              />
-            </div>
-          </div>
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg">{t.name}</CardTitle>
+              <p className="text-sm text-gray-400">{t.description}</p>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-4 w-4" /> Start Date
-              </label>
-              <Input
-                type="date"
-                value={template.startDate}
-                onChange={(e) => patch('startDate', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-4 w-4" /> End Date
-              </label>
-              <Input
-                type="date"
-                value={template.endDate}
-                onChange={(e) => patch('endDate', e.target.value)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Partners */}
-      <Card>
+      {/* Preview Section */}
+      <Card className="bg-gray-900/50 border border-gray-800 shadow-md">
         <CardHeader>
-          <CardTitle>Partner Information</CardTitle>
-        </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm text-muted-foreground">Partner 1 Name</label>
-            <Input
-              value={template.partner1Name}
-              onChange={(e) => patch('partner1Name', e.target.value)}
-              placeholder="Enter name"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-muted-foreground">Partner 2 Name</label>
-            <Input
-              value={template.partner2Name}
-              onChange={(e) => patch('partner2Name', e.target.value)}
-              placeholder="Enter name"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-sm text-muted-foreground flex items-center gap-1">
-              <MapPin className="w-4 h-4" /> Wedding Location
-            </label>
-            <Input
-              value={template.weddingLocation}
-              onChange={(e) => patch('weddingLocation', e.target.value)}
-              placeholder="City / Venue"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Events & Services */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Events & Services</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm text-muted-foreground">Events</label>
-            <Textarea
-              rows={3}
-              value={template.events}
-              onChange={(e) => patch('events', e.target.value)}
-              placeholder="List all planned events..."
-            />
-          </div>
-          <div>
-            <label className="text-sm text-muted-foreground">Services Included</label>
-            <Textarea
-              rows={3}
-              value={template.services}
-              onChange={(e) => patch('services', e.target.value)}
-              placeholder="Catering, Décor, Photography, etc."
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Payments */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IndianRupee className="h-5 w-5 text-gold-500" /> Payment Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm text-muted-foreground">Advance Payment</label>
-            <Input
-              value={template.advancePayment}
-              onChange={(e) => patch('advancePayment', e.target.value)}
-              placeholder="e.g. 50% of total amount"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Terms */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Terms & Conditions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            rows={5}
-            value={template.termsAndConditions}
-            onChange={(e) => patch('termsAndConditions', e.target.value)}
-            placeholder="Write your terms and conditions..."
-          />
-        </CardContent>
-      </Card>
-
-      {/* Signatures */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Signature className="h-5 w-5 text-gold-500" /> Signatures
+          <CardTitle className="flex items-center gap-2 text-white">
+            <FileText className="w-5 h-5 text-gold-500" /> Contract Preview
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid sm:grid-cols-2 gap-6 mt-2">
-            <div>
-              <label className="text-sm text-muted-foreground">Client Signature</label>
-              <Input
-                value={template.signatureClient}
-                onChange={(e) => patch('signatureClient', e.target.value)}
-                placeholder="Type name or upload signature later"
-              />
-              <Separator className="my-2" />
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+              <Loader2 className="h-6 w-6 animate-spin mb-2" />
+              Generating PDF for {selectedTemplate}...
             </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Company Representative</label>
-              <Input
-                value={template.signatureCompany}
-                onChange={(e) => patch('signatureCompany', e.target.value)}
-                placeholder="Company authorized name"
-              />
-              <Separator className="my-2" />
-            </div>
-          </div>
+          ) : pdfUrl ? (
+            <iframe
+              src={pdfUrl}
+              className="w-full h-[80vh] border border-gray-700 rounded-lg shadow-lg"
+            ></iframe>
+          ) : (
+            <p className="text-center text-gray-400 py-10">
+              Select a contract template to preview.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

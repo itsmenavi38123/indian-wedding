@@ -11,7 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "seed": "ts-node prisma/seed.ts",
     "seed:templates": "ts-node -r tsconfig-paths/register src/scripts/seedTemplates.ts",
-    "seed:packages": "ts-node -r tsconfig-paths/register src/scripts/weddingPackages.seed.ts"
+    "seed:packages": "ts-node -r tsconfig-paths/register src/scripts/weddingPackages.seed.ts""seed:contracts": "ts-node -r tsconfig-paths/register src/scripts/seedContractTemplates.ts"
   },
   "author": "",
   "license": "ISC",

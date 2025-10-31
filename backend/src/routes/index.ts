@@ -10,6 +10,7 @@ import { vendorRoute } from './vendor.route';
 import { landingPageRoute } from './home.route';
 import { weddingPlanRoute } from './weddingPlan.route';
 import { notificationRoute } from './notification.route';
+import { contractTemplateRoute } from './contractTemplate.route';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/admin', adminRouter());
 router.use('/home', landingPageRoute());
 router.use('/wedding-plan', weddingPlanRoute());
 router.use('/notifications', notificationRoute());
+router.use('/contract-templates', contractTemplateRoute());
 
 export default router;
