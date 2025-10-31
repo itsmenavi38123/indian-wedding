@@ -52,6 +52,7 @@ interface WizardData {
     endTime: string;
   }[];
   selectedServices: Record<string, any[]>;
+  selectedTheme?: string | null;
   photographerPreference: 'local' | 'travel' | 'either';
   selectedCategories: string[];
 }
@@ -117,6 +118,10 @@ export default function GalleryPage() {
     localStorage.setItem('pendingWeddingPlan', JSON.stringify(wizardData));
     localStorage.setItem('currentStep', currentStep);
   }, [wizardData, currentStep]);
+  const selectedTheme = wizardData.selectedTheme || null;
+  const setSelectedTheme = (theme: string | null) => {
+    setWizardData((prev) => ({ ...prev, selectedTheme: theme }));
+  };
 
   const steps: { id: WizardStep; title: string; icon: any }[] = [
     { id: 'budget', title: 'Budget', icon: Calendar },
@@ -207,6 +212,7 @@ export default function GalleryPage() {
         endDate: new Date().toISOString().split('T')[0],
       },
       guestCount: wizardData.guestCount || 0,
+      theme: wizardData.selectedTheme ?? null,
       selectedVendors: selectedVendorsPayload,
       events: wizardData.events.map((ev) => ({
         name: ev.name,
@@ -367,6 +373,8 @@ export default function GalleryPage() {
               onPreferenceSelect={(pref) =>
                 setWizardData({ ...wizardData, photographerPreference: pref })
               }
+              selectedTheme={selectedTheme}
+              onThemeSelect={setSelectedTheme}
               weddingDate={wizardData.weddingDate}
               events={wizardData.events || []}
               onEventsChange={(newEvents) => setWizardData({ ...wizardData, events: newEvents })}
@@ -469,6 +477,14 @@ export default function GalleryPage() {
                   {wizardData.photographerPreference && (
                     <div className="text-sm text-gray-500 mt-1">
                       <span className="capitalize">{wizardData.photographerPreference}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="font-semibold text-gray-700">Theme</div>
+                  {wizardData.selectedTheme && (
+                    <div className="text-sm mt-1">
+                      <div className="text-lg">{wizardData.selectedTheme}</div>
                     </div>
                   )}
                 </div>

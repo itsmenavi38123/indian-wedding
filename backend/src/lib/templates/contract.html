@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Wedding Planning Proposal</title>
+    <style>
+      body {
+        font-family: 'Helvetica', sans-serif;
+        margin: 40px;
+        color: #222;
+        line-height: 1.6;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #b45f06;
+        margin-bottom: 4px;
+      }
+      .page-break {
+        page-break-after: always;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+      }
+      .center {
+        text-align: center;
+      }
+      .signature {
+        margin-top: 80px;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- COVER PAGE -->
+    <div class="center">
+      <h1>Wedding Planning Proposal</h1>
+      <p><strong>Prepared for:</strong> {{client.name}}</p>
+      <p><strong>Prepared by:</strong> {{company.contactName}}, {{company.name}}</p>
+      <p>Date: {{dateISO}}</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- INTRODUCTION -->
+    <h2>Dear {{client.name}},</h2>
+    <p>
+      We are thrilled to have the opportunity to work with you on your upcoming wedding. At
+      <strong>{{company.name}}</strong>, we pride ourselves on creating memorable experiences
+      tailored to our clients' visions. This proposal outlines how we can assist you in making your
+      special day everything you’ve ever dreamed of and more.
+    </p>
+
+    <h3>Purpose of this Proposal</h3>
+    <p>
+      The purpose of this document is to provide a comprehensive overview of the wedding planning
+      services we offer, specifically tailored to your needs and preferences. You’ll find
+      information on our services, design direction, budget, and the scope of work required to make
+      your celebration seamless and unforgettable.
+    </p>
+
+    <div class="page-break"></div>
+
+    <!-- CLIENT NEEDS -->
+    <h2>Client Needs Assessment</h2>
+
+    <h3>Wedding Vision</h3>
+    <ul>
+      <li><strong>Theme:</strong> {{wedding.theme}}</li>
+      <li><strong>Destination:</strong> {{wedding.destination}}</li>
+      <li><strong>Venue:</strong> {{wedding.venue}}</li>
+      <li><strong>Guest Count:</strong> {{wedding.guestCount}}</li>
+      <li><strong>Special Requirements:</strong> {{wedding.specialRequirements}}</li>
+    </ul>
+
+    <h3>Specific Goals & Preferences</h3>
+    <ul>
+      {{#each goals}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+
+    <div class="page-break"></div>
+
+    <!-- SERVICE PACKAGES -->
+    <h2>Our Service Offerings</h2>
+    <p>
+      We provide a range of wedding planning services designed to accommodate different needs and
+      budgets.
+    </p>
+
+    <h3>Package 1: Full-Service Wedding Planning</h3>
+    <ul>
+      <li>Comprehensive planning from start to finish</li>
+      <li>Vendor selection and management</li>
+      <li>Full event design and styling</li>
+    </ul>
+
+    <h3>Package 2: Partial Planning</h3>
+    <ul>
+      <li>Planning services for specific aspects of the wedding</li>
+      <li>Coordination with your chosen vendors</li>
+      <li>Support for day-of logistics</li>
+    </ul>
+
+    <h3>Package 3: Day-of Coordination</h3>
+    <ul>
+      <li>On-site management on the wedding day</li>
+      <li>Execution of your planned schedule</li>
+      <li>Vendor and attendee coordination</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <!-- PROJECT OVERVIEW -->
+    <h2>Project Overview</h2>
+    <p><strong>Wedding Date:</strong> {{wedding.date}}</p>
+    <p><strong>Venue:</strong> {{wedding.venue}}</p>
+    <p><strong>Venue Features:</strong> {{wedding.venueFeatures}}</p>
+
+    <h3>Events</h3>
+    <ul>
+      {{#each events}}
+      <li><strong>{{name}}</strong> — {{date}} ({{startTime}}–{{endTime}}) at {{location}}</li>
+      {{/each}}
+    </ul>
+
+    <h3>Vendors & Services</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Vendor</th>
+          <th>Price (₹)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each services}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{vendor.name}}</td>
+          <td>{{price}}</td>
+          <td>{{notes}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- THEME & DESIGN -->
+    <h2>Theme and Design Direction</h2>
+    <ul>
+      <li><strong>Color Palette:</strong> {{wedding.colorPalette}}</li>
+      <li><strong>Design Elements:</strong> {{designElements}}</li>
+      <li><strong>Decor Elements:</strong> {{decorElements}}</li>
+    </ul>
+
+    <p>
+      Our goal is to create a cohesive and visually stunning atmosphere that reflects your
+      personality and preferences. From the ceremony decor to the reception lighting, every detail
+      will be curated to achieve your desired aesthetic.
+    </p>
+
+    <div class="page-break"></div>
+
+    <!-- SCOPE OF WORK -->
+    <h2>Scope of Work</h2>
+    <p>As your dedicated wedding planners, we will manage the following tasks:</p>
+    <ul>
+      <li>Venue scouting, negotiation, and booking</li>
+      <li>Vendor selection and contract management</li>
+      <li>Budget tracking and payment reminders</li>
+      <li>Decor design, setup, and teardown supervision</li>
+      <li>Guest management and RSVP coordination</li>
+      <li>Day-of logistics and on-site coordination</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <!-- BUDGET SUMMARY -->
+    <h2>Budget Summary</h2>
+    <table>
+      <tbody>
+        {{#each budget.items}}
+        <tr>
+          <td>{{label}}</td>
+          <td>₹{{amount}}</td>
+        </tr>
+        {{/each}}
+        <tr>
+          <td><strong>Subtotal</strong></td>
+          <td>₹{{budget.subTotal}}</td>
+        </tr>
+        <tr>
+          <td>Tax ({{budget.taxPercent}}%)</td>
+          <td>₹{{budget.taxAmount}}</td>
+        </tr>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td>₹{{budget.total}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Deposit: ₹{{budget.deposit}} | Interim: ₹{{budget.interim}} (Due: {{budget.interimDueDate}}) |
+      Final: ₹{{budget.final}} (Due: {{budget.finalDueDate}})
+    </p>
+
+    <div class="page-break"></div>
+
+    <!-- TERMS & SIGNATURE -->
+    <h2>Terms and Conditions</h2>
+    <ol>
+      <li>All deposits are non-refundable unless agreed otherwise.</li>
+      <li>Final balance is due by the specified due date before the wedding day.</li>
+      <li>Any additional services requested after contract signing will incur extra charges.</li>
+      <li>The planner shall not be liable for any uncontrollable events or vendor delays.</li>
+      <li>By signing below, both parties agree to the terms and services outlined above.</li>
+    </ol>
+
+    <div class="signature">
+      <div>
+        <p>_________________________</p>
+        <p><strong>{{company.contactName}}</strong><br />{{company.name}}</p>
+      </div>
+      <div>
+        <p>_________________________</p>
+        <p><strong>{{client.name}}</strong><br />Client</p>
+      </div>
+    </div>
+  </body>
+</html>

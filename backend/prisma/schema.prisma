@@ -303,7 +303,6 @@ model ProposalTemplateService {
   createdAt   DateTime         @default(now())
 }
 
-
 model Contract {
   id        String   @id @default(uuid())
   leadId    String
@@ -598,6 +597,7 @@ model WeddingPlan {
   totalBudget   BigInt?
   guests        Int?
   category      String[]     @default([])
+  theme         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -639,4 +639,15 @@ model Notification {
   recipientRole UserRole? // target role
   isRead        Boolean   @default(false)
   createdAt     DateTime  @default(now())
+}
+
+model ContractTemplate {
+  id          Int      @id @default(autoincrement())
+  templateId  String   @unique
+  name        String
+  description String?
+  htmlContent String
+  type        String   @default("contract")
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }
