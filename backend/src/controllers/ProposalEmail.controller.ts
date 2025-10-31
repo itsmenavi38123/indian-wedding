@@ -10,7 +10,7 @@ export const sendProposalEmail = async (req: Request, res: Response) => {
   const { to, cc, subject, message } = req.body;
 
   if (!to || !/\S+@\S+\.\S+/.test(to)) {
-    console.log('Invalid recipient email');
+    console.log('Invalid recipient - email');
     return res.status(400).json({ error: 'Valid recipient email is required' });
   }
 
