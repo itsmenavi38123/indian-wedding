@@ -30,7 +30,7 @@ export default function ProposalDocument({ proposal, zoomLevel = 100 }: any) {
     if (s.status === 'ACCEPTED' && vendor) acc.push({ category, vendor });
     return acc;
   }, []);
-
+  console.log(acceptedVendors);
   const adminAssignedVendors = services.reduce((acc: any, s: any) => {
     const vendor = s.vendor;
     const category = s.category || s.name || 'Other';
