@@ -44,6 +44,7 @@ export default function PageEditor({
     useEffect(() => {
         const timer = setTimeout(() => {
             if (!reactQuillRef.current) return;
+            //
 
             const quill =
                 typeof reactQuillRef.current.getEditor === 'function'
