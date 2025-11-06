@@ -304,12 +304,19 @@ model ProposalTemplateService {
 }
 
 model Contract {
-  id        String   @id @default(uuid())
-  leadId    String
-  lead      Lead     @relation(fields: [leadId], references: [id])
-  title     String
-  fileUrl   String
-  createdAt DateTime @default(now())
+  id          String              @id @default(uuid())
+  leadId      String
+  lead        Lead                @relation(fields: [leadId], references: [id])
+  title       String
+  fileUrl     String
+  signedUrl   String?
+  signerName  String?
+  signerEmail String?
+  status      String?             @default("PENDING") // PENDING | SIGNED | COMPLETED | FAILED
+  sessionId   String?
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  signatures  ContractSignature[]
 }
 
 model Payment {
@@ -649,5 +656,19 @@ model ContractTemplate {
   htmlContent String
   type        String   @default("contract")
   isSystem    Boolean  @default(false)
+  signatureFields Json? 
   createdAt   DateTime @default(now())
+}
+
+model ContractSignature {
+  id          String    @id @default(uuid())
+  contractId  String
+  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  signerName  String
+  signerEmail String
+  role        String? // CLIENT | PLANNER | VENDOR
+  status      String?   @default("PENDING") // PENDING | SIGNED
+  signedAt    DateTime?
+  signedFile  String?
+  createdAt   DateTime  @default(now())
 }
