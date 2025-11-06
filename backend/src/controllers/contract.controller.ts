@@ -78,13 +78,7 @@ export class ContractTemplateController {
         console.log('❌ Template not found in DB for ID:', id);
         return res
           .status(statusCodes.NOT_FOUND)
-          .json(
-            new ApiResponse(
-              statusCodes.NOT_FOUND,
-              null,
-              'Contract template not found'
-            )
-          );
+          .json(new ApiResponse(statusCodes.NOT_FOUND, null, 'Contract template not found'));
       }
 
       console.log('✅ Template found:', template.name);
@@ -135,14 +129,7 @@ export class ContractTemplateController {
       console.error('❌ [generatePdf] Error generating PDF:', error);
       res
         .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          new ApiResponse(
-            statusCodes.INTERNAL_SERVER_ERROR,
-            null,
-            'Failed to generate PDF'
-          )
-        );
+        .json(new ApiResponse(statusCodes.INTERNAL_SERVER_ERROR, null, 'Failed to generate PDF'));
     }
   }
-
 }
