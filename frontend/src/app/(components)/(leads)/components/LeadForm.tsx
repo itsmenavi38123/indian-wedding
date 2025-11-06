@@ -307,6 +307,8 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
       ...data,
       guestCountMin: data.guestCount?.[0],
       guestCountMax: data.guestCount?.[1],
+      budgetMin: data.budget?.[0],
+      budgetMax: data.budget?.[1],
       weddingPlan: {
         ...data.weddingPlan,
         services: normalizedServices,
@@ -319,8 +321,6 @@ const LeadForm: React.FC<AddLeadProps> = ({ defaultValues, type = 'add' }) => {
     } else {
       createLeadMutate({ ...payload, isUser: true });
     }
-
-    console.log('Payload sent to API:', payload);
   };
 
   console.log('WeddingPlan data:', form.watch('weddingPlan'));
