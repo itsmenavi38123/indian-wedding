@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+
+// Load .env from project root (parent directory)
+// Use .env.production if NODE_ENV is production, otherwise use .env
+const envFile =
+  process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+dotenv.config({ path: path.resolve(__dirname, '../../', envFile) });
 
 const envSchema = z.object({
   PORT: z.string().optional(),

@@ -5,15 +5,44 @@ import { config } from 'dotenv';
 config();
 
 let io: SocketIOServer | null = null;
-const origin = process.env.ALLOWED_ORIGIN || 'http://localhost:3000';
 
 export const initializeSocket = (server: HttpServer) => {
-  io = new SocketIOServer(server, {
-    cors: {
-      origin: origin,
-      credentials: true,
-      methods: ['GET', 'POST'],
+  // Allow all subdomains and development origins
+  const corsOptions = {
+    origin: (
+      requestOrigin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void
+    ) => {
+      // Allow requests with no origin
+      if (!requestOrigin) return callback(null, true);
+
+      // Get base domain from environment or use localhost
+      const baseDomain = process.env.BASE_DOMAIN || 'localhost';
+
+      // Allow localhost on any port
+      if (requestOrigin.includes('localhost')) {
+        return callback(null, true);
+      }
+
+      // Allow all subdomains of base domain
+      if (requestOrigin.includes(baseDomain)) {
+        return callback(null, true);
+      }
+
+      // Allow the main allowed origin
+      const allowedOrigin = process.env.ALLOWED_ORIGIN;
+      if (allowedOrigin && requestOrigin === allowedOrigin) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
     },
+    credentials: true,
+    methods: ['GET', 'POST'],
+  };
+
+  io = new SocketIOServer(server, {
+    cors: corsOptions,
     transports: ['websocket', 'polling'],
   });
 

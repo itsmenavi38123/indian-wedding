@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
@@ -16,11 +17,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* 🧩 Required for DocuSeal embed to work */}
+        <Script src="https://docuseal.co/embed.js" strategy="beforeInteractive" />
+      </head>
       <body className="font-marcellus antialiased" suppressHydrationWarning={true}>
         <Providers>
           <div className="h-screen flex flex-col">
             <Header>
-              {' '}
               <main className="flex-1">{children}</main>
             </Header>
           </div>

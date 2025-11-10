@@ -113,7 +113,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ editable = false }) => {
                 ) : (
                   <Button
                     size="sm"
-                    onClick={() => router.push('/gallery')}
+                    onClick={() => router.push('/wedding-configurator/welcome')}
                     className="h-[50px]   md:mb-0 md:h-[55px] w-[220px] md:w-auto flex justify-center items-center bg-gold text-white text-[16px] md:text-[18px] font-normal tracking-[1px] hover:text-gold hover:bg-white transition-colors px-[20px] py-[10px]  sm:px-[25px] sm:py-[12px] cursor-pointer"
                   >
                     {landingContent.heroSectionButton1Text}
