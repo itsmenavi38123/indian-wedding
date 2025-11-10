@@ -7,7 +7,10 @@ import CreateWebsite from './(components)/landingPage/CreateWebsite';
 import ClientLogo, { logos } from './(components)/landingPage/ClientLogo';
 import Review from './(components)/landingPage/Review';
 import { landingContent, blogs } from './admin/constants';
-console.log(process.env.NEXT_PUBLIC_API_BASE_URL , "process.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.env")
+console.log(
+  process.env.NEXT_PUBLIC_API_BASE_URL,
+  'process.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.envprocess.env'
+);
 export default function Home() {
   return (
     <div className=" w-full flex flex-col">
