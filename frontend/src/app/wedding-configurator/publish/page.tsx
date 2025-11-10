@@ -157,12 +157,6 @@ export default function PublishPage() {
     }
   };
 
-  const handleViewSite = () => {
-    if (publishedUrl) {
-      window.open(publishedUrl, '_blank');
-    }
-  };
-
   const handleGoToDashboard = () => {
     // Reset configurator state
     dispatch(resetConfigurator());

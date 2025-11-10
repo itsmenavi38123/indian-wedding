@@ -344,7 +344,7 @@ export default function WelcomePage() {
             </a>
           </div>
           <p className="text-xs text-gray-600 mt-3 text-center">
-            ✨ This URL will be created when you click "Next"
+            ✨ This URL will be created when you click Next
           </p>
         </div>
       )}
