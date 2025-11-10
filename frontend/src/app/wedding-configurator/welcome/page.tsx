@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { setBasicInfo, setWeddingPlanId } from '@/store/slices/configurator';
 import { createGuestWeddingPlan } from '@/services/api/configurator';
-import { SUBDOMAIN_CONFIG } from '@/lib/constant';
+import { getWeddingUrlFromNames } from '@/lib/weddingUrl';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -328,13 +328,24 @@ export default function WelcomePage() {
 
       {/* Preview Card */}
       {formData.person1Name && formData.person2Name && (
-        <div className="mt-8 bg-gradient-to-r from-gold/10 to-purple-100 rounded-xl p-6 text-center">
-          <div className="bg-white rounded-lg p-3 border border-gold/20">
-            <p className="text-xs text-gray-500 mb-1">Your Wedding Website URL:</p>
-            <code className="text-sm text-gold font-mono">
-              {SUBDOMAIN_CONFIG.generateSubdomainUrl(formData.person1Name, formData.person2Name)}
-            </code>
+        <div className="mt-8 bg-gradient-to-r from-gold/10 to-purple-100 rounded-xl p-6 border border-gold/20">
+          <div className="flex items-center justify-center mb-3">
+            <div className="text-2xl mr-2">🌐</div>
+            <h3 className="text-lg font-semibold text-gray-800">Your Wedding Website URL</h3>
           </div>
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <a
+              href={getWeddingUrlFromNames(formData.person1Name, formData.person2Name)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-base md:text-lg font-medium text-gold hover:text-gold/80 transition-colors break-all block text-center"
+            >
+              {getWeddingUrlFromNames(formData.person1Name, formData.person2Name)}
+            </a>
+          </div>
+          <p className="text-xs text-gray-600 mt-3 text-center">
+            ✨ This URL will be created when you click "Next"
+          </p>
         </div>
       )}
     </div>

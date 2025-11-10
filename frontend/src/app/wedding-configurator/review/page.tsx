@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/store';
 import { formatIndianCurrency } from '@/services/api/configurator';
 import { format } from 'date-fns';
+import { getWeddingUrl, getShortDisplayUrl } from '@/lib/weddingUrl';
 
 export default function ReviewPage() {
   const router = useRouter();
@@ -104,9 +105,19 @@ export default function ReviewPage() {
         {/* Header Section */}
         <div className="bg-gradient-to-r from-gold to-purple-600 p-8 text-white text-center">
           <h2 className="text-3xl font-serif mb-2">{configuratorState.coupleNames}</h2>
-          <p className="text-white/90">{configuratorState.subdomain}.indianweddings.com</p>
-          <div className="mt-4 inline-block px-4 py-2 bg-white/20 rounded-full text-sm">
-            {formatDate(configuratorState.weddingStartDate)}
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mt-3 mb-4 inline-block">
+            <p className="text-xs text-white/70 mb-1">🌐 Your Wedding Website</p>
+            <a
+              href={getWeddingUrl(configuratorState.subdomain || '')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm md:text-base font-medium text-white hover:text-white/80 transition-colors break-all"
+            >
+              {getShortDisplayUrl(configuratorState.subdomain || '')}
+            </a>
+          </div>
+          <div className="mt-2 inline-block px-4 py-2 bg-white/20 rounded-full text-sm">
+            📅 {formatDate(configuratorState.weddingStartDate)}
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import {
   resetConfigurator,
 } from '@/store/slices/configurator';
 import { claimWeddingPlan, publishWeddingSite } from '@/services/api/configurator';
+import { getWeddingUrl, getShortDisplayUrl } from '@/lib/weddingUrl';
 
 // Helper to check if user is logged in (from cookies/localStorage)
 const isUserLoggedIn = (): boolean => {
@@ -213,9 +214,14 @@ export default function PublishPage() {
               <li className="flex items-center">
                 <span className="mr-2">✓</span>
                 Website URL:{' '}
-                {process.env.NODE_ENV === 'development'
-                  ? `/wedding/${configuratorState.subdomain}`
-                  : `${configuratorState.subdomain}.indianweddings.com`}
+                <a
+                  href={getWeddingUrl(configuratorState.subdomain || '')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold hover:text-gold/80 underline ml-1"
+                >
+                  {getShortDisplayUrl(configuratorState.subdomain || '')}
+                </a>
               </li>
             </ul>
           </div>
@@ -324,11 +330,14 @@ export default function PublishPage() {
               style={{ backgroundColor: themeColor }}
             >
               <h2 className="text-3xl font-serif mb-2">{configuratorState.coupleNames}</h2>
-              <p className="text-white/90">
-                {process.env.NODE_ENV === 'development'
-                  ? `/wedding/${configuratorState.subdomain}`
-                  : `${configuratorState.subdomain}.indianweddings.com`}
-              </p>
+              <a
+                href={getWeddingUrl(configuratorState.subdomain || '')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/90 hover:text-white transition-colors"
+              >
+                {getShortDisplayUrl(configuratorState.subdomain || '')}
+              </a>
               {introMessage && (
                 <p className="mt-4 text-sm text-white/80 max-w-md mx-auto">{introMessage}</p>
               )}
@@ -378,18 +387,27 @@ export default function PublishPage() {
 
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-serif text-gray-900 mb-4">Your Website URL</h2>
+            <h2 className="text-2xl font-serif text-gray-900 mb-4">🌐 Your Wedding Website URL</h2>
             <div className="bg-gradient-to-r from-gold/10 to-purple-50 rounded-xl p-6 mb-6">
-              <p className="text-2xl font-medium text-gray-900 break-all">{publishedUrl}</p>
+              <a
+                href={publishedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xl md:text-2xl font-medium text-gold hover:text-gold/80 transition-colors break-all block"
+              >
+                {publishedUrl}
+              </a>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={handleViewSite}
-                className="px-8 py-3 bg-gold text-white font-medium rounded-lg hover:bg-gold/90 transition-colors shadow-md hover:shadow-lg"
+              <a
+                href={publishedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-3 bg-gold text-white font-medium rounded-lg hover:bg-gold/90 transition-colors shadow-md hover:shadow-lg inline-flex items-center justify-center"
               >
-                View Your Website →
-              </button>
+                🔗 View Your Website →
+              </a>
               <button
                 onClick={handleGoToDashboard}
                 className="px-8 py-3 bg-white text-gray-700 font-medium rounded-lg border-2 border-gray-300 hover:bg-gray-50 transition-colors"
