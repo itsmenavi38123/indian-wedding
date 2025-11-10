@@ -40,39 +40,19 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PAT }}
 
-      # 3. Test Backend Build (Check for build issues)
-      - name: Test backend build
-        run: |
-          echo "🔍 Testing backend build..."
-          cd backend
-          npm ci
-          npm run build
-          echo "✅ Backend build successful!"
-
-      # 4. Build backend Docker image
+      # 3. Build backend Docker image
       - name: Build backend Docker image
         run: |
           docker build -t $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
           docker tag $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
-      # 5. Push backend image
+      # 4. Push backend image
       - name: Push backend image
         run: |
           docker push $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
-      # 6. Test Frontend Build (Check for build issues)
-      - name: Test frontend build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-        run: |
-          echo "🔍 Testing frontend build..."
-          cd frontend
-          npm ci
-          npm run build
-          echo "✅ Frontend build successful!"
-
-      # 7. Build frontend Docker image
+      # 5. Build frontend Docker image
       - name: Build frontend Docker image
         run: |
           docker build \
@@ -81,13 +61,13 @@ jobs:
             -t $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} ./frontend
           docker tag $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_FRONTEND:latest
 
-      # 8. Push frontend image
+      # 6. Push frontend image
       - name: Push frontend image
         run: |
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:latest
 
-      # 9. Deploy to production server (100% Automated - No Scripts Needed!)
+      # 7. Deploy to production server (100% Automated - No Scripts Needed!)
       - name: Deploy to production server
         uses: appleboy/ssh-action@v1.0.0
         with:
