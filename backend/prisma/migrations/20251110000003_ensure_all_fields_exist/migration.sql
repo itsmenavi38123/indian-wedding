@@ -31,10 +31,13 @@ END $$;
 -- ===== LEAD TABLE =====
 ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "weddingPlanId" TEXT;
 
--- Add unique constraint only if it doesn't exist
+-- Add unique constraint only if it doesn't exist (check both constraints and indexes)
 DO $$ BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint WHERE conname = 'Lead_weddingPlanId_key'
+        SELECT 1 FROM pg_indexes WHERE tablename = 'Lead' AND indexname = 'Lead_weddingPlanId_key'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'Lead_weddingPlanId_key' AND table_name = 'Lead'
     ) THEN
         ALTER TABLE "Lead" ADD CONSTRAINT "Lead_weddingPlanId_key" UNIQUE ("weddingPlanId");
     END IF;
@@ -66,10 +69,13 @@ ALTER TABLE "TeamMember" ADD COLUMN IF NOT EXISTS "roleLogin" TEXT;
 ALTER TABLE "TeamMember" ALTER COLUMN "vendorId" DROP NOT NULL;
 ALTER TABLE "TeamMember" ALTER COLUMN "email" SET NOT NULL;
 
--- Add unique constraint only if it doesn't exist
+-- Add unique constraint only if it doesn't exist (check both constraints and indexes)
 DO $$ BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint WHERE conname = 'TeamMember_email_key'
+        SELECT 1 FROM pg_indexes WHERE tablename = 'TeamMember' AND indexname = 'TeamMember_email_key'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'TeamMember_email_key' AND table_name = 'TeamMember'
     ) THEN
         ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_email_key" UNIQUE ("email");
     END IF;
