@@ -6,11 +6,8 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Install build dependencies needed for native modules
-RUN apk add --no-cache python3 make g++
-
-# Install dependencies
-COPY package*.json ./
+# Install dependencies (copy package.json only, ignore lock file to avoid lightningcss issue)
+COPY package.json ./
 RUN npm install
 
 # Copy all code
@@ -31,7 +28,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./ 
+COPY --from=builder /app/package.json ./ 
 
 EXPOSE 3000
 CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
