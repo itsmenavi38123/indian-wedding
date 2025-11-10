@@ -41,10 +41,13 @@ yarn-error.log*
 *.log
 uploads
 # env files (can opt-in for committing if needed)
-.env*
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+config.bat
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
