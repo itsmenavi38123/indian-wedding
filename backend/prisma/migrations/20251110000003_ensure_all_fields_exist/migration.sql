@@ -30,9 +30,14 @@ END $$;
 
 -- ===== LEAD TABLE =====
 ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "weddingPlanId" TEXT;
+
+-- Add unique constraint only if it doesn't exist
 DO $$ BEGIN
-    ALTER TABLE "Lead" ADD CONSTRAINT "Lead_weddingPlanId_key" UNIQUE ("weddingPlanId");
-EXCEPTION WHEN duplicate_object THEN NULL;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'Lead_weddingPlanId_key'
+    ) THEN
+        ALTER TABLE "Lead" ADD CONSTRAINT "Lead_weddingPlanId_key" UNIQUE ("weddingPlanId");
+    END IF;
 END $$;
 
 DO $$ BEGIN
@@ -61,9 +66,13 @@ ALTER TABLE "TeamMember" ADD COLUMN IF NOT EXISTS "roleLogin" TEXT;
 ALTER TABLE "TeamMember" ALTER COLUMN "vendorId" DROP NOT NULL;
 ALTER TABLE "TeamMember" ALTER COLUMN "email" SET NOT NULL;
 
+-- Add unique constraint only if it doesn't exist
 DO $$ BEGIN
-    ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_email_key" UNIQUE ("email");
-EXCEPTION WHEN duplicate_object THEN NULL;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'TeamMember_email_key'
+    ) THEN
+        ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_email_key" UNIQUE ("email");
+    END IF;
 END $$;
 
 DO $$ BEGIN
