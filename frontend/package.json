@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "format": "prettier --write .",
-    "dev": "prettier --write . && next dev --turbopack",
+    "dev": "node api.js && prettier --write . && next dev --turbopack",
     "build": "prettier --write . && next build",
-    "start": "next start",
+    "start": "node api.js && next start",
     "lint": "next lint"
   },
   "dependencies": {
