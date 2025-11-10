@@ -142,6 +142,7 @@ export const API_URLS = {
     getAll: '/contract-templates',
     getById: (id: string) => `/contract-templates/${id}`,
     generatePdf: (id: string) => `/contract-templates/${id}/pdf`,
+    saveSignatureFields: (id: string) => `/contract-templates/${id}/fields`,
   },
 };
 
@@ -271,5 +272,6 @@ export const API_QUERY_KEYS = {
     getAll: 'contractTemplates.getAll',
     getById: 'contractTemplates.getById',
     generatePdf: 'contractTemplates.generatePdf',
+    saveSignatureFields: 'contractTemplates.saveSignatureFields',
   },
 };

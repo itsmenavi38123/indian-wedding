@@ -304,12 +304,19 @@ model ProposalTemplateService {
 }
 
 model Contract {
-  id        String   @id @default(uuid())
-  leadId    String
-  lead      Lead     @relation(fields: [leadId], references: [id])
-  title     String
-  fileUrl   String
-  createdAt DateTime @default(now())
+  id          String              @id @default(uuid())
+  leadId      String
+  lead        Lead                @relation(fields: [leadId], references: [id])
+  title       String
+  fileUrl     String
+  signedUrl   String?
+  signerName  String?
+  signerEmail String?
+  status      String?             @default("PENDING") // PENDING | SIGNED | COMPLETED | FAILED
+  sessionId   String?
+  completedAt DateTime?
+  createdAt   DateTime            @default(now())
+  signatures  ContractSignature[]
 }
 
 model Payment {
@@ -469,6 +476,7 @@ model VendorService {
   name        String?
   latitude    Float?
   longitude   Float?
+  capacity    String?   // For venues: "200-500 guests"
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -590,16 +598,47 @@ model RSVPGuest {
 
 model WeddingPlan {
   id            String       @id @default(uuid())
-  userId        String
-  user          User         @relation(fields: [userId], references: [id])
+  userId        String?      // Nullable for guest mode - gets assigned when user claims the plan
+  user          User?        @relation(fields: [userId], references: [id])
   destinationId String?
   destination   Destination? @relation(fields: [destinationId], references: [id])
-  totalBudget   BigInt?
-  guests        Int?
+  totalBudget   BigInt?      // Existing field - keep as is
+  guests        Int?         // Existing field - keep as is
   category      String[]     @default([])
   theme         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  // ===== WEDDING CONFIGURATOR FIELDS (7-Step Wizard) =====
+  // Step 1: Welcome & Basic Info
+  coupleNames       String?              // "Rahul & Anjali"
+  subdomain         String?    @unique   // "rahulandanjali" - auto-generated
+  weddingStartDate  DateTime?            // Start date
+  weddingEndDate    DateTime?            // End date
+  baseLocation      String?              // "India", "UAE", etc.
+  // Note: Uses existing 'guests' field for guest count
+
+  // Step 2: Choose Your Vibe
+  vibe              String?              // Selected vibe name
+
+  // Step 3: Location Preferences
+  region            String?              // Selected region/country
+  // Note: Can also use existing 'destinationId' field
+
+  // Step 4: Budget Setup
+  budgetMin         BigInt?              // Match totalBudget type
+  budgetMax         BigInt?              // Match totalBudget type
+  // Note: totalBudget can be calculated from budgetMax
+
+  // Step 7: Create Wedding Site
+  sitePublished     Boolean   @default(false)
+  siteCoverPhoto    String?
+  siteThemeColor    String?   @default("#ad8b3a")  // Gold default
+  siteIntroMessage  String?   @db.Text
+
+  // Wizard Progress Tracking
+  wizardStep        Int       @default(1)          // Current step 1-7
+  wizardCompleted   Boolean   @default(false)
 
   services WeddingPlanService[]
   events   WeddingEvent[]
@@ -631,6 +670,18 @@ model WeddingEvent {
   createdAt     DateTime    @default(now())
 }
 
+model WeddingVibe {
+  id          String   @id @default(uuid())
+  name        String   @unique            // "Regal Royale", "Bohemian Garden", etc.
+  tagline     String                      // Short tagline
+  image       String                      // Image URL
+  description String   @db.Text           // Full description
+  order       Int      @default(0)        // Display order
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Notification {
   id            String    @id @default(cuid())
   message       String
@@ -649,5 +700,19 @@ model ContractTemplate {
   htmlContent String
   type        String   @default("contract")
   isSystem    Boolean  @default(false)
+  signatureFields Json? 
   createdAt   DateTime @default(now())
+}
+
+model ContractSignature {
+  id          String    @id @default(uuid())
+  contractId  String
+  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  signerName  String
+  signerEmail String
+  role        String? // CLIENT | PLANNER | VENDOR
+  status      String?   @default("PENDING") // PENDING | SIGNED
+  signedAt    DateTime?
+  signedFile  String?
+  createdAt   DateTime  @default(now())
 }

@@ -98,8 +98,10 @@
   --gradient-end: rgba(95, 95, 95, 0);
   --primary-gradient: linear-gradient(180deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
 
-  --herogradient-start: #000; /* at 6.55% */
-  --herogradient-end: rgba(15, 14, 14, 0); /* at 24.38% */
+  --herogradient-start: #000;
+  /* at 6.55% */
+  --herogradient-end: rgba(15, 14, 14, 0);
+  /* at 24.38% */
 
   --Hero-gradient: linear-gradient(
     180deg,
@@ -107,8 +109,10 @@
     var(--herogradient-end) 24.38%
   );
 
-  --herobottom-start: rgba(81, 81, 81, 0); /* at 13.3% */
-  --herobottom-end: rgba(0, 0, 0, 0.7); /* at 96.44% */
+  --herobottom-start: rgba(81, 81, 81, 0);
+  /* at 13.3% */
+  --herobottom-end: rgba(0, 0, 0, 0.7);
+  /* at 96.44% */
 
   --Hero-gradient: linear-gradient(
     180deg,
@@ -218,9 +222,11 @@
   .font-montserrat {
     font-family: var(--font-montserrat);
   }
+
   .font-marcellus {
     font-family: var(--font-marcellus);
   }
+
   .kanban-container {
     width: 100%;
     max-width: 100vw;
@@ -236,9 +242,11 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .drop-shadow-custom {
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
   }
+
   /* Hide scrollbar for mobile but keep functionality */
   @media (max-width: 768px) {
     .overflow-x-auto::-webkit-scrollbar,
@@ -292,6 +300,7 @@
 .review_outer span.swiper-pagination-bullet.swiper-pagination-bullet-active {
   background-color: #ad8b3a;
 }
+
 .home-collection span.swiper-pagination-bullet,
 .review_outer span.swiper-pagination-bullet {
   width: 30px;
@@ -299,15 +308,19 @@
   background: rgba(0, 0, 0, 0.32);
   border-radius: 0;
 }
+
 .review_outer span.swiper-pagination-bullet {
   background: #fff;
 }
+
 .card-bg {
   background: linear-gradient(181deg, rgba(0, 0, 0, 0) 14.29%, #0a0a0a 99.24%);
 }
+
 .custom-style .swiper-slide {
   width: 25% !important;
 }
+
 .black-bg {
   background: var(--black-bg);
 }
@@ -315,25 +328,57 @@
 .dark-bg {
   background: var(--dark-bg);
 }
+
 .rbc-calendar span.rbc-btn-group button {
   background: #aa8d43;
   color: #fff;
 }
+
 .rbc-calendar .rbc-toolbar .rbc-toolbar-label {
-  color: #fff !important ;
+  color: #fff !important;
 }
+
 .rbc-calendar .rbc-header span {
   color: #fff;
 }
+
 .rbc-calendar button.rbc-button-link {
   color: #fff;
 }
+
 .rbc-calendar .rbc-off-range-bg {
   background: #aa8d43;
 }
+
 .rbc-calendar .rbc-today {
   background-color: #16171a;
 }
+
+.ql-font-serif {
+  font-family: 'Times New Roman', serif;
+}
+
+.ql-font-monospace {
+  font-family: 'Courier New', monospace;
+}
+
+.ql-font-sans-serif {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Optional: Larger text size mapping */
+.ql-size-small {
+  font-size: 0.75rem;
+}
+
+.ql-size-large {
+  font-size: 1.5rem;
+}
+
+.ql-size-huge {
+  font-size: 2rem;
+}
+
 @media screen and (max-width: 1199px) {
   section.w-full.how-work::after {
     background: linear-gradient(270deg, rgba(173, 139, 58, 0) 0%, #ad8b3a 95%);
@@ -344,6 +389,7 @@
     top: 0;
     content: '';
   }
+
   section.w-full.create_website::after {
     content: '';
     position: absolute;

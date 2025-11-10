@@ -12,11 +12,12 @@ import forgotPasswordReducer from './slices/forgotPassword';
 import planningReducer from './slices/planning';
 import vendorServiceReducer from './slices/vendorServices';
 import vendorTeamReducer from './slices/vendorTeam';
+import configuratorReducer from './slices/configurator';
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['forgotPassword'],
+  whitelist: ['forgotPassword', 'configurator'],
 };
 
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   forgotPassword: forgotPasswordReducer,
   planning: planningReducer,
   vendorTeam: vendorTeamReducer,
+  configurator: configuratorReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

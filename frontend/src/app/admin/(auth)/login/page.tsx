@@ -58,9 +58,10 @@ const LoginPage = () => {
     mutationFn: async (data: AdminLoginInput) => adminLogin(data),
     onSuccess: (data: any) => {
       toast.success(data?.message ?? 'Admin logged in successfully.');
-      dispatch(setAdminLoginEmail(''));
+      dispatch(setAdminLoginEmail(data?.data?.admin?.email));
       router.push('/admin/leads');
     },
+
     onError: (error) => {
       console.log(error);
       toast.error('Login failed. Please check your credentials and try again.');
