@@ -29,10 +29,24 @@ export async function fetchApi(accessToken?: string) {
   }
 }
 
+// Helper function to check if hostname is an IP address
+function isIPAddress(hostname: string): boolean {
+  // Remove port if present
+  const host = hostname.split(':')[0];
+  // Check if it's an IPv4 address (e.g., 209.38.121.128)
+  const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+  return ipv4Pattern.test(host);
+}
+
 // Helper function to extract subdomain from hostname
 function getSubdomain(hostname: string): string | null {
   // Remove port if present (e.g., "localhost:3002" -> "localhost")
   const host = hostname.split(':')[0];
+
+  // Don't treat IP addresses as subdomains
+  if (isIPAddress(hostname)) {
+    return null;
+  }
 
   // Split by dots
   const parts = host.split('.');
