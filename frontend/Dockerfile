@@ -6,12 +6,12 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Install build dependencies for native modules (lightningcss)
+# Install build dependencies needed for native modules
 RUN apk add --no-cache python3 make g++
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install --include=optional && npm install lightningcss-linux-x64-musl --save-optional || true
+RUN npm install
 
 # Copy all code
 COPY . .
