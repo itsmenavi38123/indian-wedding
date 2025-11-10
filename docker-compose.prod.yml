@@ -16,6 +16,8 @@ services:
       - uploads-data:/app/uploads   # persist uploaded files
       - backend-db-data:/app/db     # if backend stores any local DB
     restart: unless-stopped
+    networks:
+      - app-network
 
   # Frontend Service
   frontend:
@@ -28,6 +30,8 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    networks:
+      - app-network
 
   # Postgres Database
   db:
@@ -36,22 +40,31 @@ services:
     platform: linux/amd64
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: indianweddings
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # MUST be set in .env.production
+      POSTGRES_DB: ${POSTGRES_DB:-indianweddings}
+    # ⚠️ SECURITY: DO NOT expose 5432 to public internet!
+    # Only expose if you need external access (use strong password + firewall rules)
+    # ports:
+    #   - "127.0.0.1:5432:5432"  # Only bind to localhost if needed
     volumes:
       - postgres_data:/var/lib/postgresql/data   # persistent Postgres data
+    networks:
+      - app-network
 
   # Redis Service
   redis:
     image: redis:alpine
     container_name: redis-teo
-    ports:
-      - "6379:6379"
+    # ⚠️ SECURITY: Redis should not be exposed to public internet
+    # ports:
+    #   - "127.0.0.1:6379:6379"  # Only bind to localhost if needed
     volumes:
       - redis-data:/data   # persistent Redis data
+    networks:
+      - app-network
+    # Optional: Add password protection
+    # command: redis-server --requirepass ${REDIS_PASSWORD}
 
 # Named Volumes
 volumes:
@@ -63,3 +76,8 @@ volumes:
     driver: local
   redis-data:
     driver: local
+
+# Networks
+networks:
+  app-network:
+    driver: bridge

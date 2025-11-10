@@ -29,10 +29,88 @@ export async function fetchApi(accessToken?: string) {
   }
 }
 
+// Helper function to extract subdomain from hostname
+function getSubdomain(hostname: string): string | null {
+  // Remove port if present (e.g., "localhost:3002" -> "localhost")
+  const host = hostname.split(':')[0];
+
+  // Split by dots
+  const parts = host.split('.');
+
+  // Handle different patterns:
+  // - subdomain.localhost -> ["subdomain", "localhost"]
+  // - subdomain.indianweddings.com -> ["subdomain", "indianweddings", "com"]
+  // - localhost -> ["localhost"]
+  // - indianweddings.com -> ["indianweddings", "com"]
+
+  if (parts.length === 1) {
+    // Just "localhost" - no subdomain
+    return null;
+  }
+
+  if (parts.length === 2) {
+    // Could be "subdomain.localhost" or "domain.com"
+    if (parts[1] === 'localhost') {
+      // "subdomain.localhost" - return subdomain
+      return parts[0];
+    }
+    // "domain.com" - no subdomain
+    return null;
+  }
+
+  // parts.length >= 3
+  // Handle "subdomain.indianweddings.com" or "subdomain.domain.com"
+  // Check if it's the main domain (indianweddings.com)
+  if (parts[parts.length - 2] === 'indianweddings' && parts[parts.length - 1] === 'com') {
+    // First part is the subdomain
+    return parts[0];
+  }
+
+  // For other multi-part domains, assume first part is subdomain
+  return parts[0];
+}
+
+// Reserved subdomains that should not be treated as wedding subdomains
+const RESERVED_SUBDOMAINS = ['www', 'admin', 'api', 'app', 'mail', 'ftp', 'localhost'];
+
+function isReservedSubdomain(subdomain: string): boolean {
+  return RESERVED_SUBDOMAINS.includes(subdomain.toLowerCase());
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const accessToken = req.cookies.get(CONST_KEYS.ACCESS_TOKEN)?.value;
   const refreshToken = req.cookies.get(CONST_KEYS.REFRESH_TOKEN)?.value;
+
+  // ============================================
+  // SUBDOMAIN ROUTING LOGIC
+  // ============================================
+  // Extract subdomain from hostname
+  const hostname = req.headers.get('host') || '';
+  const subdomain = getSubdomain(hostname);
+
+  // If there's a valid subdomain (not reserved), rewrite to /wedding/[subdomain]
+  if (subdomain && !isReservedSubdomain(subdomain)) {
+    // Don't rewrite if already on /wedding path to avoid loops
+    if (!pathname.startsWith('/wedding/')) {
+      // Clone the URL and rewrite to /wedding/[subdomain]
+      const url = req.nextUrl.clone();
+
+      // Preserve the original pathname
+      // Example: subdomain.localhost:3002/ -> /wedding/subdomain/
+      // Example: subdomain.localhost:3002/rsvp -> /wedding/subdomain/rsvp
+      url.pathname = `/wedding/${subdomain}${pathname}`;
+
+      console.log(
+        `[Middleware] Subdomain detected: ${subdomain}, rewriting ${pathname} -> ${url.pathname}`
+      );
+
+      return NextResponse.rewrite(url);
+    }
+  }
+  // ============================================
+  // END SUBDOMAIN ROUTING LOGIC
+  // ============================================
 
   if (pathname.startsWith('/admin')) {
     if ((accessToken || refreshToken) && excludePath.includes(pathname)) {
@@ -129,5 +207,15 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/vendor/:path*'],
+  // Match all paths for subdomain detection, admin, vendor, and user authentication
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

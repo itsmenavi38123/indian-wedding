@@ -11,6 +11,8 @@ import { landingPageRoute } from './home.route';
 import { weddingPlanRoute } from './weddingPlan.route';
 import { notificationRoute } from './notification.route';
 import { contractTemplateRoute } from './contractTemplate.route';
+import { configuratorRoute } from './configurator.route';
+import { vibeManagementRoute } from './vibeManagement.route';
 
 const router = Router();
 
@@ -28,5 +30,7 @@ router.use('/home', landingPageRoute());
 router.use('/wedding-plan', weddingPlanRoute());
 router.use('/notifications', notificationRoute());
 router.use('/contract-templates', contractTemplateRoute());
+router.use('/configurator', configuratorRoute());
+router.use('/vibes', vibeManagementRoute());
 
 export default router;
