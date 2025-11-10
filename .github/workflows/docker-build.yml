@@ -40,18 +40,20 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PAT }}
 
-      # 3. Build backend Docker image
-      - name: Build backend Docker image
-        run: |
-          docker build -t $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
-          docker tag $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
+      # BACKEND TEMPORARILY DISABLED FOR FRONTEND TESTING
+      # # 3. Build backend Docker image
+      # - name: Build backend Docker image
+      #   run: |
+      #     docker build -t $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} ./backend
+      #     docker tag $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }} $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
-      # 4. Push backend image
-      - name: Push backend image
-        run: |
-          docker push $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
-          docker push $REGISTRY/$IMAGE_NAME_BACKEND:latest
+      # # 4. Push backend image
+      # - name: Push backend image
+      #   run: |
+      #     docker push $REGISTRY/$IMAGE_NAME_BACKEND:${{ github.sha }}
+      #     docker push $REGISTRY/$IMAGE_NAME_BACKEND:latest
 
+      # TESTING FRONTEND BUILD
       # 5. Build frontend Docker image
       - name: Build frontend Docker image
         run: |
@@ -66,163 +68,164 @@ jobs:
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME_FRONTEND:latest
 
-      # 7. Deploy to production server (100% Automated - No Scripts Needed!)
-      - name: Deploy to production server
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            echo "=========================================="
-            echo "🚀 100% Automated Deployment Started"
-            echo "Time: $(date)"
-            echo "=========================================="
+      # DEPLOYMENT TEMPORARILY DISABLED FOR FRONTEND TESTING
+      # # 7. Deploy to production server (100% Automated - No Scripts Needed!)
+      # - name: Deploy to production server
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USER }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     port: ${{ secrets.SERVER_PORT || 22 }}
+      #     script: |
+      #       echo "=========================================="
+      #       echo "🚀 100% Automated Deployment Started"
+      #       echo "Time: $(date)"
+      #       echo "=========================================="
 
-            # ========================================
-            # SETUP DIRECTORIES & PERMISSIONS
-            # ========================================
-            echo ""
-            echo "📁 Setting up directories..."
-            mkdir -p /var/www/indianWedding
-            mkdir -p /var/backups/indianwedding
-            mkdir -p /var/log
+      #       # ========================================
+      #       # SETUP DIRECTORIES & PERMISSIONS
+      #       # ========================================
+      #       echo ""
+      #       echo "📁 Setting up directories..."
+      #       mkdir -p /var/www/indianWedding
+      #       mkdir -p /var/backups/indianwedding
+      #       mkdir -p /var/log
 
-            cd /var/www/indianWedding
+      #       cd /var/www/indianWedding
 
-            # ========================================
-            # AUTOMATIC PRE-DEPLOYMENT BACKUP
-            # ========================================
-            echo ""
-            echo "💾 Creating automatic backup before deployment..."
+      #       # ========================================
+      #       # AUTOMATIC PRE-DEPLOYMENT BACKUP
+      #       # ========================================
+      #       echo ""
+      #       echo "💾 Creating automatic backup before deployment..."
 
-            if docker ps 2>/dev/null | grep -q postgres; then
-              BACKUP_FILE="/var/backups/indianwedding/auto_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
+      #       if docker ps 2>/dev/null | grep -q postgres; then
+      #         BACKUP_FILE="/var/backups/indianwedding/auto_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
 
-              if docker exec postgres pg_dump -U postgres indianweddings 2>/dev/null | gzip > "$BACKUP_FILE"; then
-                BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
-                echo "✅ Backup created: $BACKUP_SIZE"
+      #         if docker exec postgres pg_dump -U postgres indianweddings 2>/dev/null | gzip > "$BACKUP_FILE"; then
+      #           BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+      #           echo "✅ Backup created: $BACKUP_SIZE"
 
-                # Keep only last 30 days of backups
-                find /var/backups/indianwedding -name "auto_backup_*.sql.gz" -mtime +30 -delete 2>/dev/null || true
-              else
-                echo "⚠️  Backup skipped (database may not exist yet)"
-              fi
-            else
-              echo "⚠️  Database not running - skipping backup"
-            fi
+      #           # Keep only last 30 days of backups
+      #           find /var/backups/indianwedding -name "auto_backup_*.sql.gz" -mtime +30 -delete 2>/dev/null || true
+      #         else
+      #           echo "⚠️  Backup skipped (database may not exist yet)"
+      #         fi
+      #       else
+      #         echo "⚠️  Database not running - skipping backup"
+      #       fi
 
-            # ========================================
-            # PULL LATEST DOCKER IMAGES
-            # ========================================
-            echo ""
-            echo "📦 Pulling latest Docker images..."
-            docker compose -f docker-compose.prod.yml pull
+      #       # ========================================
+      #       # PULL LATEST DOCKER IMAGES
+      #       # ========================================
+      #       echo ""
+      #       echo "📦 Pulling latest Docker images..."
+      #       docker compose -f docker-compose.prod.yml pull
 
-            # ========================================
-            # START DATABASE & REDIS FIRST
-            # ========================================
-            echo ""
-            echo "🗄️  Starting database and Redis..."
-            docker compose -f docker-compose.prod.yml up -d db redis
+      #       # ========================================
+      #       # START DATABASE & REDIS FIRST
+      #       # ========================================
+      #       echo ""
+      #       echo "🗄️  Starting database and Redis..."
+      #       docker compose -f docker-compose.prod.yml up -d db redis
 
-            # Wait for Postgres to be ready
-            echo "⏳ Waiting for Postgres..."
-            for i in {1..30}; do
-              if docker exec postgres pg_isready -U postgres >/dev/null 2>&1; then
-                echo "✅ Postgres is ready!"
-                break
-              fi
-              echo "   Waiting... ($i/30)"
-              sleep 2
-            done
+      #       # Wait for Postgres to be ready
+      #       echo "⏳ Waiting for Postgres..."
+      #       for i in {1..30}; do
+      #         if docker exec postgres pg_isready -U postgres >/dev/null 2>&1; then
+      #           echo "✅ Postgres is ready!"
+      #           break
+      #         fi
+      #         echo "   Waiting... ($i/30)"
+      #         sleep 2
+      #       done
 
-            # Wait for Redis to be ready
-            echo "⏳ Waiting for Redis..."
-            for i in {1..15}; do
-              if docker exec redis-teo redis-cli ping 2>/dev/null | grep -q PONG; then
-                echo "✅ Redis is ready!"
-                break
-              fi
-              echo "   Waiting... ($i/15)"
-              sleep 2
-            done
+      #       # Wait for Redis to be ready
+      #       echo "⏳ Waiting for Redis..."
+      #       for i in {1..15}; do
+      #         if docker exec redis-teo redis-cli ping 2>/dev/null | grep -q PONG; then
+      #           echo "✅ Redis is ready!"
+      #           break
+      #         fi
+      #         echo "   Waiting... ($i/15)"
+      #         sleep 2
+      #       done
 
-            # ========================================
-            # START BACKEND & FRONTEND
-            # ========================================
-            echo ""
-            echo "🚀 Starting backend and frontend..."
-            docker compose -f docker-compose.prod.yml up -d backend frontend
+      #       # ========================================
+      #       # START BACKEND & FRONTEND
+      #       # ========================================
+      #       echo ""
+      #       echo "🚀 Starting backend and frontend..."
+      #       docker compose -f docker-compose.prod.yml up -d backend frontend
 
-            # ========================================
-            # RUN DATABASE MIGRATIONS
-            # ========================================
-            echo ""
-            echo "🔄 Running database migrations..."
-            sleep 10  # Wait for backend to start
-            docker exec indianweddings-backend npx prisma migrate deploy 2>&1 || echo "⚠️  Migration warning (check if this is first deploy)"
+      #       # ========================================
+      #       # RUN DATABASE MIGRATIONS
+      #       # ========================================
+      #       echo ""
+      #       echo "🔄 Running database migrations..."
+      #       sleep 10  # Wait for backend to start
+      #       docker exec indianweddings-backend npx prisma migrate deploy 2>&1 || echo "⚠️  Migration warning (check if this is first deploy)"
 
-            # ========================================
-            # CLEANUP
-            # ========================================
-            echo ""
-            echo "🧹 Cleaning up old Docker images..."
-            docker image prune -f >/dev/null 2>&1 &
+      #       # ========================================
+      #       # CLEANUP
+      #       # ========================================
+      #       echo ""
+      #       echo "🧹 Cleaning up old Docker images..."
+      #       docker image prune -f >/dev/null 2>&1 &
 
-            # ========================================
-            # VERIFY DEPLOYMENT
-            # ========================================
-            echo ""
-            echo "🔍 Verifying deployment..."
-            echo ""
+      #       # ========================================
+      #       # VERIFY DEPLOYMENT
+      #       # ========================================
+      #       echo ""
+      #       echo "🔍 Verifying deployment..."
+      #       echo ""
 
-            # Check containers
-            if docker ps | grep -q "indianweddings-backend"; then
-              echo "✅ Backend is running"
-            else
-              echo "❌ Backend is NOT running"
-            fi
+      #       # Check containers
+      #       if docker ps | grep -q "indianweddings-backend"; then
+      #         echo "✅ Backend is running"
+      #       else
+      #         echo "❌ Backend is NOT running"
+      #       fi
 
-            if docker ps | grep -q "indianweddings-frontend"; then
-              echo "✅ Frontend is running"
-            else
-              echo "❌ Frontend is NOT running"
-            fi
+      #       if docker ps | grep -q "indianweddings-frontend"; then
+      #         echo "✅ Frontend is running"
+      #       else
+      #         echo "❌ Frontend is NOT running"
+      #       fi
 
-            if docker ps | grep -q "postgres"; then
-              echo "✅ Database is running"
-            else
-              echo "❌ Database is NOT running"
-            fi
+      #       if docker ps | grep -q "postgres"; then
+      #         echo "✅ Database is running"
+      #       else
+      #         echo "❌ Database is NOT running"
+      #       fi
 
-            if docker ps | grep -q "redis-teo"; then
-              echo "✅ Redis is running"
-            else
-              echo "❌ Redis is NOT running"
-            fi
+      #       if docker ps | grep -q "redis-teo"; then
+      #         echo "✅ Redis is running"
+      #       else
+      #         echo "❌ Redis is NOT running"
+      #       fi
 
-            # Check database connection
-            echo ""
-            if docker exec postgres psql -U postgres -d indianweddings -c "SELECT 1;" >/dev/null 2>&1; then
-              echo "✅ Database is accessible"
-            else
-              echo "⚠️  Database connection check failed"
-            fi
+      #       # Check database connection
+      #       echo ""
+      #       if docker exec postgres psql -U postgres -d indianweddings -c "SELECT 1;" >/dev/null 2>&1; then
+      #         echo "✅ Database is accessible"
+      #       else
+      #         echo "⚠️  Database connection check failed"
+      #       fi
 
-            # Show container status
-            echo ""
-            echo "📊 Container Status:"
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      #       # Show container status
+      #       echo ""
+      #       echo "📊 Container Status:"
+      #       docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-            echo ""
-            echo "=========================================="
-            echo "✅ 100% Automated Deployment Completed!"
-            echo "Time: $(date)"
-            echo "=========================================="
-            echo ""
-            echo "🌐 Your site should be live at:"
-            echo "   Frontend: http://${{ secrets.SERVER_HOST }}:3000"
-            echo "   Backend:  http://${{ secrets.SERVER_HOST }}:3001"
-            echo ""
+      #       echo ""
+      #       echo "=========================================="
+      #       echo "✅ 100% Automated Deployment Completed!"
+      #       echo "Time: $(date)"
+      #       echo "=========================================="
+      #       echo ""
+      #       echo "🌐 Your site should be live at:"
+      #       echo "   Frontend: http://${{ secrets.SERVER_HOST }}:3000"
+      #       echo "   Backend:  http://${{ secrets.SERVER_HOST }}:3001"
+      #       echo ""
