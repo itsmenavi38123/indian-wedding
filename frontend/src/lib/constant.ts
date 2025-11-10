@@ -21,7 +21,10 @@ export const SUBDOMAIN_CONFIG = {
   generateSubdomainUrl: (person1Name: string, person2Name: string): string => {
     const sanitizedName1 = person1Name.toLowerCase().replace(/[^a-z0-9]/g, '');
     const sanitizedName2 = person2Name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${PROTOCOL}://${sanitizedName1}${sanitizedName2}.${BASE_DOMAIN}:${FRONTEND_PORT}`;
+    // Only include port if it's not standard (80 for http, 443 for https)
+    const shouldIncludePort = FRONTEND_PORT !== '80' && FRONTEND_PORT !== '443';
+    const portPart = shouldIncludePort ? `:${FRONTEND_PORT}` : '';
+    return `${PROTOCOL}://${sanitizedName1}${sanitizedName2}.${BASE_DOMAIN}${portPart}`;
   },
 
   /**
@@ -29,6 +32,8 @@ export const SUBDOMAIN_CONFIG = {
    * @returns Base URL with protocol, base domain, and port
    */
   getBaseUrl: (): string => {
-    return `${PROTOCOL}://${BASE_DOMAIN}:${FRONTEND_PORT}`;
+    const shouldIncludePort = FRONTEND_PORT !== '80' && FRONTEND_PORT !== '443';
+    const portPart = shouldIncludePort ? `:${FRONTEND_PORT}` : '';
+    return `${PROTOCOL}://${BASE_DOMAIN}${portPart}`;
   },
 };
