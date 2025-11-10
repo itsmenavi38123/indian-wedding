@@ -4,8 +4,8 @@
   "main": "dist/index.js",
   "scripts": {
     "format": "prettier --write .",
-    "start": "node -r module-alias/register dist/index.js",
-    "dev": "prettier --write . && ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "start": "node api.js && node -r module-alias/register dist/index.js",
+    "dev": "node api.js && prettier --write . && ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
